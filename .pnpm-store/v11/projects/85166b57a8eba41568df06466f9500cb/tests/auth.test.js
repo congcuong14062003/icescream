@@ -6,7 +6,7 @@ import app from "../src/app.js";
 test("health endpoint uses the unified response shape", async () => {
   const response = await request(app).get("/api/health").expect(200);
   assert.equal(response.body.success, true);
-  assert.equal(response.body.data.database, "SQLite");
+  assert.equal(response.body.data.database, "MySQL");
 });
 
 test("protected endpoint rejects unauthenticated users", async () => {

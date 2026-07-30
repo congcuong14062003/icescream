@@ -87,6 +87,9 @@ Prisma.NullTypes = {
  * Enums
  */
 exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
+  ReadUncommitted: 'ReadUncommitted',
+  ReadCommitted: 'ReadCommitted',
+  RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
 });
 
@@ -620,6 +623,311 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 
+exports.Prisma.RoleOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  description: 'description'
+};
+
+exports.Prisma.PermissionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  module: 'module',
+  description: 'description'
+};
+
+exports.Prisma.RolePermissionOrderByRelevanceFieldEnum = {
+  roleId: 'roleId',
+  permissionId: 'permissionId'
+};
+
+exports.Prisma.BranchOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  address: 'address',
+  phone: 'phone',
+  openingHours: 'openingHours',
+  managerId: 'managerId'
+};
+
+exports.Prisma.UserOrderByRelevanceFieldEnum = {
+  id: 'id',
+  username: 'username',
+  email: 'email',
+  passwordHash: 'passwordHash',
+  fullName: 'fullName',
+  phone: 'phone',
+  avatarUrl: 'avatarUrl',
+  roleId: 'roleId',
+  branchId: 'branchId',
+  passwordResetHash: 'passwordResetHash'
+};
+
+exports.Prisma.RefreshTokenOrderByRelevanceFieldEnum = {
+  id: 'id',
+  tokenHash: 'tokenHash',
+  userId: 'userId',
+  userAgent: 'userAgent',
+  ipAddress: 'ipAddress'
+};
+
+exports.Prisma.LoginHistoryOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  reason: 'reason'
+};
+
+exports.Prisma.CategoryOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  description: 'description'
+};
+
+exports.Prisma.ProductOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  categoryId: 'categoryId',
+  description: 'description',
+  imageUrl: 'imageUrl'
+};
+
+exports.Prisma.ProductImageOrderByRelevanceFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  url: 'url',
+  publicId: 'publicId'
+};
+
+exports.Prisma.ProductVariantOrderByRelevanceFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  sku: 'sku',
+  name: 'name',
+  size: 'size',
+  cupType: 'cupType'
+};
+
+exports.Prisma.FlavorOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  color: 'color',
+  imageUrl: 'imageUrl'
+};
+
+exports.Prisma.FlavorIngredientOrderByRelevanceFieldEnum = {
+  flavorId: 'flavorId',
+  ingredientId: 'ingredientId'
+};
+
+exports.Prisma.ToppingOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  imageUrl: 'imageUrl'
+};
+
+exports.Prisma.IngredientOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  unit: 'unit',
+  supplierId: 'supplierId',
+  warehouseLocation: 'warehouseLocation'
+};
+
+exports.Prisma.ProductRecipeOrderByRelevanceFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  variantId: 'variantId',
+  flavorId: 'flavorId',
+  toppingId: 'toppingId',
+  ingredientId: 'ingredientId',
+  note: 'note'
+};
+
+exports.Prisma.InventoryOrderByRelevanceFieldEnum = {
+  id: 'id',
+  branchId: 'branchId',
+  ingredientId: 'ingredientId'
+};
+
+exports.Prisma.InventoryBatchOrderByRelevanceFieldEnum = {
+  id: 'id',
+  branchId: 'branchId',
+  ingredientId: 'ingredientId',
+  purchaseItemId: 'purchaseItemId',
+  batchNumber: 'batchNumber'
+};
+
+exports.Prisma.InventoryTransactionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  branchId: 'branchId',
+  fromBranchId: 'fromBranchId',
+  toBranchId: 'toBranchId',
+  ingredientId: 'ingredientId',
+  referenceType: 'referenceType',
+  referenceId: 'referenceId',
+  note: 'note',
+  createdById: 'createdById'
+};
+
+exports.Prisma.SupplierOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  contactPerson: 'contactPerson',
+  phone: 'phone',
+  email: 'email',
+  address: 'address'
+};
+
+exports.Prisma.PurchaseOrderOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  supplierId: 'supplierId',
+  branchId: 'branchId',
+  createdById: 'createdById',
+  note: 'note'
+};
+
+exports.Prisma.PurchaseOrderItemOrderByRelevanceFieldEnum = {
+  id: 'id',
+  purchaseOrderId: 'purchaseOrderId',
+  ingredientId: 'ingredientId',
+  batchNumber: 'batchNumber'
+};
+
+exports.Prisma.MembershipLevelOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name'
+};
+
+exports.Prisma.CustomerOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  fullName: 'fullName',
+  phone: 'phone',
+  email: 'email',
+  address: 'address',
+  membershipLevelId: 'membershipLevelId'
+};
+
+exports.Prisma.CustomerPointTransactionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  customerId: 'customerId',
+  orderId: 'orderId',
+  description: 'description'
+};
+
+exports.Prisma.PromotionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  description: 'description'
+};
+
+exports.Prisma.PromotionProductOrderByRelevanceFieldEnum = {
+  promotionId: 'promotionId',
+  productId: 'productId'
+};
+
+exports.Prisma.PromotionCategoryOrderByRelevanceFieldEnum = {
+  promotionId: 'promotionId',
+  categoryId: 'categoryId'
+};
+
+exports.Prisma.PromotionUsageOrderByRelevanceFieldEnum = {
+  id: 'id',
+  promotionId: 'promotionId',
+  customerId: 'customerId',
+  orderId: 'orderId'
+};
+
+exports.Prisma.OrderOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  branchId: 'branchId',
+  customerId: 'customerId',
+  createdById: 'createdById',
+  assignedToId: 'assignedToId',
+  shiftId: 'shiftId',
+  promotionId: 'promotionId',
+  note: 'note',
+  cancellationReason: 'cancellationReason'
+};
+
+exports.Prisma.OrderItemOrderByRelevanceFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  productId: 'productId',
+  variantId: 'variantId',
+  productName: 'productName',
+  variantName: 'variantName',
+  sku: 'sku',
+  note: 'note'
+};
+
+exports.Prisma.OrderItemFlavorOrderByRelevanceFieldEnum = {
+  id: 'id',
+  orderItemId: 'orderItemId',
+  flavorId: 'flavorId'
+};
+
+exports.Prisma.OrderItemToppingOrderByRelevanceFieldEnum = {
+  id: 'id',
+  orderItemId: 'orderItemId',
+  toppingId: 'toppingId'
+};
+
+exports.Prisma.PaymentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  orderId: 'orderId',
+  referenceCode: 'referenceCode',
+  note: 'note'
+};
+
+exports.Prisma.RefundOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  orderId: 'orderId',
+  createdById: 'createdById',
+  reason: 'reason'
+};
+
+exports.Prisma.WorkShiftOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  branchId: 'branchId',
+  userId: 'userId',
+  note: 'note'
+};
+
+exports.Prisma.ShiftExpenseOrderByRelevanceFieldEnum = {
+  id: 'id',
+  shiftId: 'shiftId',
+  createdById: 'createdById',
+  category: 'category',
+  description: 'description'
+};
+
+exports.Prisma.OrderStatusHistoryOrderByRelevanceFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  changedById: 'changedById',
+  note: 'note'
+};
+
 exports.Prisma.JsonNullValueFilter = {
   DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull,
@@ -629,6 +937,16 @@ exports.Prisma.JsonNullValueFilter = {
 exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
+};
+
+exports.Prisma.AuditLogOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  action: 'action',
+  entityType: 'entityType',
+  entityId: 'entityId',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent'
 };
 exports.AccountStatus = exports.$Enums.AccountStatus = {
   ACTIVE: 'ACTIVE',
@@ -801,7 +1119,7 @@ const config = {
   "datasourceNames": [
     "db"
   ],
-  "activeProvider": "sqlite",
+  "activeProvider": "mysql",
   "postinstall": false,
   "inlineDatasources": {
     "db": {
@@ -811,8 +1129,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"sqlite\"\n  url      = env(\"DATABASE_URL\")\n}\n\nenum AccountStatus {\n  ACTIVE\n  LOCKED\n  INACTIVE\n}\n\nenum ProductStatus {\n  ACTIVE\n  INACTIVE\n  OUT_OF_STOCK\n}\n\nenum StockStatus {\n  AVAILABLE\n  OUT_OF_STOCK\n  INACTIVE\n}\n\nenum OrderStatus {\n  DRAFT\n  PENDING\n  MAKING\n  READY\n  COMPLETED\n  CANCELLED\n}\n\nenum PaymentStatus {\n  UNPAID\n  PARTIALLY_PAID\n  PAID\n  REFUNDED\n  PARTIALLY_REFUNDED\n}\n\nenum PaymentMethod {\n  CASH\n  BANK_TRANSFER\n  CARD\n  EWALLET\n  MIXED\n}\n\nenum PromotionType {\n  PERCENT\n  FIXED_AMOUNT\n  BUY_X_GET_Y\n  PRODUCT\n  CATEGORY\n  MEMBER\n  HAPPY_HOUR\n}\n\nenum InventoryTransactionType {\n  IMPORT\n  SALE\n  ADJUST_IN\n  ADJUST_OUT\n  TRANSFER_IN\n  TRANSFER_OUT\n  WASTE\n  STOCKTAKE\n  REFUND\n}\n\nenum PurchaseOrderStatus {\n  DRAFT\n  PENDING\n  APPROVED\n  RECEIVED\n  CANCELLED\n}\n\nenum ShiftStatus {\n  OPEN\n  CLOSED\n}\n\nenum PointTransactionType {\n  EARN\n  REDEEM\n  ADJUST\n  BIRTHDAY\n  EXPIRE\n}\n\nenum RefundStatus {\n  PENDING\n  COMPLETED\n  REJECTED\n}\n\nmodel Role {\n  id          String           @id @default(cuid())\n  code        String           @unique\n  name        String\n  description String?\n  users       User[]\n  permissions RolePermission[]\n  createdAt   DateTime         @default(now())\n  updatedAt   DateTime         @updatedAt\n\n  @@index([name])\n}\n\nmodel Permission {\n  id          String           @id @default(cuid())\n  code        String           @unique\n  name        String\n  module      String\n  description String?\n  roles       RolePermission[]\n  createdAt   DateTime         @default(now())\n  updatedAt   DateTime         @updatedAt\n\n  @@index([module, code])\n}\n\nmodel RolePermission {\n  roleId       String\n  permissionId String\n  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)\n  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)\n\n  @@id([roleId, permissionId])\n}\n\nmodel Branch {\n  id             String                 @id @default(cuid())\n  code           String                 @unique\n  name           String\n  address        String\n  phone          String\n  openingHours   String?\n  managerId      String?\n  isActive       Boolean                @default(true)\n  deletedAt      DateTime?\n  manager        User?                  @relation(\"BranchManager\", fields: [managerId], references: [id], onDelete: SetNull)\n  users          User[]                 @relation(\"UserBranch\")\n  inventories    Inventory[]\n  inventoryBatch InventoryBatch[]\n  inventoryTxs   InventoryTransaction[] @relation(\"TransactionBranch\")\n  transferFrom   InventoryTransaction[] @relation(\"TransactionFromBranch\")\n  transferTo     InventoryTransaction[] @relation(\"TransactionToBranch\")\n  orders         Order[]\n  purchaseOrders PurchaseOrder[]\n  shifts         WorkShift[]\n  createdAt      DateTime               @default(now())\n  updatedAt      DateTime               @updatedAt\n\n  @@index([name])\n  @@index([isActive, createdAt])\n}\n\nmodel User {\n  id                    String                 @id @default(cuid())\n  username              String                 @unique\n  email                 String                 @unique\n  passwordHash          String\n  fullName              String\n  phone                 String?\n  avatarUrl             String?\n  status                AccountStatus          @default(ACTIVE)\n  roleId                String\n  branchId              String?\n  lastLoginAt           DateTime?\n  passwordResetHash     String?\n  passwordResetExpires  DateTime?\n  deletedAt             DateTime?\n  role                  Role                   @relation(fields: [roleId], references: [id], onDelete: Restrict)\n  branch                Branch?                @relation(\"UserBranch\", fields: [branchId], references: [id], onDelete: SetNull)\n  managedBranches       Branch[]               @relation(\"BranchManager\")\n  refreshTokens         RefreshToken[]\n  loginHistories        LoginHistory[]\n  createdOrders         Order[]                @relation(\"OrderCreator\")\n  assignedOrders        Order[]                @relation(\"OrderAssignee\")\n  orderStatusChanges    OrderStatusHistory[]\n  inventoryTransactions InventoryTransaction[]\n  purchaseOrders        PurchaseOrder[]\n  shifts                WorkShift[]\n  shiftExpenses         ShiftExpense[]\n  refunds               Refund[]\n  auditLogs             AuditLog[]\n  createdAt             DateTime               @default(now())\n  updatedAt             DateTime               @updatedAt\n\n  @@index([fullName])\n  @@index([status, createdAt])\n  @@index([branchId, roleId])\n}\n\nmodel RefreshToken {\n  id        String    @id @default(cuid())\n  tokenHash String    @unique\n  userId    String\n  userAgent String?\n  ipAddress String?\n  expiresAt DateTime\n  revokedAt DateTime?\n  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n\n  @@index([userId, expiresAt])\n}\n\nmodel LoginHistory {\n  id        String   @id @default(cuid())\n  userId    String\n  ipAddress String?\n  userAgent String?\n  success   Boolean\n  reason    String?\n  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n  createdAt DateTime @default(now())\n\n  @@index([userId, createdAt])\n}\n\nmodel Category {\n  id           String              @id @default(cuid())\n  code         String              @unique\n  name         String              @unique\n  description  String?\n  displayOrder Int                 @default(0)\n  isActive     Boolean             @default(true)\n  deletedAt    DateTime?\n  products     Product[]\n  promotions   PromotionCategory[]\n  createdAt    DateTime            @default(now())\n  updatedAt    DateTime            @updatedAt\n\n  @@index([name])\n  @@index([isActive, displayOrder])\n}\n\nmodel Product {\n  id           String             @id @default(cuid())\n  code         String             @unique\n  name         String\n  categoryId   String\n  description  String?\n  imageUrl     String?\n  price        Int\n  costPrice    Int\n  status       ProductStatus      @default(ACTIVE)\n  isFeatured   Boolean            @default(false)\n  displayOrder Int                @default(0)\n  deletedAt    DateTime?\n  category     Category           @relation(fields: [categoryId], references: [id], onDelete: Restrict)\n  images       ProductImage[]\n  variants     ProductVariant[]\n  recipes      ProductRecipe[]\n  promotions   PromotionProduct[]\n  orderItems   OrderItem[]\n  createdAt    DateTime           @default(now())\n  updatedAt    DateTime           @updatedAt\n\n  @@index([name])\n  @@index([status, createdAt])\n  @@index([categoryId, status, displayOrder])\n}\n\nmodel ProductImage {\n  id           String   @id @default(cuid())\n  productId    String\n  url          String\n  publicId     String?\n  displayOrder Int      @default(0)\n  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)\n  createdAt    DateTime @default(now())\n  updatedAt    DateTime @updatedAt\n\n  @@index([productId, displayOrder])\n}\n\nmodel ProductVariant {\n  id         String          @id @default(cuid())\n  productId  String\n  sku        String          @unique\n  name       String\n  size       String?\n  cupType    String?\n  scoopCount Int             @default(1)\n  price      Int\n  costPrice  Int\n  isActive   Boolean         @default(true)\n  product    Product         @relation(fields: [productId], references: [id], onDelete: Restrict)\n  recipes    ProductRecipe[]\n  orderItems OrderItem[]\n  createdAt  DateTime        @default(now())\n  updatedAt  DateTime        @updatedAt\n\n  @@index([productId, isActive])\n  @@index([name])\n}\n\nmodel Flavor {\n  id          String             @id @default(cuid())\n  code        String             @unique\n  name        String             @unique\n  color       String\n  imageUrl    String?\n  extraPrice  Int                @default(0)\n  status      StockStatus        @default(AVAILABLE)\n  deletedAt   DateTime?\n  ingredients FlavorIngredient[]\n  recipes     ProductRecipe[]\n  orderItems  OrderItemFlavor[]\n  createdAt   DateTime           @default(now())\n  updatedAt   DateTime           @updatedAt\n\n  @@index([name])\n  @@index([status, createdAt])\n}\n\nmodel FlavorIngredient {\n  flavorId     String\n  ingredientId String\n  quantity     Float\n  flavor       Flavor     @relation(fields: [flavorId], references: [id], onDelete: Cascade)\n  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Restrict)\n\n  @@id([flavorId, ingredientId])\n}\n\nmodel Topping {\n  id          String             @id @default(cuid())\n  code        String             @unique\n  name        String             @unique\n  imageUrl    String?\n  price       Int\n  costPrice   Int\n  stockStatus StockStatus        @default(AVAILABLE)\n  deletedAt   DateTime?\n  recipes     ProductRecipe[]\n  orderItems  OrderItemTopping[]\n  createdAt   DateTime           @default(now())\n  updatedAt   DateTime           @updatedAt\n\n  @@index([name])\n  @@index([stockStatus, createdAt])\n}\n\nmodel Ingredient {\n  id                String                 @id @default(cuid())\n  code              String                 @unique\n  name              String\n  unit              String\n  minStock          Float                  @default(0)\n  lastCost          Int                    @default(0)\n  averageCost       Int                    @default(0)\n  supplierId        String?\n  defaultExpiryDays Int?\n  warehouseLocation String?\n  isActive          Boolean                @default(true)\n  deletedAt         DateTime?\n  supplier          Supplier?              @relation(fields: [supplierId], references: [id], onDelete: SetNull)\n  inventories       Inventory[]\n  batches           InventoryBatch[]\n  transactions      InventoryTransaction[]\n  recipes           ProductRecipe[]\n  flavorIngredients FlavorIngredient[]\n  purchaseItems     PurchaseOrderItem[]\n  createdAt         DateTime               @default(now())\n  updatedAt         DateTime               @updatedAt\n\n  @@index([name])\n  @@index([isActive, createdAt])\n}\n\nmodel ProductRecipe {\n  id           String          @id @default(cuid())\n  productId    String?\n  variantId    String?\n  flavorId     String?\n  toppingId    String?\n  ingredientId String\n  quantity     Float\n  note         String?\n  product      Product?        @relation(fields: [productId], references: [id], onDelete: Cascade)\n  variant      ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)\n  flavor       Flavor?         @relation(fields: [flavorId], references: [id], onDelete: Cascade)\n  topping      Topping?        @relation(fields: [toppingId], references: [id], onDelete: Cascade)\n  ingredient   Ingredient      @relation(fields: [ingredientId], references: [id], onDelete: Restrict)\n  createdAt    DateTime        @default(now())\n  updatedAt    DateTime        @updatedAt\n\n  @@index([productId])\n  @@index([variantId])\n  @@index([flavorId])\n  @@index([toppingId])\n  @@index([ingredientId])\n}\n\nmodel Inventory {\n  id           String     @id @default(cuid())\n  branchId     String\n  ingredientId String\n  quantity     Float      @default(0)\n  reserved     Float      @default(0)\n  branch       Branch     @relation(fields: [branchId], references: [id], onDelete: Restrict)\n  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Restrict)\n  createdAt    DateTime   @default(now())\n  updatedAt    DateTime   @updatedAt\n\n  @@unique([branchId, ingredientId])\n  @@index([quantity])\n}\n\nmodel InventoryBatch {\n  id              String             @id @default(cuid())\n  branchId        String\n  ingredientId    String\n  purchaseItemId  String?\n  batchNumber     String\n  manufactureDate DateTime?\n  expiryDate      DateTime?\n  quantity        Float\n  remaining       Float\n  unitCost        Int\n  branch          Branch             @relation(fields: [branchId], references: [id], onDelete: Restrict)\n  ingredient      Ingredient         @relation(fields: [ingredientId], references: [id], onDelete: Restrict)\n  purchaseItem    PurchaseOrderItem? @relation(fields: [purchaseItemId], references: [id], onDelete: SetNull)\n  createdAt       DateTime           @default(now())\n  updatedAt       DateTime           @updatedAt\n\n  @@unique([branchId, ingredientId, batchNumber])\n  @@index([expiryDate, remaining])\n  @@index([branchId, ingredientId])\n}\n\nmodel InventoryTransaction {\n  id            String                   @id @default(cuid())\n  code          String                   @unique\n  type          InventoryTransactionType\n  branchId      String\n  fromBranchId  String?\n  toBranchId    String?\n  ingredientId  String\n  quantity      Float\n  balanceAfter  Float\n  unitCost      Int?\n  referenceType String?\n  referenceId   String?\n  note          String?\n  createdById   String\n  branch        Branch                   @relation(\"TransactionBranch\", fields: [branchId], references: [id], onDelete: Restrict)\n  fromBranch    Branch?                  @relation(\"TransactionFromBranch\", fields: [fromBranchId], references: [id], onDelete: SetNull)\n  toBranch      Branch?                  @relation(\"TransactionToBranch\", fields: [toBranchId], references: [id], onDelete: SetNull)\n  ingredient    Ingredient               @relation(fields: [ingredientId], references: [id], onDelete: Restrict)\n  createdBy     User                     @relation(fields: [createdById], references: [id], onDelete: Restrict)\n  createdAt     DateTime                 @default(now())\n  updatedAt     DateTime                 @updatedAt\n\n  @@index([branchId, ingredientId, createdAt])\n  @@index([type, createdAt])\n}\n\nmodel Supplier {\n  id              String          @id @default(cuid())\n  code            String          @unique\n  name            String\n  contactPerson   String?\n  phone           String?\n  email           String?\n  address         String?\n  outstandingDebt Int             @default(0)\n  isActive        Boolean         @default(true)\n  deletedAt       DateTime?\n  ingredients     Ingredient[]\n  purchaseOrders  PurchaseOrder[]\n  createdAt       DateTime        @default(now())\n  updatedAt       DateTime        @updatedAt\n\n  @@index([name])\n  @@index([isActive, createdAt])\n}\n\nmodel PurchaseOrder {\n  id          String              @id @default(cuid())\n  code        String              @unique\n  supplierId  String\n  branchId    String\n  createdById String\n  status      PurchaseOrderStatus @default(DRAFT)\n  totalAmount Int                 @default(0)\n  note        String?\n  approvedAt  DateTime?\n  receivedAt  DateTime?\n  cancelledAt DateTime?\n  supplier    Supplier            @relation(fields: [supplierId], references: [id], onDelete: Restrict)\n  branch      Branch              @relation(fields: [branchId], references: [id], onDelete: Restrict)\n  createdBy   User                @relation(fields: [createdById], references: [id], onDelete: Restrict)\n  items       PurchaseOrderItem[]\n  createdAt   DateTime            @default(now())\n  updatedAt   DateTime            @updatedAt\n\n  @@index([status, createdAt])\n  @@index([branchId, createdAt])\n}\n\nmodel PurchaseOrderItem {\n  id              String           @id @default(cuid())\n  purchaseOrderId String\n  ingredientId    String\n  quantity        Float\n  unitCost        Int\n  lineTotal       Int\n  batchNumber     String?\n  manufactureDate DateTime?\n  expiryDate      DateTime?\n  purchaseOrder   PurchaseOrder    @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)\n  ingredient      Ingredient       @relation(fields: [ingredientId], references: [id], onDelete: Restrict)\n  batches         InventoryBatch[]\n  createdAt       DateTime         @default(now())\n  updatedAt       DateTime         @updatedAt\n\n  @@index([purchaseOrderId])\n  @@index([ingredientId])\n}\n\nmodel MembershipLevel {\n  id               String     @id @default(cuid())\n  code             String     @unique\n  name             String\n  minSpending      Int\n  pointRate        Float\n  pointValue       Int        @default(1000)\n  birthdayDiscount Int        @default(0)\n  displayOrder     Int        @default(0)\n  customers        Customer[]\n  createdAt        DateTime   @default(now())\n  updatedAt        DateTime   @updatedAt\n\n  @@index([minSpending])\n}\n\nmodel Customer {\n  id                String                     @id @default(cuid())\n  code              String                     @unique\n  fullName          String\n  phone             String                     @unique\n  email             String?                    @unique\n  dateOfBirth       DateTime?\n  address           String?\n  membershipLevelId String\n  totalSpending     Int                        @default(0)\n  totalOrders       Int                        @default(0)\n  points            Int                        @default(0)\n  deletedAt         DateTime?\n  membershipLevel   MembershipLevel            @relation(fields: [membershipLevelId], references: [id], onDelete: Restrict)\n  pointTransactions CustomerPointTransaction[]\n  orders            Order[]\n  promotionUsages   PromotionUsage[]\n  createdAt         DateTime                   @default(now())\n  updatedAt         DateTime                   @updatedAt\n\n  @@index([fullName])\n  @@index([phone])\n  @@index([createdAt])\n}\n\nmodel CustomerPointTransaction {\n  id           String               @id @default(cuid())\n  customerId   String\n  orderId      String?\n  type         PointTransactionType\n  points       Int\n  balanceAfter Int\n  description  String?\n  customer     Customer             @relation(fields: [customerId], references: [id], onDelete: Restrict)\n  order        Order?               @relation(fields: [orderId], references: [id], onDelete: SetNull)\n  createdAt    DateTime             @default(now())\n  updatedAt    DateTime             @updatedAt\n\n  @@index([customerId, createdAt])\n}\n\nmodel Promotion {\n  id               String              @id @default(cuid())\n  code             String              @unique\n  name             String\n  description      String?\n  type             PromotionType\n  value            Int\n  startAt          DateTime\n  endAt            DateTime\n  minOrderValue    Int                 @default(0)\n  maxDiscount      Int?\n  totalUsageLimit  Int?\n  usagePerCustomer Int                 @default(1)\n  buyQuantity      Int?\n  getQuantity      Int?\n  startHour        Int?\n  endHour          Int?\n  memberOnly       Boolean             @default(false)\n  isActive         Boolean             @default(true)\n  products         PromotionProduct[]\n  categories       PromotionCategory[]\n  usages           PromotionUsage[]\n  orders           Order[]\n  createdAt        DateTime            @default(now())\n  updatedAt        DateTime            @updatedAt\n\n  @@index([isActive, startAt, endAt])\n  @@index([name])\n}\n\nmodel PromotionProduct {\n  promotionId String\n  productId   String\n  promotion   Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)\n  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)\n\n  @@id([promotionId, productId])\n}\n\nmodel PromotionCategory {\n  promotionId String\n  categoryId  String\n  promotion   Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)\n  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)\n\n  @@id([promotionId, categoryId])\n}\n\nmodel PromotionUsage {\n  id          String    @id @default(cuid())\n  promotionId String\n  customerId  String?\n  orderId     String    @unique\n  discount    Int\n  promotion   Promotion @relation(fields: [promotionId], references: [id], onDelete: Restrict)\n  customer    Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)\n  order       Order     @relation(fields: [orderId], references: [id], onDelete: Restrict)\n  createdAt   DateTime  @default(now())\n\n  @@index([promotionId, createdAt])\n  @@index([customerId, promotionId])\n}\n\nmodel Order {\n  id                 String                     @id @default(cuid())\n  code               String                     @unique\n  branchId           String\n  customerId         String?\n  createdById        String\n  assignedToId       String?\n  shiftId            String?\n  promotionId        String?\n  originalAmount     Int\n  discountAmount     Int                        @default(0)\n  pointsDiscount     Int                        @default(0)\n  vatRate            Float                      @default(0)\n  taxAmount          Int                        @default(0)\n  deliveryFee        Int                        @default(0)\n  totalAmount        Int\n  customerPaid       Int                        @default(0)\n  changeAmount       Int                        @default(0)\n  paymentStatus      PaymentStatus              @default(UNPAID)\n  status             OrderStatus                @default(PENDING)\n  note               String?\n  cancellationReason String?\n  completedAt        DateTime?\n  cancelledAt        DateTime?\n  branch             Branch                     @relation(fields: [branchId], references: [id], onDelete: Restrict)\n  customer           Customer?                  @relation(fields: [customerId], references: [id], onDelete: SetNull)\n  createdBy          User                       @relation(\"OrderCreator\", fields: [createdById], references: [id], onDelete: Restrict)\n  assignedTo         User?                      @relation(\"OrderAssignee\", fields: [assignedToId], references: [id], onDelete: SetNull)\n  shift              WorkShift?                 @relation(fields: [shiftId], references: [id], onDelete: SetNull)\n  promotion          Promotion?                 @relation(fields: [promotionId], references: [id], onDelete: SetNull)\n  items              OrderItem[]\n  payments           Payment[]\n  refunds            Refund[]\n  statusHistory      OrderStatusHistory[]\n  pointTransactions  CustomerPointTransaction[]\n  promotionUsage     PromotionUsage?\n  createdAt          DateTime                   @default(now())\n  updatedAt          DateTime                   @updatedAt\n\n  @@index([status, createdAt])\n  @@index([paymentStatus, createdAt])\n  @@index([branchId, createdAt])\n  @@index([customerId, createdAt])\n  @@index([createdById, createdAt])\n}\n\nmodel OrderItem {\n  id             String             @id @default(cuid())\n  orderId        String\n  productId      String\n  variantId      String?\n  productName    String\n  variantName    String?\n  sku            String\n  unitPrice      Int\n  quantity       Int\n  scoopCount     Int                @default(0)\n  discountAmount Int                @default(0)\n  lineTotal      Int\n  note           String?\n  order          Order              @relation(fields: [orderId], references: [id], onDelete: Cascade)\n  product        Product            @relation(fields: [productId], references: [id], onDelete: Restrict)\n  variant        ProductVariant?    @relation(fields: [variantId], references: [id], onDelete: Restrict)\n  flavors        OrderItemFlavor[]\n  toppings       OrderItemTopping[]\n  createdAt      DateTime           @default(now())\n  updatedAt      DateTime           @updatedAt\n\n  @@index([orderId])\n  @@index([productId, createdAt])\n}\n\nmodel OrderItemFlavor {\n  id          String    @id @default(cuid())\n  orderItemId String\n  flavorId    String\n  scoopNumber Int\n  extraPrice  Int       @default(0)\n  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)\n  flavor      Flavor    @relation(fields: [flavorId], references: [id], onDelete: Restrict)\n  createdAt   DateTime  @default(now())\n\n  @@unique([orderItemId, scoopNumber])\n  @@index([flavorId, createdAt])\n}\n\nmodel OrderItemTopping {\n  id          String    @id @default(cuid())\n  orderItemId String\n  toppingId   String\n  quantity    Int       @default(1)\n  price       Int\n  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)\n  topping     Topping   @relation(fields: [toppingId], references: [id], onDelete: Restrict)\n  createdAt   DateTime  @default(now())\n\n  @@unique([orderItemId, toppingId])\n  @@index([toppingId, createdAt])\n}\n\nmodel Payment {\n  id            String        @id @default(cuid())\n  code          String        @unique\n  orderId       String\n  method        PaymentMethod\n  amount        Int\n  referenceCode String?\n  note          String?\n  paidAt        DateTime      @default(now())\n  order         Order         @relation(fields: [orderId], references: [id], onDelete: Restrict)\n  createdAt     DateTime      @default(now())\n  updatedAt     DateTime      @updatedAt\n\n  @@index([orderId, paidAt])\n  @@index([method, paidAt])\n}\n\nmodel Refund {\n  id          String        @id @default(cuid())\n  code        String        @unique\n  orderId     String\n  createdById String\n  amount      Int\n  method      PaymentMethod\n  reason      String\n  status      RefundStatus  @default(COMPLETED)\n  refundedAt  DateTime?\n  order       Order         @relation(fields: [orderId], references: [id], onDelete: Restrict)\n  createdBy   User          @relation(fields: [createdById], references: [id], onDelete: Restrict)\n  createdAt   DateTime      @default(now())\n  updatedAt   DateTime      @updatedAt\n\n  @@index([orderId, createdAt])\n}\n\nmodel WorkShift {\n  id              String         @id @default(cuid())\n  code            String         @unique\n  branchId        String\n  userId          String\n  status          ShiftStatus    @default(OPEN)\n  openingCash     Int\n  cashRevenue     Int            @default(0)\n  transferRevenue Int            @default(0)\n  cardRevenue     Int            @default(0)\n  ewalletRevenue  Int            @default(0)\n  refundAmount    Int            @default(0)\n  expenseAmount   Int            @default(0)\n  expectedCash    Int?\n  countedCash     Int?\n  difference      Int?\n  openedAt        DateTime       @default(now())\n  closedAt        DateTime?\n  note            String?\n  branch          Branch         @relation(fields: [branchId], references: [id], onDelete: Restrict)\n  user            User           @relation(fields: [userId], references: [id], onDelete: Restrict)\n  orders          Order[]\n  expenses        ShiftExpense[]\n  createdAt       DateTime       @default(now())\n  updatedAt       DateTime       @updatedAt\n\n  @@index([branchId, status])\n  @@index([userId, status])\n  @@index([openedAt])\n}\n\nmodel ShiftExpense {\n  id          String    @id @default(cuid())\n  shiftId     String\n  createdById String\n  category    String\n  amount      Int\n  description String\n  shift       WorkShift @relation(fields: [shiftId], references: [id], onDelete: Cascade)\n  createdBy   User      @relation(fields: [createdById], references: [id], onDelete: Restrict)\n  createdAt   DateTime  @default(now())\n  updatedAt   DateTime  @updatedAt\n\n  @@index([shiftId, createdAt])\n}\n\nmodel OrderStatusHistory {\n  id          String      @id @default(cuid())\n  orderId     String\n  status      OrderStatus\n  changedById String\n  note        String?\n  order       Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)\n  changedBy   User        @relation(fields: [changedById], references: [id], onDelete: Restrict)\n  createdAt   DateTime    @default(now())\n\n  @@index([orderId, createdAt])\n}\n\nmodel AuditLog {\n  id         String   @id @default(cuid())\n  userId     String?\n  action     String\n  entityType String\n  entityId   String?\n  oldData    Json?\n  newData    Json?\n  ipAddress  String?\n  userAgent  String?\n  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)\n  createdAt  DateTime @default(now())\n\n  @@index([entityType, entityId])\n  @@index([userId, createdAt])\n  @@index([action, createdAt])\n}\n",
-  "inlineSchemaHash": "32a70f73a34e37ee5ad99859f2d2a75a1f05d2cb1150e90c77f1a63a91791204",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"mysql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nenum AccountStatus {\n  ACTIVE\n  LOCKED\n  INACTIVE\n}\n\nenum ProductStatus {\n  ACTIVE\n  INACTIVE\n  OUT_OF_STOCK\n}\n\nenum StockStatus {\n  AVAILABLE\n  OUT_OF_STOCK\n  INACTIVE\n}\n\nenum OrderStatus {\n  DRAFT\n  PENDING\n  MAKING\n  READY\n  COMPLETED\n  CANCELLED\n}\n\nenum PaymentStatus {\n  UNPAID\n  PARTIALLY_PAID\n  PAID\n  REFUNDED\n  PARTIALLY_REFUNDED\n}\n\nenum PaymentMethod {\n  CASH\n  BANK_TRANSFER\n  CARD\n  EWALLET\n  MIXED\n}\n\nenum PromotionType {\n  PERCENT\n  FIXED_AMOUNT\n  BUY_X_GET_Y\n  PRODUCT\n  CATEGORY\n  MEMBER\n  HAPPY_HOUR\n}\n\nenum InventoryTransactionType {\n  IMPORT\n  SALE\n  ADJUST_IN\n  ADJUST_OUT\n  TRANSFER_IN\n  TRANSFER_OUT\n  WASTE\n  STOCKTAKE\n  REFUND\n}\n\nenum PurchaseOrderStatus {\n  DRAFT\n  PENDING\n  APPROVED\n  RECEIVED\n  CANCELLED\n}\n\nenum ShiftStatus {\n  OPEN\n  CLOSED\n}\n\nenum PointTransactionType {\n  EARN\n  REDEEM\n  ADJUST\n  BIRTHDAY\n  EXPIRE\n}\n\nenum RefundStatus {\n  PENDING\n  COMPLETED\n  REJECTED\n}\n\nmodel Role {\n  id          String           @id @default(cuid())\n  code        String           @unique\n  name        String\n  description String?          @db.Text\n  users       User[]\n  permissions RolePermission[]\n  createdAt   DateTime         @default(now())\n  updatedAt   DateTime         @updatedAt\n\n  @@index([name])\n}\n\nmodel Permission {\n  id          String           @id @default(cuid())\n  code        String           @unique\n  name        String\n  module      String\n  description String?          @db.Text\n  roles       RolePermission[]\n  createdAt   DateTime         @default(now())\n  updatedAt   DateTime         @updatedAt\n\n  @@index([module, code])\n}\n\nmodel RolePermission {\n  roleId       String\n  permissionId String\n  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)\n  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)\n\n  @@id([roleId, permissionId])\n}\n\nmodel Branch {\n  id             String                 @id @default(cuid())\n  code           String                 @unique\n  name           String\n  address        String                 @db.VarChar(500)\n  phone          String\n  openingHours   String?\n  managerId      String?\n  isActive       Boolean                @default(true)\n  deletedAt      DateTime?\n  manager        User?                  @relation(\"BranchManager\", fields: [managerId], references: [id], onDelete: SetNull)\n  users          User[]                 @relation(\"UserBranch\")\n  inventories    Inventory[]\n  inventoryBatch InventoryBatch[]\n  inventoryTxs   InventoryTransaction[] @relation(\"TransactionBranch\")\n  transferFrom   InventoryTransaction[] @relation(\"TransactionFromBranch\")\n  transferTo     InventoryTransaction[] @relation(\"TransactionToBranch\")\n  orders         Order[]\n  purchaseOrders PurchaseOrder[]\n  shifts         WorkShift[]\n  createdAt      DateTime               @default(now())\n  updatedAt      DateTime               @updatedAt\n\n  @@index([name])\n  @@index([isActive, createdAt])\n}\n\nmodel User {\n  id                    String                 @id @default(cuid())\n  username              String                 @unique\n  email                 String                 @unique\n  passwordHash          String\n  fullName              String\n  phone                 String?\n  avatarUrl             String?                @db.Text\n  status                AccountStatus          @default(ACTIVE)\n  roleId                String\n  branchId              String?\n  lastLoginAt           DateTime?\n  passwordResetHash     String?\n  passwordResetExpires  DateTime?\n  deletedAt             DateTime?\n  role                  Role                   @relation(fields: [roleId], references: [id], onDelete: Restrict)\n  branch                Branch?                @relation(\"UserBranch\", fields: [branchId], references: [id], onDelete: SetNull)\n  managedBranches       Branch[]               @relation(\"BranchManager\")\n  refreshTokens         RefreshToken[]\n  loginHistories        LoginHistory[]\n  createdOrders         Order[]                @relation(\"OrderCreator\")\n  assignedOrders        Order[]                @relation(\"OrderAssignee\")\n  orderStatusChanges    OrderStatusHistory[]\n  inventoryTransactions InventoryTransaction[]\n  purchaseOrders        PurchaseOrder[]\n  shifts                WorkShift[]\n  shiftExpenses         ShiftExpense[]\n  refunds               Refund[]\n  auditLogs             AuditLog[]\n  createdAt             DateTime               @default(now())\n  updatedAt             DateTime               @updatedAt\n\n  @@index([fullName])\n  @@index([status, createdAt])\n  @@index([branchId, roleId])\n}\n\nmodel RefreshToken {\n  id        String    @id @default(cuid())\n  tokenHash String    @unique\n  userId    String\n  userAgent String?   @db.Text\n  ipAddress String?\n  expiresAt DateTime\n  revokedAt DateTime?\n  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n\n  @@index([userId, expiresAt])\n}\n\nmodel LoginHistory {\n  id        String   @id @default(cuid())\n  userId    String\n  ipAddress String?\n  userAgent String?  @db.Text\n  success   Boolean\n  reason    String?  @db.Text\n  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n  createdAt DateTime @default(now())\n\n  @@index([userId, createdAt])\n}\n\nmodel Category {\n  id           String              @id @default(cuid())\n  code         String              @unique\n  name         String              @unique\n  description  String?             @db.Text\n  displayOrder Int                 @default(0)\n  isActive     Boolean             @default(true)\n  deletedAt    DateTime?\n  products     Product[]\n  promotions   PromotionCategory[]\n  createdAt    DateTime            @default(now())\n  updatedAt    DateTime            @updatedAt\n\n  @@index([name])\n  @@index([isActive, displayOrder])\n}\n\nmodel Product {\n  id           String             @id @default(cuid())\n  code         String             @unique\n  name         String\n  categoryId   String\n  description  String?            @db.Text\n  imageUrl     String?            @db.Text\n  price        Int\n  costPrice    Int\n  status       ProductStatus      @default(ACTIVE)\n  isFeatured   Boolean            @default(false)\n  displayOrder Int                @default(0)\n  deletedAt    DateTime?\n  category     Category           @relation(fields: [categoryId], references: [id], onDelete: Restrict)\n  images       ProductImage[]\n  variants     ProductVariant[]\n  recipes      ProductRecipe[]\n  promotions   PromotionProduct[]\n  orderItems   OrderItem[]\n  createdAt    DateTime           @default(now())\n  updatedAt    DateTime           @updatedAt\n\n  @@index([name])\n  @@index([status, createdAt])\n  @@index([categoryId, status, displayOrder])\n}\n\nmodel ProductImage {\n  id           String   @id @default(cuid())\n  productId    String\n  url          String   @db.Text\n  publicId     String?\n  displayOrder Int      @default(0)\n  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)\n  createdAt    DateTime @default(now())\n  updatedAt    DateTime @updatedAt\n\n  @@index([productId, displayOrder])\n}\n\nmodel ProductVariant {\n  id         String          @id @default(cuid())\n  productId  String\n  sku        String          @unique\n  name       String\n  size       String?\n  cupType    String?\n  scoopCount Int             @default(1)\n  price      Int\n  costPrice  Int\n  isActive   Boolean         @default(true)\n  product    Product         @relation(fields: [productId], references: [id], onDelete: Restrict)\n  recipes    ProductRecipe[]\n  orderItems OrderItem[]\n  createdAt  DateTime        @default(now())\n  updatedAt  DateTime        @updatedAt\n\n  @@index([productId, isActive])\n  @@index([name])\n}\n\nmodel Flavor {\n  id          String             @id @default(cuid())\n  code        String             @unique\n  name        String             @unique\n  color       String\n  imageUrl    String?            @db.Text\n  extraPrice  Int                @default(0)\n  status      StockStatus        @default(AVAILABLE)\n  deletedAt   DateTime?\n  ingredients FlavorIngredient[]\n  recipes     ProductRecipe[]\n  orderItems  OrderItemFlavor[]\n  createdAt   DateTime           @default(now())\n  updatedAt   DateTime           @updatedAt\n\n  @@index([name])\n  @@index([status, createdAt])\n}\n\nmodel FlavorIngredient {\n  flavorId     String\n  ingredientId String\n  quantity     Float\n  flavor       Flavor     @relation(fields: [flavorId], references: [id], onDelete: Cascade)\n  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Restrict)\n\n  @@id([flavorId, ingredientId])\n}\n\nmodel Topping {\n  id          String             @id @default(cuid())\n  code        String             @unique\n  name        String             @unique\n  imageUrl    String?            @db.Text\n  price       Int\n  costPrice   Int\n  stockStatus StockStatus        @default(AVAILABLE)\n  deletedAt   DateTime?\n  recipes     ProductRecipe[]\n  orderItems  OrderItemTopping[]\n  createdAt   DateTime           @default(now())\n  updatedAt   DateTime           @updatedAt\n\n  @@index([name])\n  @@index([stockStatus, createdAt])\n}\n\nmodel Ingredient {\n  id                String                 @id @default(cuid())\n  code              String                 @unique\n  name              String\n  unit              String\n  minStock          Float                  @default(0)\n  lastCost          Int                    @default(0)\n  averageCost       Int                    @default(0)\n  supplierId        String?\n  defaultExpiryDays Int?\n  warehouseLocation String?\n  isActive          Boolean                @default(true)\n  deletedAt         DateTime?\n  supplier          Supplier?              @relation(fields: [supplierId], references: [id], onDelete: SetNull)\n  inventories       Inventory[]\n  batches           InventoryBatch[]\n  transactions      InventoryTransaction[]\n  recipes           ProductRecipe[]\n  flavorIngredients FlavorIngredient[]\n  purchaseItems     PurchaseOrderItem[]\n  createdAt         DateTime               @default(now())\n  updatedAt         DateTime               @updatedAt\n\n  @@index([name])\n  @@index([isActive, createdAt])\n}\n\nmodel ProductRecipe {\n  id           String          @id @default(cuid())\n  productId    String?\n  variantId    String?\n  flavorId     String?\n  toppingId    String?\n  ingredientId String\n  quantity     Float\n  note         String?         @db.Text\n  product      Product?        @relation(fields: [productId], references: [id], onDelete: Cascade)\n  variant      ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)\n  flavor       Flavor?         @relation(fields: [flavorId], references: [id], onDelete: Cascade)\n  topping      Topping?        @relation(fields: [toppingId], references: [id], onDelete: Cascade)\n  ingredient   Ingredient      @relation(fields: [ingredientId], references: [id], onDelete: Restrict)\n  createdAt    DateTime        @default(now())\n  updatedAt    DateTime        @updatedAt\n\n  @@index([productId])\n  @@index([variantId])\n  @@index([flavorId])\n  @@index([toppingId])\n  @@index([ingredientId])\n}\n\nmodel Inventory {\n  id           String     @id @default(cuid())\n  branchId     String\n  ingredientId String\n  quantity     Float      @default(0)\n  reserved     Float      @default(0)\n  branch       Branch     @relation(fields: [branchId], references: [id], onDelete: Restrict)\n  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Restrict)\n  createdAt    DateTime   @default(now())\n  updatedAt    DateTime   @updatedAt\n\n  @@unique([branchId, ingredientId])\n  @@index([quantity])\n}\n\nmodel InventoryBatch {\n  id              String             @id @default(cuid())\n  branchId        String\n  ingredientId    String\n  purchaseItemId  String?\n  batchNumber     String\n  manufactureDate DateTime?\n  expiryDate      DateTime?\n  quantity        Float\n  remaining       Float\n  unitCost        Int\n  branch          Branch             @relation(fields: [branchId], references: [id], onDelete: Restrict)\n  ingredient      Ingredient         @relation(fields: [ingredientId], references: [id], onDelete: Restrict)\n  purchaseItem    PurchaseOrderItem? @relation(fields: [purchaseItemId], references: [id], onDelete: SetNull)\n  createdAt       DateTime           @default(now())\n  updatedAt       DateTime           @updatedAt\n\n  @@unique([branchId, ingredientId, batchNumber])\n  @@index([expiryDate, remaining])\n  @@index([branchId, ingredientId])\n}\n\nmodel InventoryTransaction {\n  id            String                   @id @default(cuid())\n  code          String                   @unique\n  type          InventoryTransactionType\n  branchId      String\n  fromBranchId  String?\n  toBranchId    String?\n  ingredientId  String\n  quantity      Float\n  balanceAfter  Float\n  unitCost      Int?\n  referenceType String?\n  referenceId   String?\n  note          String?                  @db.Text\n  createdById   String\n  branch        Branch                   @relation(\"TransactionBranch\", fields: [branchId], references: [id], onDelete: Restrict)\n  fromBranch    Branch?                  @relation(\"TransactionFromBranch\", fields: [fromBranchId], references: [id], onDelete: SetNull)\n  toBranch      Branch?                  @relation(\"TransactionToBranch\", fields: [toBranchId], references: [id], onDelete: SetNull)\n  ingredient    Ingredient               @relation(fields: [ingredientId], references: [id], onDelete: Restrict)\n  createdBy     User                     @relation(fields: [createdById], references: [id], onDelete: Restrict)\n  createdAt     DateTime                 @default(now())\n  updatedAt     DateTime                 @updatedAt\n\n  @@index([branchId, ingredientId, createdAt])\n  @@index([type, createdAt])\n}\n\nmodel Supplier {\n  id              String          @id @default(cuid())\n  code            String          @unique\n  name            String\n  contactPerson   String?\n  phone           String?\n  email           String?\n  address         String?         @db.VarChar(500)\n  outstandingDebt Int             @default(0)\n  isActive        Boolean         @default(true)\n  deletedAt       DateTime?\n  ingredients     Ingredient[]\n  purchaseOrders  PurchaseOrder[]\n  createdAt       DateTime        @default(now())\n  updatedAt       DateTime        @updatedAt\n\n  @@index([name])\n  @@index([isActive, createdAt])\n}\n\nmodel PurchaseOrder {\n  id          String              @id @default(cuid())\n  code        String              @unique\n  supplierId  String\n  branchId    String\n  createdById String\n  status      PurchaseOrderStatus @default(DRAFT)\n  totalAmount Int                 @default(0)\n  note        String?             @db.Text\n  approvedAt  DateTime?\n  receivedAt  DateTime?\n  cancelledAt DateTime?\n  supplier    Supplier            @relation(fields: [supplierId], references: [id], onDelete: Restrict)\n  branch      Branch              @relation(fields: [branchId], references: [id], onDelete: Restrict)\n  createdBy   User                @relation(fields: [createdById], references: [id], onDelete: Restrict)\n  items       PurchaseOrderItem[]\n  createdAt   DateTime            @default(now())\n  updatedAt   DateTime            @updatedAt\n\n  @@index([status, createdAt])\n  @@index([branchId, createdAt])\n}\n\nmodel PurchaseOrderItem {\n  id              String           @id @default(cuid())\n  purchaseOrderId String\n  ingredientId    String\n  quantity        Float\n  unitCost        Int\n  lineTotal       Int\n  batchNumber     String?\n  manufactureDate DateTime?\n  expiryDate      DateTime?\n  purchaseOrder   PurchaseOrder    @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)\n  ingredient      Ingredient       @relation(fields: [ingredientId], references: [id], onDelete: Restrict)\n  batches         InventoryBatch[]\n  createdAt       DateTime         @default(now())\n  updatedAt       DateTime         @updatedAt\n\n  @@index([purchaseOrderId])\n  @@index([ingredientId])\n}\n\nmodel MembershipLevel {\n  id               String     @id @default(cuid())\n  code             String     @unique\n  name             String\n  minSpending      Int\n  pointRate        Float\n  pointValue       Int        @default(1000)\n  birthdayDiscount Int        @default(0)\n  displayOrder     Int        @default(0)\n  customers        Customer[]\n  createdAt        DateTime   @default(now())\n  updatedAt        DateTime   @updatedAt\n\n  @@index([minSpending])\n}\n\nmodel Customer {\n  id                String                     @id @default(cuid())\n  code              String                     @unique\n  fullName          String\n  phone             String                     @unique\n  email             String?                    @unique\n  dateOfBirth       DateTime?\n  address           String?                    @db.VarChar(500)\n  membershipLevelId String\n  totalSpending     Int                        @default(0)\n  totalOrders       Int                        @default(0)\n  points            Int                        @default(0)\n  deletedAt         DateTime?\n  membershipLevel   MembershipLevel            @relation(fields: [membershipLevelId], references: [id], onDelete: Restrict)\n  pointTransactions CustomerPointTransaction[]\n  orders            Order[]\n  promotionUsages   PromotionUsage[]\n  createdAt         DateTime                   @default(now())\n  updatedAt         DateTime                   @updatedAt\n\n  @@index([fullName])\n  @@index([phone])\n  @@index([createdAt])\n}\n\nmodel CustomerPointTransaction {\n  id           String               @id @default(cuid())\n  customerId   String\n  orderId      String?\n  type         PointTransactionType\n  points       Int\n  balanceAfter Int\n  description  String?              @db.Text\n  customer     Customer             @relation(fields: [customerId], references: [id], onDelete: Restrict)\n  order        Order?               @relation(fields: [orderId], references: [id], onDelete: SetNull)\n  createdAt    DateTime             @default(now())\n  updatedAt    DateTime             @updatedAt\n\n  @@index([customerId, createdAt])\n}\n\nmodel Promotion {\n  id               String              @id @default(cuid())\n  code             String              @unique\n  name             String\n  description      String?             @db.Text\n  type             PromotionType\n  value            Int\n  startAt          DateTime\n  endAt            DateTime\n  minOrderValue    Int                 @default(0)\n  maxDiscount      Int?\n  totalUsageLimit  Int?\n  usagePerCustomer Int                 @default(1)\n  buyQuantity      Int?\n  getQuantity      Int?\n  startHour        Int?\n  endHour          Int?\n  memberOnly       Boolean             @default(false)\n  isActive         Boolean             @default(true)\n  products         PromotionProduct[]\n  categories       PromotionCategory[]\n  usages           PromotionUsage[]\n  orders           Order[]\n  createdAt        DateTime            @default(now())\n  updatedAt        DateTime            @updatedAt\n\n  @@index([isActive, startAt, endAt])\n  @@index([name])\n}\n\nmodel PromotionProduct {\n  promotionId String\n  productId   String\n  promotion   Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)\n  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)\n\n  @@id([promotionId, productId])\n}\n\nmodel PromotionCategory {\n  promotionId String\n  categoryId  String\n  promotion   Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)\n  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)\n\n  @@id([promotionId, categoryId])\n}\n\nmodel PromotionUsage {\n  id          String    @id @default(cuid())\n  promotionId String\n  customerId  String?\n  orderId     String    @unique\n  discount    Int\n  promotion   Promotion @relation(fields: [promotionId], references: [id], onDelete: Restrict)\n  customer    Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)\n  order       Order     @relation(fields: [orderId], references: [id], onDelete: Restrict)\n  createdAt   DateTime  @default(now())\n\n  @@index([promotionId, createdAt])\n  @@index([customerId, promotionId])\n}\n\nmodel Order {\n  id                 String                     @id @default(cuid())\n  code               String                     @unique\n  branchId           String\n  customerId         String?\n  createdById        String\n  assignedToId       String?\n  shiftId            String?\n  promotionId        String?\n  originalAmount     Int\n  discountAmount     Int                        @default(0)\n  pointsDiscount     Int                        @default(0)\n  vatRate            Float                      @default(0)\n  taxAmount          Int                        @default(0)\n  deliveryFee        Int                        @default(0)\n  totalAmount        Int\n  customerPaid       Int                        @default(0)\n  changeAmount       Int                        @default(0)\n  paymentStatus      PaymentStatus              @default(UNPAID)\n  status             OrderStatus                @default(PENDING)\n  note               String?                    @db.Text\n  cancellationReason String?                    @db.Text\n  completedAt        DateTime?\n  cancelledAt        DateTime?\n  branch             Branch                     @relation(fields: [branchId], references: [id], onDelete: Restrict)\n  customer           Customer?                  @relation(fields: [customerId], references: [id], onDelete: SetNull)\n  createdBy          User                       @relation(\"OrderCreator\", fields: [createdById], references: [id], onDelete: Restrict)\n  assignedTo         User?                      @relation(\"OrderAssignee\", fields: [assignedToId], references: [id], onDelete: SetNull)\n  shift              WorkShift?                 @relation(fields: [shiftId], references: [id], onDelete: SetNull)\n  promotion          Promotion?                 @relation(fields: [promotionId], references: [id], onDelete: SetNull)\n  items              OrderItem[]\n  payments           Payment[]\n  refunds            Refund[]\n  statusHistory      OrderStatusHistory[]\n  pointTransactions  CustomerPointTransaction[]\n  promotionUsage     PromotionUsage?\n  createdAt          DateTime                   @default(now())\n  updatedAt          DateTime                   @updatedAt\n\n  @@index([status, createdAt])\n  @@index([paymentStatus, createdAt])\n  @@index([branchId, createdAt])\n  @@index([customerId, createdAt])\n  @@index([createdById, createdAt])\n}\n\nmodel OrderItem {\n  id             String             @id @default(cuid())\n  orderId        String\n  productId      String\n  variantId      String?\n  productName    String\n  variantName    String?\n  sku            String\n  unitPrice      Int\n  quantity       Int\n  scoopCount     Int                @default(0)\n  discountAmount Int                @default(0)\n  lineTotal      Int\n  note           String?            @db.Text\n  order          Order              @relation(fields: [orderId], references: [id], onDelete: Cascade)\n  product        Product            @relation(fields: [productId], references: [id], onDelete: Restrict)\n  variant        ProductVariant?    @relation(fields: [variantId], references: [id], onDelete: Restrict)\n  flavors        OrderItemFlavor[]\n  toppings       OrderItemTopping[]\n  createdAt      DateTime           @default(now())\n  updatedAt      DateTime           @updatedAt\n\n  @@index([orderId])\n  @@index([productId, createdAt])\n}\n\nmodel OrderItemFlavor {\n  id          String    @id @default(cuid())\n  orderItemId String\n  flavorId    String\n  scoopNumber Int\n  extraPrice  Int       @default(0)\n  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)\n  flavor      Flavor    @relation(fields: [flavorId], references: [id], onDelete: Restrict)\n  createdAt   DateTime  @default(now())\n\n  @@unique([orderItemId, scoopNumber])\n  @@index([flavorId, createdAt])\n}\n\nmodel OrderItemTopping {\n  id          String    @id @default(cuid())\n  orderItemId String\n  toppingId   String\n  quantity    Int       @default(1)\n  price       Int\n  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)\n  topping     Topping   @relation(fields: [toppingId], references: [id], onDelete: Restrict)\n  createdAt   DateTime  @default(now())\n\n  @@unique([orderItemId, toppingId])\n  @@index([toppingId, createdAt])\n}\n\nmodel Payment {\n  id            String        @id @default(cuid())\n  code          String        @unique\n  orderId       String\n  method        PaymentMethod\n  amount        Int\n  referenceCode String?\n  note          String?       @db.Text\n  paidAt        DateTime      @default(now())\n  order         Order         @relation(fields: [orderId], references: [id], onDelete: Restrict)\n  createdAt     DateTime      @default(now())\n  updatedAt     DateTime      @updatedAt\n\n  @@index([orderId, paidAt])\n  @@index([method, paidAt])\n}\n\nmodel Refund {\n  id          String        @id @default(cuid())\n  code        String        @unique\n  orderId     String\n  createdById String\n  amount      Int\n  method      PaymentMethod\n  reason      String        @db.Text\n  status      RefundStatus  @default(COMPLETED)\n  refundedAt  DateTime?\n  order       Order         @relation(fields: [orderId], references: [id], onDelete: Restrict)\n  createdBy   User          @relation(fields: [createdById], references: [id], onDelete: Restrict)\n  createdAt   DateTime      @default(now())\n  updatedAt   DateTime      @updatedAt\n\n  @@index([orderId, createdAt])\n}\n\nmodel WorkShift {\n  id              String         @id @default(cuid())\n  code            String         @unique\n  branchId        String\n  userId          String\n  status          ShiftStatus    @default(OPEN)\n  openingCash     Int\n  cashRevenue     Int            @default(0)\n  transferRevenue Int            @default(0)\n  cardRevenue     Int            @default(0)\n  ewalletRevenue  Int            @default(0)\n  refundAmount    Int            @default(0)\n  expenseAmount   Int            @default(0)\n  expectedCash    Int?\n  countedCash     Int?\n  difference      Int?\n  openedAt        DateTime       @default(now())\n  closedAt        DateTime?\n  note            String?        @db.Text\n  branch          Branch         @relation(fields: [branchId], references: [id], onDelete: Restrict)\n  user            User           @relation(fields: [userId], references: [id], onDelete: Restrict)\n  orders          Order[]\n  expenses        ShiftExpense[]\n  createdAt       DateTime       @default(now())\n  updatedAt       DateTime       @updatedAt\n\n  @@index([branchId, status])\n  @@index([userId, status])\n  @@index([openedAt])\n}\n\nmodel ShiftExpense {\n  id          String    @id @default(cuid())\n  shiftId     String\n  createdById String\n  category    String\n  amount      Int\n  description String    @db.Text\n  shift       WorkShift @relation(fields: [shiftId], references: [id], onDelete: Cascade)\n  createdBy   User      @relation(fields: [createdById], references: [id], onDelete: Restrict)\n  createdAt   DateTime  @default(now())\n  updatedAt   DateTime  @updatedAt\n\n  @@index([shiftId, createdAt])\n}\n\nmodel OrderStatusHistory {\n  id          String      @id @default(cuid())\n  orderId     String\n  status      OrderStatus\n  changedById String\n  note        String?     @db.Text\n  order       Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)\n  changedBy   User        @relation(fields: [changedById], references: [id], onDelete: Restrict)\n  createdAt   DateTime    @default(now())\n\n  @@index([orderId, createdAt])\n}\n\nmodel AuditLog {\n  id         String   @id @default(cuid())\n  userId     String?\n  action     String\n  entityType String\n  entityId   String?\n  oldData    Json?\n  newData    Json?\n  ipAddress  String?\n  userAgent  String?  @db.Text\n  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)\n  createdAt  DateTime @default(now())\n\n  @@index([entityType, entityId])\n  @@index([userId, createdAt])\n  @@index([action, createdAt])\n}\n",
+  "inlineSchemaHash": "c2a0db60db6e03772a5fd063d9f86ccd2edfc2ef27e235416834d58a145309c3",
   "copyEngine": true
 }
 config.dirname = '/'

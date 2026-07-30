@@ -129,7 +129,7 @@ export default function DashboardPage() {
           </>
         }
       />
-      <div className="tw-grid tw-gap-3 tw-rounded-2xl tw-border tw-border-slate-200 tw-bg-white tw-p-4 tw-shadow-[0_1px_2px_rgba(15,23,42,0.025)] sm:tw-grid-cols-3 dark:tw-border-slate-700 dark:tw-bg-slate-900">
+      <div className="tw-grid tw-gap-3 tw-rounded-2xl tw-border tw-border-slate-200 tw-bg-white tw-p-4 tw-shadow-[0_1px_2px_rgba(15,23,42,0.025)] sm:tw-grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(220px,1.15fr)] sm:tw-items-end dark:tw-border-slate-700 dark:tw-bg-slate-900">
         <label className="tw-text-[11px] tw-font-bold tw-uppercase tw-tracking-wide tw-text-slate-500">
           Từ ngày
           <input
@@ -151,16 +151,25 @@ export default function DashboardPage() {
             className="tw-mt-1.5 tw-block tw-h-10 tw-w-full tw-rounded-xl tw-border tw-border-slate-200 tw-bg-transparent tw-px-3 tw-text-sm tw-outline-none tw-transition focus:tw-border-mint-500 focus:tw-ring-2 focus:tw-ring-mint-500/10 dark:tw-border-slate-700"
           />
         </label>
-        <Select
-          label="Chi nhánh"
-          value={filters.branchId}
-          onChange={(event) => setFilters((current) => ({ ...current, branchId: event.target.value }))}
-          options={[
-            { value: "", label: "Tất cả chi nhánh" },
-            ...branches.map((branch) => ({ value: branch.id, label: branch.name })),
-          ]}
-          disabled={!["ADMIN", "MANAGER"].includes(user.role.code)}
-        />
+        <div className="tw-min-w-0">
+          <div className="tw-text-[11px] tw-font-bold tw-uppercase tw-tracking-wide tw-text-slate-500">
+            Chi nhánh
+          </div>
+          <div className="tw-mt-1.5">
+            <Select
+              label=""
+              name="branchId"
+              value={filters.branchId}
+              inputProps={{ "aria-label": "Chi nhánh" }}
+              onChange={(event) => setFilters((current) => ({ ...current, branchId: event.target.value }))}
+              options={[
+                { value: "", label: "Tất cả chi nhánh" },
+                ...branches.map((branch) => ({ value: branch.id, label: branch.name })),
+              ]}
+              disabled={!["ADMIN", "MANAGER"].includes(user.role.code)}
+            />
+          </div>
+        </div>
       </div>
 
       {reportQuery.isLoading ? (

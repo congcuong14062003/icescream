@@ -103,7 +103,7 @@ export default function LoginPage() {
 
         <div className="tw-relative tw-z-10 tw-flex tw-items-center tw-gap-2 tw-text-[11px] tw-text-white/35">
           <CheckCircle2 size={14} className="tw-text-mint-300" />
-          Dữ liệu lưu cục bộ an toàn với SQLite · Phân quyền theo nghiệp vụ
+          Dữ liệu vận hành ổn định với MySQL · Phân quyền theo nghiệp vụ
         </div>
         <div className="tw-absolute -tw-bottom-40 -tw-right-24 tw-h-96 tw-w-96 tw-rounded-full tw-bg-mint-400/[0.07] tw-blur-3xl" />
       </section>

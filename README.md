@@ -1,12 +1,12 @@
 # IceCream POS
 
-IceCream POS là ứng dụng full-stack quản lý và bán hàng tại quầy cho cửa hàng kem. Dự án dùng SQLite theo cùng hướng triển khai với dự án tham chiếu `D:\project\facebook`, vì vậy không cần PostgreSQL hoặc Docker để chạy trên máy Windows.
+IceCream POS là ứng dụng full-stack quản lý và bán hàng tại quầy cho cửa hàng kem. Dự án dùng MySQL theo cùng cách cấu hình với dự án tham chiếu `D:\project\facebook`.
 
 ## Công nghệ
 
 - Frontend: React 18, Vite, JavaScript, Tailwind CSS với prefix `tw-`, Material UI v5, React Router, Axios, React Query, React Hook Form, Day.js, React Toastify, Recharts và Socket.IO Client.
-- Backend: Node.js, Express, Prisma ORM, SQLite, JWT access/refresh token, bcrypt, Zod, Multer/Cloudinary, Socket.IO, ExcelJS và PDFKit.
-- Dữ liệu: SQLite lưu bền vững tại `server/prisma/dev.db`; Prisma migration và seed được quản lý trong `server/prisma`.
+- Backend: Node.js, Express, Prisma ORM, MySQL, JWT access/refresh token, bcrypt, Zod, Multer/Cloudinary, Socket.IO, ExcelJS và PDFKit.
+- Dữ liệu: MySQL 8 với database `icecream_pos`; Prisma migration và seed được quản lý trong `server/prisma`.
 
 ## Chức năng đã triển khai
 
@@ -20,20 +20,35 @@ IceCream POS là ứng dụng full-stack quản lý và bán hàng tại quầy 
 - Kho theo chi nhánh/lô/hạn dùng, nhập–xuất–điều chỉnh–chuyển kho, cảnh báo tồn thấp/hết hạn, công thức định lượng và chặn tồn âm.
 - Nhà cung cấp và phiếu nhập; chỉ tăng kho khi phiếu chuyển sang `RECEIVED`.
 - Ca làm việc, tiền đầu ca, doanh thu theo phương thức, chi phí, kiểm đếm và chênh lệch cuối ca.
-- Dashboard lấy dữ liệu thật từ SQLite, lọc thời gian/chi nhánh, so sánh kỳ trước và xuất Excel/PDF.
+- Dashboard lấy dữ liệu thật từ MySQL, lọc thời gian/chi nhánh, so sánh kỳ trước và xuất Excel/PDF.
 - Audit log cho các thao tác quan trọng, Helmet, CORS, rate limit, validate request và xử lý lỗi tập trung.
 
 ## Yêu cầu trên Windows
 
 - Windows 10/11.
 - Node.js 20 LTS trở lên, kèm npm.
-- Không cần cài SQLite riêng, PostgreSQL hay Docker Desktop.
+- MySQL 8 hoặc MySQL đi kèm XAMPP, chạy tại cổng `3306`.
+- Không yêu cầu PostgreSQL hoặc Docker Desktop.
 
 Kiểm tra:
 
 ```powershell
 node --version
 npm --version
+```
+
+Khởi động MySQL, sau đó tạo database và tài khoản bằng MySQL Workbench,
+phpMyAdmin hoặc MySQL CLI:
+
+```sql
+CREATE DATABASE icecream_pos
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
+CREATE USER 'icecream_app'@'localhost'
+  IDENTIFIED BY 'MAT_KHAU_CUA_ANH';
+GRANT ALL PRIVILEGES ON icecream_pos.* TO 'icecream_app'@'localhost';
+FLUSH PRIVILEGES;
 ```
 
 ## Cài đặt lần đầu
@@ -52,7 +67,7 @@ npm --prefix server run db:prepare
 Lệnh `db:prepare` sẽ:
 
 1. Sinh Prisma Client.
-2. Chạy tất cả migration SQLite.
+2. Chạy tất cả migration MySQL.
 3. Seed dữ liệu mẫu nếu database đang trống.
 
 Sau đó chạy cả frontend và backend:
@@ -86,7 +101,7 @@ Backend dùng `server/.env`:
 NODE_ENV=development
 PORT=4001
 CLIENT_URL=http://localhost:5173
-DATABASE_URL=file:./dev.db
+DATABASE_URL=mysql://icecream_app:MAT_KHAU_CUA_ANH@localhost:3306/icecream_pos
 ACCESS_TOKEN_SECRET=thay_bang_chuoi_ngau_nhien_dai_it_nhat_32_ky_tu
 REFRESH_TOKEN_SECRET=thay_bang_mot_chuoi_ngau_nhien_khac
 ACCESS_TOKEN_EXPIRES_IN=15m
@@ -129,16 +144,26 @@ npm --prefix server run prisma:migrate -- --name ten_migration
 npm --prefix server run prisma:seed
 ```
 
-## Reset database mẫu
+Nếu dùng tài khoản `root` giống dự án ConnectHub, có thể dùng:
 
-Dừng server trước, sau đó chạy:
-
-```powershell
-Remove-Item -LiteralPath D:\project\icecream\server\prisma\dev.db
-npm --prefix server run db:prepare
+```dotenv
+DATABASE_URL=mysql://root:MAT_KHAU_MYSQL@localhost:3306/icecream_pos
 ```
 
-Thao tác này xóa toàn bộ dữ liệu hiện tại và tạo lại dữ liệu mẫu. Hãy sao lưu file `server/prisma/dev.db` trước khi reset nếu đang dùng dữ liệu thật.
+Nếu mật khẩu chứa ký tự như `@`, `#`, `/` hoặc `:`, cần URL-encode mật khẩu.
+
+## Reset database mẫu
+
+Dừng server trước, sao lưu dữ liệu cần thiết rồi chạy:
+
+```powershell
+cd D:\project\icecream\server
+npx prisma migrate reset
+```
+
+Thao tác này xóa toàn bộ bảng trong database `icecream_pos`, chạy lại migration
+và seed dữ liệu mẫu. Không dùng lệnh này với database đang chứa dữ liệu thật
+mà chưa sao lưu.
 
 ## Cấu trúc
 
@@ -171,6 +196,10 @@ icecream/
 └─ README.md
 ```
 
-## Ghi chú khi dùng SQLite thực tế
+## Ghi chú khi dùng MySQL thực tế
 
-SQLite phù hợp cho một cửa hàng hoặc một máy chủ ứng dụng duy nhất, dễ sao lưu bằng một file và không cần dịch vụ database riêng. Hãy đặt file database trên ổ đĩa cục bộ ổn định, sao lưu định kỳ và chỉ chạy một instance backend ghi vào database. Nếu sau này mở rộng nhiều máy chủ/chi nhánh truy cập đồng thời ở tải lớn, Prisma schema đã chuẩn hóa để có thể lập kế hoạch chuyển sang PostgreSQL.
+Sao lưu database `icecream_pos` định kỳ bằng MySQL Workbench, phpMyAdmin hoặc
+`mysqldump`. Khi triển khai production, tạo tài khoản database riêng chỉ có
+quyền trên `icecream_pos`, dùng mật khẩu mạnh và không commit file `.env`.
+File SQLite cũ `server/prisma/dev.db` không còn được ứng dụng sử dụng và chỉ
+được giữ cục bộ như một bản sao lưu dữ liệu trước khi chuyển đổi.

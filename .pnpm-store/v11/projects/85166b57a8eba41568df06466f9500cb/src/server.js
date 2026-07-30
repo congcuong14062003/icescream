@@ -19,7 +19,7 @@ setSocketServer(io);
 
 server.listen(env.PORT, () => {
   console.log(`IceCream POS API đang chạy tại http://localhost:${env.PORT}`);
-  console.log("Cơ sở dữ liệu: SQLite");
+  console.log("Cơ sở dữ liệu: MySQL");
 });
 
 async function shutdown(signal) {
@@ -34,4 +34,3 @@ async function shutdown(signal) {
 
 process.on("SIGINT", () => shutdown("SIGINT"));
 process.on("SIGTERM", () => shutdown("SIGTERM"));
-

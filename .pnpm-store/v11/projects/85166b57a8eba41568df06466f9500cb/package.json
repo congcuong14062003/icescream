@@ -6,9 +6,11 @@
   "main": "src/server.js",
   "scripts": {
     "db:prepare": "prisma generate && prisma migrate deploy && node prisma/seed.js --if-empty",
-    "predev": "npm run db:prepare",
+    "db:deploy": "prisma migrate deploy && node prisma/seed.js --if-empty",
+    "postinstall": "prisma generate",
+    "predev": "npm run db:deploy",
     "dev": "nodemon src/server.js",
-    "prestart": "npm run db:prepare",
+    "prestart": "npm run db:deploy",
     "start": "node src/server.js",
     "build": "prisma generate && node scripts/check-source.js",
     "test": "node --test tests/**/*.test.js",
@@ -39,9 +41,6 @@
     "nodemon": "^3.1.10",
     "prisma": "^6.7.0",
     "supertest": "^7.1.0"
-  },
-  "prisma": {
-    "seed": "node prisma/seed.js"
   },
   "engines": {
     "node": ">=20"

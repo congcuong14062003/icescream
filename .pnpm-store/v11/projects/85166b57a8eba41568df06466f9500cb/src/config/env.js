@@ -5,7 +5,10 @@ const schema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PORT: z.coerce.number().int().positive().default(4000),
   CLIENT_URL: z.string().url().default("http://localhost:5173"),
-  DATABASE_URL: z.string().default("file:./dev.db"),
+  DATABASE_URL: z
+    .string()
+    .url()
+    .default("mysql://icecream_app:IceCreamApp2026@localhost:3306/icecream_pos"),
   ACCESS_TOKEN_SECRET: z.string().min(32),
   REFRESH_TOKEN_SECRET: z.string().min(32),
   ACCESS_TOKEN_EXPIRES_IN: z.string().default("15m"),
@@ -28,4 +31,3 @@ if (!parsed.success) {
 }
 
 export const env = parsed.data;
-

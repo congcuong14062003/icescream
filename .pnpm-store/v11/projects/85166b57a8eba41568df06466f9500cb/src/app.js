@@ -70,7 +70,7 @@ const authLimiter = rateLimit({
 app.get("/api/health", (request, response) =>
   success(response, {
     service: "IceCream POS API",
-    database: "SQLite",
+    database: "MySQL",
     time: new Date().toISOString(),
   }),
 );

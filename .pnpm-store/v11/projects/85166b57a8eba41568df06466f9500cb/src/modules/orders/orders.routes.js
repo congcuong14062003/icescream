@@ -6,6 +6,7 @@ import { authenticate, requirePermission } from "../../middlewares/auth.js";
 import { validate } from "../../middlewares/validate.js";
 import { calculateOrder } from "../../services/order-pricing.service.js";
 import { deductInventory, updateCustomerAfterCompletion } from "../../services/inventory.service.js";
+import { renderInvoicePdf } from "../../services/invoice-pdf.service.js";
 import { emitOrderEvent } from "../../services/socket.service.js";
 import { ApiError } from "../../utils/api-error.js";
 import { asyncHandler } from "../../utils/async-handler.js";
@@ -473,32 +474,14 @@ router.get(
     if (!order) throw new ApiError(404, "Không tìm thấy đơn hàng");
     response.setHeader("Content-Type", "application/pdf");
     response.setHeader("Content-Disposition", `inline; filename="${order.code}.pdf"`);
-    const document = new PDFDocument({ size: "A5", margin: 36 });
+    const document = new PDFDocument({
+      size: "A5",
+      margin: 24,
+      bufferPages: true,
+      autoFirstPage: true,
+    });
     document.pipe(response);
-    document.fontSize(20).text("IceCream POS", { align: "center" });
-    document.fontSize(10).text(order.branch.name, { align: "center" });
-    document.text(order.branch.address, { align: "center" });
-    document.moveDown();
-    document.fontSize(12).text(`Hoa don: ${order.code}`);
-    document.fontSize(9).text(`Ngay: ${order.createdAt.toLocaleString("vi-VN")}`);
-    document.text(`Thu ngan: ${order.createdBy.fullName}`);
-    if (order.customer) document.text(`Khach hang: ${order.customer.fullName} - ${order.customer.phone}`);
-    document.moveDown();
-    for (const item of order.items) {
-      document.fontSize(10).text(`${item.productName} (${item.variantName || ""}) x${item.quantity}`);
-      const additions = [
-        ...item.flavors.map((value) => value.flavor.name),
-        ...item.toppings.map((value) => value.topping.name),
-      ];
-      if (additions.length) document.fontSize(8).fillColor("#666").text(additions.join(", ")).fillColor("#000");
-      document.fontSize(10).text(`${item.lineTotal.toLocaleString("vi-VN")} VND`, { align: "right" });
-    }
-    document.moveDown().fontSize(10);
-    document.text(`Tam tinh: ${order.originalAmount.toLocaleString("vi-VN")} VND`, { align: "right" });
-    document.text(`Giam gia: ${order.discountAmount.toLocaleString("vi-VN")} VND`, { align: "right" });
-    document.text(`VAT: ${order.taxAmount.toLocaleString("vi-VN")} VND`, { align: "right" });
-    document.fontSize(13).text(`Tong cong: ${order.totalAmount.toLocaleString("vi-VN")} VND`, { align: "right" });
-    document.moveDown().fontSize(9).text("Cam on quy khach va hen gap lai!", { align: "center" });
+    renderInvoicePdf(document, order);
     document.end();
   }),
 );

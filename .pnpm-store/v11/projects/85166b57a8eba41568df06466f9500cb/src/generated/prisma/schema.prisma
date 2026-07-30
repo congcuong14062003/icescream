@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -104,7 +104,7 @@ model Role {
   id          String           @id @default(cuid())
   code        String           @unique
   name        String
-  description String?
+  description String?          @db.Text
   users       User[]
   permissions RolePermission[]
   createdAt   DateTime         @default(now())
@@ -118,7 +118,7 @@ model Permission {
   code        String           @unique
   name        String
   module      String
-  description String?
+  description String?          @db.Text
   roles       RolePermission[]
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
@@ -139,7 +139,7 @@ model Branch {
   id             String                 @id @default(cuid())
   code           String                 @unique
   name           String
-  address        String
+  address        String                 @db.VarChar(500)
   phone          String
   openingHours   String?
   managerId      String?
@@ -169,7 +169,7 @@ model User {
   passwordHash          String
   fullName              String
   phone                 String?
-  avatarUrl             String?
+  avatarUrl             String?                @db.Text
   status                AccountStatus          @default(ACTIVE)
   roleId                String
   branchId              String?
@@ -203,7 +203,7 @@ model RefreshToken {
   id        String    @id @default(cuid())
   tokenHash String    @unique
   userId    String
-  userAgent String?
+  userAgent String?   @db.Text
   ipAddress String?
   expiresAt DateTime
   revokedAt DateTime?
@@ -218,9 +218,9 @@ model LoginHistory {
   id        String   @id @default(cuid())
   userId    String
   ipAddress String?
-  userAgent String?
+  userAgent String?  @db.Text
   success   Boolean
-  reason    String?
+  reason    String?  @db.Text
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 
@@ -231,7 +231,7 @@ model Category {
   id           String              @id @default(cuid())
   code         String              @unique
   name         String              @unique
-  description  String?
+  description  String?             @db.Text
   displayOrder Int                 @default(0)
   isActive     Boolean             @default(true)
   deletedAt    DateTime?
@@ -249,8 +249,8 @@ model Product {
   code         String             @unique
   name         String
   categoryId   String
-  description  String?
-  imageUrl     String?
+  description  String?            @db.Text
+  imageUrl     String?            @db.Text
   price        Int
   costPrice    Int
   status       ProductStatus      @default(ACTIVE)
@@ -274,7 +274,7 @@ model Product {
 model ProductImage {
   id           String   @id @default(cuid())
   productId    String
-  url          String
+  url          String   @db.Text
   publicId     String?
   displayOrder Int      @default(0)
   product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -310,7 +310,7 @@ model Flavor {
   code        String             @unique
   name        String             @unique
   color       String
-  imageUrl    String?
+  imageUrl    String?            @db.Text
   extraPrice  Int                @default(0)
   status      StockStatus        @default(AVAILABLE)
   deletedAt   DateTime?
@@ -338,7 +338,7 @@ model Topping {
   id          String             @id @default(cuid())
   code        String             @unique
   name        String             @unique
-  imageUrl    String?
+  imageUrl    String?            @db.Text
   price       Int
   costPrice   Int
   stockStatus StockStatus        @default(AVAILABLE)
@@ -387,7 +387,7 @@ model ProductRecipe {
   toppingId    String?
   ingredientId String
   quantity     Float
-  note         String?
+  note         String?         @db.Text
   product      Product?        @relation(fields: [productId], references: [id], onDelete: Cascade)
   variant      ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
   flavor       Flavor?         @relation(fields: [flavorId], references: [id], onDelete: Cascade)
@@ -453,7 +453,7 @@ model InventoryTransaction {
   unitCost      Int?
   referenceType String?
   referenceId   String?
-  note          String?
+  note          String?                  @db.Text
   createdById   String
   branch        Branch                   @relation("TransactionBranch", fields: [branchId], references: [id], onDelete: Restrict)
   fromBranch    Branch?                  @relation("TransactionFromBranch", fields: [fromBranchId], references: [id], onDelete: SetNull)
@@ -474,7 +474,7 @@ model Supplier {
   contactPerson   String?
   phone           String?
   email           String?
-  address         String?
+  address         String?         @db.VarChar(500)
   outstandingDebt Int             @default(0)
   isActive        Boolean         @default(true)
   deletedAt       DateTime?
@@ -495,7 +495,7 @@ model PurchaseOrder {
   createdById String
   status      PurchaseOrderStatus @default(DRAFT)
   totalAmount Int                 @default(0)
-  note        String?
+  note        String?             @db.Text
   approvedAt  DateTime?
   receivedAt  DateTime?
   cancelledAt DateTime?
@@ -553,7 +553,7 @@ model Customer {
   phone             String                     @unique
   email             String?                    @unique
   dateOfBirth       DateTime?
-  address           String?
+  address           String?                    @db.VarChar(500)
   membershipLevelId String
   totalSpending     Int                        @default(0)
   totalOrders       Int                        @default(0)
@@ -578,7 +578,7 @@ model CustomerPointTransaction {
   type         PointTransactionType
   points       Int
   balanceAfter Int
-  description  String?
+  description  String?              @db.Text
   customer     Customer             @relation(fields: [customerId], references: [id], onDelete: Restrict)
   order        Order?               @relation(fields: [orderId], references: [id], onDelete: SetNull)
   createdAt    DateTime             @default(now())
@@ -591,7 +591,7 @@ model Promotion {
   id               String              @id @default(cuid())
   code             String              @unique
   name             String
-  description      String?
+  description      String?             @db.Text
   type             PromotionType
   value            Int
   startAt          DateTime
@@ -670,8 +670,8 @@ model Order {
   changeAmount       Int                        @default(0)
   paymentStatus      PaymentStatus              @default(UNPAID)
   status             OrderStatus                @default(PENDING)
-  note               String?
-  cancellationReason String?
+  note               String?                    @db.Text
+  cancellationReason String?                    @db.Text
   completedAt        DateTime?
   cancelledAt        DateTime?
   branch             Branch                     @relation(fields: [branchId], references: [id], onDelete: Restrict)
@@ -709,7 +709,7 @@ model OrderItem {
   scoopCount     Int                @default(0)
   discountAmount Int                @default(0)
   lineTotal      Int
-  note           String?
+  note           String?            @db.Text
   order          Order              @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product        Product            @relation(fields: [productId], references: [id], onDelete: Restrict)
   variant        ProductVariant?    @relation(fields: [variantId], references: [id], onDelete: Restrict)
@@ -757,7 +757,7 @@ model Payment {
   method        PaymentMethod
   amount        Int
   referenceCode String?
-  note          String?
+  note          String?       @db.Text
   paidAt        DateTime      @default(now())
   order         Order         @relation(fields: [orderId], references: [id], onDelete: Restrict)
   createdAt     DateTime      @default(now())
@@ -774,7 +774,7 @@ model Refund {
   createdById String
   amount      Int
   method      PaymentMethod
-  reason      String
+  reason      String        @db.Text
   status      RefundStatus  @default(COMPLETED)
   refundedAt  DateTime?
   order       Order         @relation(fields: [orderId], references: [id], onDelete: Restrict)
@@ -803,7 +803,7 @@ model WorkShift {
   difference      Int?
   openedAt        DateTime       @default(now())
   closedAt        DateTime?
-  note            String?
+  note            String?        @db.Text
   branch          Branch         @relation(fields: [branchId], references: [id], onDelete: Restrict)
   user            User           @relation(fields: [userId], references: [id], onDelete: Restrict)
   orders          Order[]
@@ -822,7 +822,7 @@ model ShiftExpense {
   createdById String
   category    String
   amount      Int
-  description String
+  description String    @db.Text
   shift       WorkShift @relation(fields: [shiftId], references: [id], onDelete: Cascade)
   createdBy   User      @relation(fields: [createdById], references: [id], onDelete: Restrict)
   createdAt   DateTime  @default(now())
@@ -836,7 +836,7 @@ model OrderStatusHistory {
   orderId     String
   status      OrderStatus
   changedById String
-  note        String?
+  note        String?     @db.Text
   order       Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
   changedBy   User        @relation(fields: [changedById], references: [id], onDelete: Restrict)
   createdAt   DateTime    @default(now())
@@ -853,7 +853,7 @@ model AuditLog {
   oldData    Json?
   newData    Json?
   ipAddress  String?
-  userAgent  String?
+  userAgent  String?  @db.Text
   user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   createdAt  DateTime @default(now())
 

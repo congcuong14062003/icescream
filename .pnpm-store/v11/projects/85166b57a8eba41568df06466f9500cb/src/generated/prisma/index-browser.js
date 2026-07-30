@@ -115,6 +115,9 @@ Prisma.NullTypes = {
  */
 
 exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
+  ReadUncommitted: 'ReadUncommitted',
+  ReadCommitted: 'ReadCommitted',
+  RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
 });
 
@@ -648,6 +651,311 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 
+exports.Prisma.RoleOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  description: 'description'
+};
+
+exports.Prisma.PermissionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  module: 'module',
+  description: 'description'
+};
+
+exports.Prisma.RolePermissionOrderByRelevanceFieldEnum = {
+  roleId: 'roleId',
+  permissionId: 'permissionId'
+};
+
+exports.Prisma.BranchOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  address: 'address',
+  phone: 'phone',
+  openingHours: 'openingHours',
+  managerId: 'managerId'
+};
+
+exports.Prisma.UserOrderByRelevanceFieldEnum = {
+  id: 'id',
+  username: 'username',
+  email: 'email',
+  passwordHash: 'passwordHash',
+  fullName: 'fullName',
+  phone: 'phone',
+  avatarUrl: 'avatarUrl',
+  roleId: 'roleId',
+  branchId: 'branchId',
+  passwordResetHash: 'passwordResetHash'
+};
+
+exports.Prisma.RefreshTokenOrderByRelevanceFieldEnum = {
+  id: 'id',
+  tokenHash: 'tokenHash',
+  userId: 'userId',
+  userAgent: 'userAgent',
+  ipAddress: 'ipAddress'
+};
+
+exports.Prisma.LoginHistoryOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  reason: 'reason'
+};
+
+exports.Prisma.CategoryOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  description: 'description'
+};
+
+exports.Prisma.ProductOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  categoryId: 'categoryId',
+  description: 'description',
+  imageUrl: 'imageUrl'
+};
+
+exports.Prisma.ProductImageOrderByRelevanceFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  url: 'url',
+  publicId: 'publicId'
+};
+
+exports.Prisma.ProductVariantOrderByRelevanceFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  sku: 'sku',
+  name: 'name',
+  size: 'size',
+  cupType: 'cupType'
+};
+
+exports.Prisma.FlavorOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  color: 'color',
+  imageUrl: 'imageUrl'
+};
+
+exports.Prisma.FlavorIngredientOrderByRelevanceFieldEnum = {
+  flavorId: 'flavorId',
+  ingredientId: 'ingredientId'
+};
+
+exports.Prisma.ToppingOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  imageUrl: 'imageUrl'
+};
+
+exports.Prisma.IngredientOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  unit: 'unit',
+  supplierId: 'supplierId',
+  warehouseLocation: 'warehouseLocation'
+};
+
+exports.Prisma.ProductRecipeOrderByRelevanceFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  variantId: 'variantId',
+  flavorId: 'flavorId',
+  toppingId: 'toppingId',
+  ingredientId: 'ingredientId',
+  note: 'note'
+};
+
+exports.Prisma.InventoryOrderByRelevanceFieldEnum = {
+  id: 'id',
+  branchId: 'branchId',
+  ingredientId: 'ingredientId'
+};
+
+exports.Prisma.InventoryBatchOrderByRelevanceFieldEnum = {
+  id: 'id',
+  branchId: 'branchId',
+  ingredientId: 'ingredientId',
+  purchaseItemId: 'purchaseItemId',
+  batchNumber: 'batchNumber'
+};
+
+exports.Prisma.InventoryTransactionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  branchId: 'branchId',
+  fromBranchId: 'fromBranchId',
+  toBranchId: 'toBranchId',
+  ingredientId: 'ingredientId',
+  referenceType: 'referenceType',
+  referenceId: 'referenceId',
+  note: 'note',
+  createdById: 'createdById'
+};
+
+exports.Prisma.SupplierOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  contactPerson: 'contactPerson',
+  phone: 'phone',
+  email: 'email',
+  address: 'address'
+};
+
+exports.Prisma.PurchaseOrderOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  supplierId: 'supplierId',
+  branchId: 'branchId',
+  createdById: 'createdById',
+  note: 'note'
+};
+
+exports.Prisma.PurchaseOrderItemOrderByRelevanceFieldEnum = {
+  id: 'id',
+  purchaseOrderId: 'purchaseOrderId',
+  ingredientId: 'ingredientId',
+  batchNumber: 'batchNumber'
+};
+
+exports.Prisma.MembershipLevelOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name'
+};
+
+exports.Prisma.CustomerOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  fullName: 'fullName',
+  phone: 'phone',
+  email: 'email',
+  address: 'address',
+  membershipLevelId: 'membershipLevelId'
+};
+
+exports.Prisma.CustomerPointTransactionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  customerId: 'customerId',
+  orderId: 'orderId',
+  description: 'description'
+};
+
+exports.Prisma.PromotionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  description: 'description'
+};
+
+exports.Prisma.PromotionProductOrderByRelevanceFieldEnum = {
+  promotionId: 'promotionId',
+  productId: 'productId'
+};
+
+exports.Prisma.PromotionCategoryOrderByRelevanceFieldEnum = {
+  promotionId: 'promotionId',
+  categoryId: 'categoryId'
+};
+
+exports.Prisma.PromotionUsageOrderByRelevanceFieldEnum = {
+  id: 'id',
+  promotionId: 'promotionId',
+  customerId: 'customerId',
+  orderId: 'orderId'
+};
+
+exports.Prisma.OrderOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  branchId: 'branchId',
+  customerId: 'customerId',
+  createdById: 'createdById',
+  assignedToId: 'assignedToId',
+  shiftId: 'shiftId',
+  promotionId: 'promotionId',
+  note: 'note',
+  cancellationReason: 'cancellationReason'
+};
+
+exports.Prisma.OrderItemOrderByRelevanceFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  productId: 'productId',
+  variantId: 'variantId',
+  productName: 'productName',
+  variantName: 'variantName',
+  sku: 'sku',
+  note: 'note'
+};
+
+exports.Prisma.OrderItemFlavorOrderByRelevanceFieldEnum = {
+  id: 'id',
+  orderItemId: 'orderItemId',
+  flavorId: 'flavorId'
+};
+
+exports.Prisma.OrderItemToppingOrderByRelevanceFieldEnum = {
+  id: 'id',
+  orderItemId: 'orderItemId',
+  toppingId: 'toppingId'
+};
+
+exports.Prisma.PaymentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  orderId: 'orderId',
+  referenceCode: 'referenceCode',
+  note: 'note'
+};
+
+exports.Prisma.RefundOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  orderId: 'orderId',
+  createdById: 'createdById',
+  reason: 'reason'
+};
+
+exports.Prisma.WorkShiftOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  branchId: 'branchId',
+  userId: 'userId',
+  note: 'note'
+};
+
+exports.Prisma.ShiftExpenseOrderByRelevanceFieldEnum = {
+  id: 'id',
+  shiftId: 'shiftId',
+  createdById: 'createdById',
+  category: 'category',
+  description: 'description'
+};
+
+exports.Prisma.OrderStatusHistoryOrderByRelevanceFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  changedById: 'changedById',
+  note: 'note'
+};
+
 exports.Prisma.JsonNullValueFilter = {
   DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull,
@@ -657,6 +965,16 @@ exports.Prisma.JsonNullValueFilter = {
 exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
+};
+
+exports.Prisma.AuditLogOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  action: 'action',
+  entityType: 'entityType',
+  entityId: 'entityId',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent'
 };
 exports.AccountStatus = exports.$Enums.AccountStatus = {
   ACTIVE: 'ACTIVE',
