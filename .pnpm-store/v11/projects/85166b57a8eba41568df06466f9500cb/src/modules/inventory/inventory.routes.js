@@ -8,6 +8,11 @@ import { ApiError } from "../../utils/api-error.js";
 import { createBusinessCode } from "../../utils/code.js";
 import { getPagination, paginationMeta } from "../../utils/pagination.js";
 import { created, success } from "../../utils/response.js";
+import {
+  consumeInventoryBatches,
+  createAdjustmentBatch,
+  normalizeStockQuantity,
+} from "../../services/inventory-batch.service.js";
 
 const router = Router();
 router.use(authenticate);
@@ -25,12 +30,97 @@ const ingredientSchema = z.object({
   isActive: z.boolean().default(true),
 });
 
+const stockLineSchema = z.object({
+  ingredientId: z.string().min(1),
+  quantity: z.coerce.number().positive().max(1000000000),
+});
+
+const stockIssueSchema = z.object({
+  branchId: z.string().min(1),
+  reason: z.enum(["INTERNAL_USE", "DAMAGED", "EXPIRED", "SAMPLE", "OTHER"]),
+  note: z.string().trim().max(500).optional().nullable(),
+  items: z.array(stockLineSchema).min(1).max(100),
+}).superRefine((data, context) => {
+  const ids = data.items.map((item) => item.ingredientId);
+  if (new Set(ids).size !== ids.length) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["items"],
+      message: "Một nguyên liệu không được xuất nhiều dòng trong cùng phiếu",
+    });
+  }
+  if (data.reason === "OTHER" && (!data.note || data.note.trim().length < 3)) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["note"],
+      message: "Vui lòng nhập lý do xuất kho",
+    });
+  }
+});
+
+const stocktakeSchema = z.object({
+  branchId: z.string().min(1),
+  note: z.string().trim().max(500).optional().nullable(),
+  items: z.array(z.object({
+    ingredientId: z.string().min(1),
+    actualQuantity: z.coerce.number().min(0).max(1000000000),
+  })).min(1).max(500),
+}).superRefine((data, context) => {
+  const ids = data.items.map((item) => item.ingredientId);
+  if (new Set(ids).size !== ids.length) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["items"],
+      message: "Một nguyên liệu không được kiểm đếm nhiều lần",
+    });
+  }
+});
+
+const issueReasonLabels = {
+  INTERNAL_USE: "Sử dụng nội bộ",
+  DAMAGED: "Hư hỏng",
+  EXPIRED: "Hết hạn",
+  SAMPLE: "Dùng thử / mẫu",
+  OTHER: "Lý do khác",
+};
+
+function assertBranchAccess(request, branchId) {
+  if (["ADMIN", "MANAGER"].includes(request.user.role.code)) return;
+  if (!request.user.branch?.id || request.user.branch.id !== branchId) {
+    throw new ApiError(403, "Bạn chỉ được thao tác kho tại chi nhánh được phân công");
+  }
+}
+
+function scopedBranchId(request) {
+  const branchId = request.query.branchId || request.user.branch?.id;
+  if (branchId) assertBranchAccess(request, branchId);
+  return branchId;
+}
+
+const stockIssueInclude = {
+  branch: { select: { id: true, code: true, name: true } },
+  createdBy: { select: { id: true, fullName: true } },
+  items: {
+    include: { ingredient: { select: { id: true, code: true, name: true, unit: true } } },
+    orderBy: { createdAt: "asc" },
+  },
+};
+
+const stocktakeInclude = {
+  branch: { select: { id: true, code: true, name: true } },
+  createdBy: { select: { id: true, fullName: true } },
+  items: {
+    include: { ingredient: { select: { id: true, code: true, name: true, unit: true } } },
+    orderBy: { createdAt: "asc" },
+  },
+};
+
 router.get(
   "/",
   requirePermission("inventory.view"),
   asyncHandler(async (request, response) => {
     const { page, size, skip } = getPagination(request.query);
-    const branchId = request.query.branchId || request.user.branch?.id;
+    const branchId = scopedBranchId(request);
     if (!branchId) throw new ApiError(422, "Vui lòng chọn chi nhánh");
     const search = String(request.query.search || "").trim();
     const where = {
@@ -68,7 +158,7 @@ router.get(
   "/alerts",
   requirePermission("inventory.view", "dashboard.view"),
   asyncHandler(async (request, response) => {
-    const branchId = request.query.branchId || request.user.branch?.id;
+    const branchId = scopedBranchId(request);
     const inventories = await prisma.inventory.findMany({
       where: branchId ? { branchId } : {},
       include: { ingredient: true, branch: { select: { id: true, name: true } } },
@@ -129,8 +219,9 @@ router.get(
   requirePermission("inventory.view"),
   asyncHandler(async (request, response) => {
     const { page, size, skip } = getPagination(request.query);
+    const branchId = scopedBranchId(request);
     const where = {
-      ...(request.query.branchId ? { branchId: request.query.branchId } : {}),
+      ...(branchId ? { branchId } : {}),
       ...(request.query.ingredientId ? { ingredientId: request.query.ingredientId } : {}),
       ...(request.query.type ? { type: request.query.type } : {}),
     };
@@ -152,6 +243,296 @@ router.get(
   }),
 );
 
+router.get(
+  "/issues",
+  requirePermission("inventory.view"),
+  asyncHandler(async (request, response) => {
+    const { page, size, skip } = getPagination(request.query);
+    const branchId = scopedBranchId(request);
+    const where = branchId ? { branchId } : {};
+    const [items, total] = await Promise.all([
+      prisma.stockIssue.findMany({
+        where,
+        include: stockIssueInclude,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: size,
+      }),
+      prisma.stockIssue.count({ where }),
+    ]);
+    return success(
+      response,
+      items,
+      "Lấy lịch sử xuất kho thành công",
+      paginationMeta(page, size, total),
+    );
+  }),
+);
+
+router.post(
+  "/issues",
+  requirePermission("inventory.manage"),
+  validate(stockIssueSchema),
+  asyncHandler(async (request, response) => {
+    assertBranchAccess(request, request.body.branchId);
+    const item = await prisma.$transaction(async (tx) => {
+      const code = createBusinessCode("PXK");
+      const issue = await tx.stockIssue.create({
+        data: {
+          code,
+          branchId: request.body.branchId,
+          createdById: request.user.id,
+          reason: request.body.reason,
+          note: request.body.note || null,
+        },
+      });
+
+      let totalCost = 0;
+      for (const [lineIndex, line] of request.body.items.entries()) {
+        const inventory = await tx.inventory.findUnique({
+          where: {
+            branchId_ingredientId: {
+              branchId: request.body.branchId,
+              ingredientId: line.ingredientId,
+            },
+          },
+          include: { ingredient: true },
+        });
+        if (!inventory) {
+          throw new ApiError(404, "Không tìm thấy nguyên liệu trong kho chi nhánh");
+        }
+
+        const quantity = normalizeStockQuantity(line.quantity);
+        const updatedResult = await tx.inventory.updateMany({
+          where: { id: inventory.id, quantity: { gte: quantity } },
+          data: { quantity: { decrement: quantity } },
+        });
+        if (!updatedResult.count) {
+          throw new ApiError(
+            422,
+            `${inventory.ingredient.name} không đủ tồn kho: còn ${inventory.quantity.toLocaleString("vi-VN")} ${inventory.ingredient.unit}`,
+          );
+        }
+
+        const batchCost = await consumeInventoryBatches(tx, {
+          branchId: request.body.branchId,
+          ingredientId: line.ingredientId,
+          quantity,
+          ingredientName: inventory.ingredient.name,
+        });
+        const updatedInventory = await tx.inventory.findUnique({
+          where: { id: inventory.id },
+        });
+        totalCost += batchCost.totalCost;
+
+        await tx.stockIssueItem.create({
+          data: {
+            stockIssueId: issue.id,
+            ingredientId: line.ingredientId,
+            quantity,
+            unitCost: batchCost.unitCost,
+            lineCost: batchCost.totalCost,
+          },
+        });
+        await tx.inventoryTransaction.create({
+          data: {
+            code: `${code}-${String(lineIndex + 1).padStart(3, "0")}`,
+            type: request.body.reason === "DAMAGED" || request.body.reason === "EXPIRED"
+              ? "WASTE"
+              : "ADJUST_OUT",
+            branchId: request.body.branchId,
+            ingredientId: line.ingredientId,
+            quantity: -quantity,
+            balanceAfter: updatedInventory.quantity,
+            unitCost: batchCost.unitCost,
+            referenceType: "StockIssue",
+            referenceId: issue.id,
+            note: `${issueReasonLabels[request.body.reason]} - phiếu ${code}${request.body.note ? `: ${request.body.note}` : ""}`,
+            createdById: request.user.id,
+          },
+        });
+      }
+
+      await tx.stockIssue.update({
+        where: { id: issue.id },
+        data: { totalCost },
+      });
+      await tx.auditLog.create({
+        data: {
+          userId: request.user.id,
+          action: "STOCK_ISSUE_CREATE",
+          entityType: "StockIssue",
+          entityId: issue.id,
+          newData: {
+            code,
+            branchId: request.body.branchId,
+            reason: request.body.reason,
+            itemCount: request.body.items.length,
+            totalCost,
+          },
+          ipAddress: request.ip,
+          userAgent: request.get("user-agent"),
+        },
+      });
+      return tx.stockIssue.findUnique({
+        where: { id: issue.id },
+        include: stockIssueInclude,
+      });
+    });
+    return created(response, item, "Xuất kho thành công");
+  }),
+);
+
+router.get(
+  "/stocktakes",
+  requirePermission("inventory.view"),
+  asyncHandler(async (request, response) => {
+    const { page, size, skip } = getPagination(request.query);
+    const branchId = scopedBranchId(request);
+    const where = branchId ? { branchId } : {};
+    const [items, total] = await Promise.all([
+      prisma.stocktake.findMany({
+        where,
+        include: stocktakeInclude,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: size,
+      }),
+      prisma.stocktake.count({ where }),
+    ]);
+    return success(
+      response,
+      items,
+      "Lấy lịch sử kiểm kho thành công",
+      paginationMeta(page, size, total),
+    );
+  }),
+);
+
+router.post(
+  "/stocktakes",
+  requirePermission("inventory.manage"),
+  validate(stocktakeSchema),
+  asyncHandler(async (request, response) => {
+    assertBranchAccess(request, request.body.branchId);
+    const item = await prisma.$transaction(async (tx) => {
+      const code = createBusinessCode("KK");
+      const stocktake = await tx.stocktake.create({
+        data: {
+          code,
+          branchId: request.body.branchId,
+          createdById: request.user.id,
+          note: request.body.note || null,
+        },
+      });
+
+      let totalVarianceCost = 0;
+      let differenceCount = 0;
+      for (const [lineIndex, line] of request.body.items.entries()) {
+        const inventory = await tx.inventory.findUnique({
+          where: {
+            branchId_ingredientId: {
+              branchId: request.body.branchId,
+              ingredientId: line.ingredientId,
+            },
+          },
+          include: { ingredient: true },
+        });
+        if (!inventory) {
+          throw new ApiError(404, "Không tìm thấy nguyên liệu trong kho chi nhánh");
+        }
+
+        const systemQuantity = normalizeStockQuantity(inventory.quantity);
+        const actualQuantity = normalizeStockQuantity(line.actualQuantity);
+        const difference = normalizeStockQuantity(actualQuantity - systemQuantity);
+        if (difference !== 0) differenceCount += 1;
+        let unitCost = inventory.ingredient.averageCost;
+        let varianceCost = Math.round(difference * unitCost);
+
+        if (difference < 0) {
+          const batchCost = await consumeInventoryBatches(tx, {
+            branchId: request.body.branchId,
+            ingredientId: line.ingredientId,
+            quantity: Math.abs(difference),
+            ingredientName: inventory.ingredient.name,
+          });
+          unitCost = batchCost.unitCost;
+          varianceCost = -batchCost.totalCost;
+        } else if (difference > 0) {
+          await createAdjustmentBatch(tx, {
+            branchId: request.body.branchId,
+            ingredientId: line.ingredientId,
+            quantity: difference,
+            unitCost,
+            batchNumber: `${code}-${inventory.ingredient.code}`,
+          });
+        }
+
+        if (difference !== 0) {
+          await tx.inventory.update({
+            where: { id: inventory.id },
+            data: { quantity: actualQuantity },
+          });
+        }
+        totalVarianceCost += varianceCost;
+        await tx.stocktakeItem.create({
+          data: {
+            stocktakeId: stocktake.id,
+            ingredientId: line.ingredientId,
+            systemQuantity,
+            actualQuantity,
+            difference,
+            unitCost,
+            varianceCost,
+          },
+        });
+        await tx.inventoryTransaction.create({
+          data: {
+            code: `${code}-${String(lineIndex + 1).padStart(3, "0")}`,
+            type: "STOCKTAKE",
+            branchId: request.body.branchId,
+            ingredientId: line.ingredientId,
+            quantity: difference,
+            balanceAfter: actualQuantity,
+            unitCost,
+            referenceType: "Stocktake",
+            referenceId: stocktake.id,
+            note: `Kiểm kho ${code}${request.body.note ? `: ${request.body.note}` : ""}`,
+            createdById: request.user.id,
+          },
+        });
+      }
+
+      await tx.stocktake.update({
+        where: { id: stocktake.id },
+        data: { totalVarianceCost },
+      });
+      await tx.auditLog.create({
+        data: {
+          userId: request.user.id,
+          action: "STOCKTAKE_COMPLETE",
+          entityType: "Stocktake",
+          entityId: stocktake.id,
+          newData: {
+            code,
+            branchId: request.body.branchId,
+            itemCount: request.body.items.length,
+            differenceCount,
+            totalVarianceCost,
+          },
+          ipAddress: request.ip,
+          userAgent: request.get("user-agent"),
+        },
+      });
+      return tx.stocktake.findUnique({
+        where: { id: stocktake.id },
+        include: stocktakeInclude,
+      });
+    });
+    return created(response, item, "Hoàn tất kiểm kho");
+  }),
+);
+
 router.post(
   "/adjust",
   requirePermission("inventory.manage"),
@@ -164,6 +545,7 @@ router.post(
   })),
   asyncHandler(async (request, response) => {
     const { branchId, ingredientId, type, quantity, note } = request.body;
+    assertBranchAccess(request, branchId);
     const adjustment = await prisma.$transaction(async (tx) => {
       const inventory = await tx.inventory.findUnique({
         where: { branchId_ingredientId: { branchId, ingredientId } },
@@ -171,20 +553,48 @@ router.post(
       });
       if (!inventory) throw new ApiError(404, "Không tìm thấy tồn kho nguyên liệu");
       const decrease = ["ADJUST_OUT", "WASTE"].includes(type);
-      const delta = type === "STOCKTAKE" ? quantity - inventory.quantity : decrease ? -quantity : quantity;
+      const delta = normalizeStockQuantity(
+        type === "STOCKTAKE"
+          ? quantity - inventory.quantity
+          : decrease
+            ? -quantity
+            : quantity,
+      );
       if (inventory.quantity + delta < 0) throw new ApiError(422, "Điều chỉnh sẽ làm tồn kho âm");
+      const transactionCode = createBusinessCode("KHO");
+      let unitCost = inventory.ingredient.averageCost;
+      if (delta < 0) {
+        const batchCost = await consumeInventoryBatches(tx, {
+          branchId,
+          ingredientId,
+          quantity: Math.abs(delta),
+          ingredientName: inventory.ingredient.name,
+        });
+        unitCost = batchCost.unitCost;
+      } else if (delta > 0) {
+        await createAdjustmentBatch(tx, {
+          branchId,
+          ingredientId,
+          quantity: delta,
+          unitCost,
+          batchNumber: `DC-${transactionCode}`,
+        });
+      }
       const updated = await tx.inventory.update({
         where: { id: inventory.id },
-        data: { quantity: inventory.quantity + delta },
+        data: { quantity: normalizeStockQuantity(inventory.quantity + delta) },
       });
       const transaction = await tx.inventoryTransaction.create({
         data: {
-          code: createBusinessCode("KHO"),
+          code: transactionCode,
           type,
           branchId,
           ingredientId,
           quantity: delta,
           balanceAfter: updated.quantity,
+          unitCost,
+          referenceType: "InventoryAdjustment",
+          referenceId: transactionCode,
           note,
           createdById: request.user.id,
         },
@@ -265,4 +675,3 @@ router.post(
 );
 
 export default router;
-

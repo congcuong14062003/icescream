@@ -153,6 +153,10 @@ function dateDaysAgo(days, hour = 10) {
 async function clearDatabase() {
   const operations = [
     prisma.auditLog.deleteMany(),
+    prisma.stocktakeItem.deleteMany(),
+    prisma.stocktake.deleteMany(),
+    prisma.stockIssueItem.deleteMany(),
+    prisma.stockIssue.deleteMany(),
     prisma.orderStatusHistory.deleteMany(),
     prisma.shiftExpense.deleteMany(),
     prisma.refund.deleteMany(),

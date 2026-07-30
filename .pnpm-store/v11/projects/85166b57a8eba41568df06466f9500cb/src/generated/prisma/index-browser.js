@@ -360,6 +360,53 @@ exports.Prisma.InventoryTransactionScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.StockIssueScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  branchId: 'branchId',
+  createdById: 'createdById',
+  reason: 'reason',
+  note: 'note',
+  totalCost: 'totalCost',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.StockIssueItemScalarFieldEnum = {
+  id: 'id',
+  stockIssueId: 'stockIssueId',
+  ingredientId: 'ingredientId',
+  quantity: 'quantity',
+  unitCost: 'unitCost',
+  lineCost: 'lineCost',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.StocktakeScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  branchId: 'branchId',
+  createdById: 'createdById',
+  note: 'note',
+  totalVarianceCost: 'totalVarianceCost',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.StocktakeItemScalarFieldEnum = {
+  id: 'id',
+  stocktakeId: 'stocktakeId',
+  ingredientId: 'ingredientId',
+  systemQuantity: 'systemQuantity',
+  actualQuantity: 'actualQuantity',
+  difference: 'difference',
+  unitCost: 'unitCost',
+  varianceCost: 'varianceCost',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SupplierScalarFieldEnum = {
   id: 'id',
   code: 'code',
@@ -808,6 +855,34 @@ exports.Prisma.InventoryTransactionOrderByRelevanceFieldEnum = {
   createdById: 'createdById'
 };
 
+exports.Prisma.StockIssueOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  branchId: 'branchId',
+  createdById: 'createdById',
+  note: 'note'
+};
+
+exports.Prisma.StockIssueItemOrderByRelevanceFieldEnum = {
+  id: 'id',
+  stockIssueId: 'stockIssueId',
+  ingredientId: 'ingredientId'
+};
+
+exports.Prisma.StocktakeOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  branchId: 'branchId',
+  createdById: 'createdById',
+  note: 'note'
+};
+
+exports.Prisma.StocktakeItemOrderByRelevanceFieldEnum = {
+  id: 'id',
+  stocktakeId: 'stocktakeId',
+  ingredientId: 'ingredientId'
+};
+
 exports.Prisma.SupplierOrderByRelevanceFieldEnum = {
   id: 'id',
   code: 'code',
@@ -1006,6 +1081,14 @@ exports.InventoryTransactionType = exports.$Enums.InventoryTransactionType = {
   REFUND: 'REFUND'
 };
 
+exports.StockIssueReason = exports.$Enums.StockIssueReason = {
+  INTERNAL_USE: 'INTERNAL_USE',
+  DAMAGED: 'DAMAGED',
+  EXPIRED: 'EXPIRED',
+  SAMPLE: 'SAMPLE',
+  OTHER: 'OTHER'
+};
+
 exports.PurchaseOrderStatus = exports.$Enums.PurchaseOrderStatus = {
   DRAFT: 'DRAFT',
   PENDING: 'PENDING',
@@ -1088,6 +1171,10 @@ exports.Prisma.ModelName = {
   Inventory: 'Inventory',
   InventoryBatch: 'InventoryBatch',
   InventoryTransaction: 'InventoryTransaction',
+  StockIssue: 'StockIssue',
+  StockIssueItem: 'StockIssueItem',
+  Stocktake: 'Stocktake',
+  StocktakeItem: 'StocktakeItem',
   Supplier: 'Supplier',
   PurchaseOrder: 'PurchaseOrder',
   PurchaseOrderItem: 'PurchaseOrderItem',

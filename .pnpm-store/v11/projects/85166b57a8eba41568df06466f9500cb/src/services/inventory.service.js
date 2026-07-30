@@ -1,5 +1,6 @@
 import { ApiError } from "../utils/api-error.js";
 import { createBusinessCode } from "../utils/code.js";
+import { consumeInventoryBatches } from "./inventory-batch.service.js";
 
 function addNeed(map, ingredientId, quantity) {
   map.set(ingredientId, (map.get(ingredientId) || 0) + quantity);
@@ -66,6 +67,12 @@ export async function deductInventory(tx, branchId, lines, userId, orderId) {
       where: { id: inventory.id },
       data: { quantity: { decrement: required } },
     });
+    const batchCost = await consumeInventoryBatches(tx, {
+      branchId,
+      ingredientId,
+      quantity: required,
+      ingredientName: ingredient?.name,
+    });
     await tx.inventoryTransaction.create({
       data: {
         code: createBusinessCode("KHO"),
@@ -74,6 +81,7 @@ export async function deductInventory(tx, branchId, lines, userId, orderId) {
         ingredientId,
         quantity: -required,
         balanceAfter: updated.quantity,
+        unitCost: batchCost.unitCost,
         referenceType: "Order",
         referenceId: orderId,
         note: "Xuất kho tự động khi hoàn thành đơn",
@@ -81,23 +89,6 @@ export async function deductInventory(tx, branchId, lines, userId, orderId) {
       },
     });
 
-    let remainingToDeduct = required;
-    const batches = await tx.inventoryBatch.findMany({
-      where: { branchId, ingredientId, remaining: { gt: 0 } },
-      orderBy: [{ expiryDate: "asc" }, { createdAt: "asc" }],
-    });
-    for (const batch of batches) {
-      if (remainingToDeduct <= 0) break;
-      const amount = Math.min(batch.remaining, remainingToDeduct);
-      await tx.inventoryBatch.update({
-        where: { id: batch.id },
-        data: { remaining: { decrement: amount } },
-      });
-      remainingToDeduct -= amount;
-    }
-    if (remainingToDeduct > 0.0001) {
-      throw new ApiError(422, `Dữ liệu lô của ${ingredient?.name || "nguyên liệu"} không đủ`);
-    }
   }
 }
 
@@ -152,4 +143,3 @@ export async function updateCustomerAfterCompletion(tx, order, pricing) {
     },
   });
 }
-

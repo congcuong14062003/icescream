@@ -83,3 +83,93 @@ test("warehouse role is blocked from POS by backend permission", async () => {
     .expect(403);
   assert.equal(response.body.success, false);
 });
+
+test("warehouse staff can issue stock and complete a stocktake only at their branch", async () => {
+  const login = await request(app)
+    .post("/api/auth/login")
+    .send({ login: "warehouse", password: "IceCream@123" })
+    .expect(200);
+  const authorization = `Bearer ${login.body.data.accessToken}`;
+  const ownBranchId = login.body.data.user.branch.id;
+
+  const [inventoryResponse, branchesResponse] = await Promise.all([
+    request(app)
+      .get(`/api/inventory?branchId=${ownBranchId}&size=100`)
+      .set("Authorization", authorization)
+      .expect(200),
+    request(app)
+      .get("/api/branches")
+      .set("Authorization", authorization)
+      .expect(200),
+  ]);
+  const inventoryLine = inventoryResponse.body.data.find((item) => item.quantity >= 2);
+  assert.ok(inventoryLine);
+
+  const otherBranch = branchesResponse.body.data.find((branch) => branch.id !== ownBranchId);
+  assert.ok(otherBranch);
+  await request(app)
+    .post("/api/inventory/issues")
+    .set("Authorization", authorization)
+    .send({
+      branchId: otherBranch.id,
+      reason: "INTERNAL_USE",
+      note: "Không được xuất khác chi nhánh",
+      items: [{ ingredientId: inventoryLine.ingredientId, quantity: 1 }],
+    })
+    .expect(403);
+
+  const issue = await request(app)
+    .post("/api/inventory/issues")
+    .set("Authorization", authorization)
+    .send({
+      branchId: ownBranchId,
+      reason: "INTERNAL_USE",
+      note: "Xuất dùng nội bộ để kiểm thử",
+      items: [{ ingredientId: inventoryLine.ingredientId, quantity: 1 }],
+    })
+    .expect(201);
+  assert.match(issue.body.data.code, /^PXK/);
+  assert.equal(issue.body.data.items.length, 1);
+  assert.equal(issue.body.data.items[0].quantity, 1);
+  assert.ok(issue.body.data.totalCost >= 0);
+
+  const afterIssue = await request(app)
+    .get(`/api/inventory?branchId=${ownBranchId}&search=${encodeURIComponent(inventoryLine.ingredient.code)}&size=100`)
+    .set("Authorization", authorization)
+    .expect(200);
+  const issuedInventory = afterIssue.body.data.find(
+    (item) => item.ingredientId === inventoryLine.ingredientId,
+  );
+  assert.equal(issuedInventory.quantity, inventoryLine.quantity - 1);
+
+  const countedQuantity = issuedInventory.quantity + 0.5;
+  const stocktake = await request(app)
+    .post("/api/inventory/stocktakes")
+    .set("Authorization", authorization)
+    .send({
+      branchId: ownBranchId,
+      note: "Kiểm kho API tự động",
+      items: [{
+        ingredientId: inventoryLine.ingredientId,
+        actualQuantity: countedQuantity,
+      }],
+    })
+    .expect(201);
+  assert.match(stocktake.body.data.code, /^KK/);
+  assert.equal(stocktake.body.data.items[0].systemQuantity, issuedInventory.quantity);
+  assert.equal(stocktake.body.data.items[0].actualQuantity, countedQuantity);
+  assert.equal(stocktake.body.data.items[0].difference, 0.5);
+
+  const [issues, stocktakes] = await Promise.all([
+    request(app)
+      .get(`/api/inventory/issues?branchId=${ownBranchId}&size=5`)
+      .set("Authorization", authorization)
+      .expect(200),
+    request(app)
+      .get(`/api/inventory/stocktakes?branchId=${ownBranchId}&size=5`)
+      .set("Authorization", authorization)
+      .expect(200),
+  ]);
+  assert.ok(issues.body.data.some((item) => item.id === issue.body.data.id));
+  assert.ok(stocktakes.body.data.some((item) => item.id === stocktake.body.data.id));
+});

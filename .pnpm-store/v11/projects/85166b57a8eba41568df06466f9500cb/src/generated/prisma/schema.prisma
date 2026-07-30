@@ -100,6 +100,14 @@ enum RefundStatus {
   REJECTED
 }
 
+enum StockIssueReason {
+  INTERNAL_USE
+  DAMAGED
+  EXPIRED
+  SAMPLE
+  OTHER
+}
+
 model Role {
   id          String           @id @default(cuid())
   code        String           @unique
@@ -155,6 +163,8 @@ model Branch {
   orders         Order[]
   purchaseOrders PurchaseOrder[]
   shifts         WorkShift[]
+  stockIssues    StockIssue[]
+  stocktakes     Stocktake[]
   createdAt      DateTime               @default(now())
   updatedAt      DateTime               @updatedAt
 
@@ -190,6 +200,8 @@ model User {
   shifts                WorkShift[]
   shiftExpenses         ShiftExpense[]
   refunds               Refund[]
+  createdStockIssues    StockIssue[]           @relation("StockIssueCreator")
+  createdStocktakes     Stocktake[]            @relation("StocktakeCreator")
   auditLogs             AuditLog[]
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
@@ -372,6 +384,8 @@ model Ingredient {
   recipes           ProductRecipe[]
   flavorIngredients FlavorIngredient[]
   purchaseItems     PurchaseOrderItem[]
+  stockIssueItems   StockIssueItem[]
+  stocktakeItems    StocktakeItem[]
   createdAt         DateTime               @default(now())
   updatedAt         DateTime               @updatedAt
 
@@ -465,6 +479,76 @@ model InventoryTransaction {
 
   @@index([branchId, ingredientId, createdAt])
   @@index([type, createdAt])
+}
+
+model StockIssue {
+  id          String           @id @default(cuid())
+  code        String           @unique
+  branchId    String
+  createdById String
+  reason      StockIssueReason
+  note        String?          @db.Text
+  totalCost   Int              @default(0)
+  branch      Branch           @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  createdBy   User             @relation("StockIssueCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  items       StockIssueItem[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([branchId, createdAt])
+  @@index([reason, createdAt])
+  @@index([createdById, createdAt])
+}
+
+model StockIssueItem {
+  id           String     @id @default(cuid())
+  stockIssueId String
+  ingredientId String
+  quantity     Float
+  unitCost     Int
+  lineCost     Int
+  stockIssue   StockIssue @relation(fields: [stockIssueId], references: [id], onDelete: Cascade)
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([stockIssueId, ingredientId])
+  @@index([ingredientId, createdAt])
+}
+
+model Stocktake {
+  id                String          @id @default(cuid())
+  code              String          @unique
+  branchId          String
+  createdById       String
+  note              String?         @db.Text
+  totalVarianceCost Int             @default(0)
+  branch            Branch          @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  createdBy         User            @relation("StocktakeCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  items             StocktakeItem[]
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@index([branchId, createdAt])
+  @@index([createdById, createdAt])
+}
+
+model StocktakeItem {
+  id             String     @id @default(cuid())
+  stocktakeId    String
+  ingredientId   String
+  systemQuantity Float
+  actualQuantity Float
+  difference     Float
+  unitCost       Int
+  varianceCost   Int
+  stocktake      Stocktake  @relation(fields: [stocktakeId], references: [id], onDelete: Cascade)
+  ingredient     Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@unique([stocktakeId, ingredientId])
+  @@index([ingredientId, createdAt])
 }
 
 model Supplier {
