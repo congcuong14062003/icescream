@@ -1,0 +1,128 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #172421;
+  background: #f3f6f5;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  --brand-950: #082823;
+  --brand-900: #10443d;
+  --brand-700: #14675a;
+  --brand-600: #16816e;
+  --brand-500: #1fa087;
+  --canvas: #f3f6f5;
+  --panel: #ffffff;
+  --line: #e2e9e7;
+  --muted: #657570;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--canvas);
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.dark {
+  color-scheme: dark;
+  --canvas: #0b1211;
+  --panel: #111b19;
+  --line: #24312e;
+  --muted: #93a39f;
+}
+
+.ice-gradient {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.62), transparent 180px),
+    var(--canvas);
+}
+
+.dark .ice-gradient {
+  background: var(--canvas);
+}
+
+.professional-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 42px 42px;
+}
+
+.app-panel {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--panel);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.025), 0 8px 24px rgba(15, 52, 46, 0.045);
+}
+
+.soft-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd7d4 transparent;
+}
+
+.soft-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.soft-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #cbd7d4;
+}
+
+.dark .soft-scrollbar::-webkit-scrollbar-thumb {
+  background: #354641;
+}
+
+.page-enter {
+  animation: page-enter 260ms ease-out both;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+  }
+}

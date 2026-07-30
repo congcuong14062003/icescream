@@ -1,0 +1,249 @@
+import { Router } from "express";
+import { existsSync, mkdirSync } from "node:fs";
+import path from "node:path";
+import multer from "multer";
+import { z } from "zod";
+import { prisma } from "../../config/prisma.js";
+import { env } from "../../config/env.js";
+import { cloudinary, hasCloudinary } from "../../config/cloudinary.js";
+import { authenticate, requirePermission } from "../../middlewares/auth.js";
+import { validate } from "../../middlewares/validate.js";
+import { ApiError } from "../../utils/api-error.js";
+import { asyncHandler } from "../../utils/async-handler.js";
+import { getPagination, paginationMeta } from "../../utils/pagination.js";
+import { created, success } from "../../utils/response.js";
+import { writeAudit } from "../../utils/audit.js";
+
+const router = Router();
+router.use(authenticate);
+
+const variantSchema = z.object({
+  id: z.string().optional(),
+  sku: z.string().trim().min(2).max(50).transform((value) => value.toUpperCase()),
+  name: z.string().trim().min(1).max(80),
+  size: z.string().trim().max(20).optional().nullable(),
+  cupType: z.string().trim().max(50).optional().nullable(),
+  scoopCount: z.coerce.number().int().min(0).max(12).default(1),
+  price: z.coerce.number().int().min(0),
+  costPrice: z.coerce.number().int().min(0),
+  isActive: z.boolean().default(true),
+});
+
+const productSchema = z.object({
+  code: z.string().trim().min(2).max(30).transform((value) => value.toUpperCase()),
+  name: z.string().trim().min(2).max(150),
+  categoryId: z.string().min(1),
+  description: z.string().max(2000).optional().nullable(),
+  imageUrl: z.string().url().optional().nullable().or(z.literal("")),
+  price: z.coerce.number().int().min(0),
+  costPrice: z.coerce.number().int().min(0),
+  status: z.enum(["ACTIVE", "INACTIVE", "OUT_OF_STOCK"]).default("ACTIVE"),
+  isFeatured: z.boolean().default(false),
+  displayOrder: z.coerce.number().int().min(0).default(0),
+  variants: z.array(variantSchema).min(1),
+});
+
+const productInclude = {
+  category: { select: { id: true, code: true, name: true } },
+  variants: { orderBy: { price: "asc" } },
+  images: { orderBy: { displayOrder: "asc" } },
+};
+
+router.get(
+  "/",
+  requirePermission("products.view", "pos.use"),
+  asyncHandler(async (request, response) => {
+    const { page, size, skip } = getPagination(request.query);
+    const search = String(request.query.search || "").trim();
+    const where = {
+      deletedAt: null,
+      ...(request.query.categoryId ? { categoryId: request.query.categoryId } : {}),
+      ...(request.query.status ? { status: request.query.status } : {}),
+      ...(request.query.featured === "true" ? { isFeatured: true } : {}),
+      ...(search
+        ? {
+            OR: [
+              { name: { contains: search } },
+              { code: { contains: search } },
+              { variants: { some: { sku: { contains: search } } } },
+            ],
+          }
+        : {}),
+    };
+    const [items, total] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        include: productInclude,
+        orderBy: [{ displayOrder: "asc" }, { createdAt: "desc" }],
+        skip,
+        take: size,
+      }),
+      prisma.product.count({ where }),
+    ]);
+    return success(response, items, "Lấy danh sách sản phẩm thành công", paginationMeta(page, size, total));
+  }),
+);
+
+router.get(
+  "/:id",
+  requirePermission("products.view", "pos.use"),
+  asyncHandler(async (request, response) => {
+    const item = await prisma.product.findFirst({
+      where: { id: request.params.id, deletedAt: null },
+      include: {
+        ...productInclude,
+        recipes: { include: { ingredient: true } },
+      },
+    });
+    if (!item) throw new ApiError(404, "Không tìm thấy sản phẩm");
+    return success(response, item);
+  }),
+);
+
+router.post(
+  "/",
+  requirePermission("products.manage"),
+  validate(productSchema),
+  asyncHandler(async (request, response) => {
+    const { variants, imageUrl, ...data } = request.body;
+    const item = await prisma.product.create({
+      data: {
+        ...data,
+        imageUrl: imageUrl || null,
+        variants: { create: variants.map(({ id, ...variant }) => variant) },
+      },
+      include: productInclude,
+    });
+    await writeAudit(prisma, request, "PRODUCT_CREATE", "Product", item.id, null, {
+      code: item.code,
+      name: item.name,
+    });
+    return created(response, item, "Tạo sản phẩm thành công");
+  }),
+);
+
+router.put(
+  "/:id",
+  requirePermission("products.manage"),
+  validate(productSchema),
+  asyncHandler(async (request, response) => {
+    const oldItem = await prisma.product.findFirst({
+      where: { id: request.params.id, deletedAt: null },
+      include: { variants: true },
+    });
+    if (!oldItem) throw new ApiError(404, "Không tìm thấy sản phẩm");
+    const { variants, imageUrl, ...data } = request.body;
+    const existingVariantIds = new Set(oldItem.variants.map((variant) => variant.id));
+    const submittedIds = variants.map((variant) => variant.id).filter(Boolean);
+    if (
+      submittedIds.some((id) => !existingVariantIds.has(id))
+      || new Set(submittedIds).size !== submittedIds.length
+    ) {
+      throw new ApiError(422, "Danh sách biến thể không hợp lệ cho sản phẩm này");
+    }
+    const item = await prisma.$transaction(async (tx) => {
+      await tx.productVariant.updateMany({
+        where: { productId: oldItem.id, id: { notIn: submittedIds } },
+        data: { isActive: false },
+      });
+      for (const variant of variants) {
+        const { id, ...variantData } = variant;
+        if (id) {
+          await tx.productVariant.update({
+            where: { id },
+            data: variantData,
+          });
+        } else {
+          await tx.productVariant.create({
+            data: { ...variantData, productId: oldItem.id },
+          });
+        }
+      }
+      return tx.product.update({
+        where: { id: oldItem.id },
+        data: { ...data, imageUrl: imageUrl || null },
+        include: productInclude,
+      });
+    });
+    await writeAudit(prisma, request, "PRODUCT_UPDATE", "Product", item.id, {
+      code: oldItem.code,
+      name: oldItem.name,
+      status: oldItem.status,
+    }, {
+      code: item.code,
+      name: item.name,
+      status: item.status,
+    });
+    return success(response, item, "Cập nhật sản phẩm thành công");
+  }),
+);
+
+router.delete(
+  "/:id",
+  requirePermission("products.manage"),
+  asyncHandler(async (request, response) => {
+    const item = await prisma.product.findFirst({
+      where: { id: request.params.id, deletedAt: null },
+      include: { _count: { select: { orderItems: true } } },
+    });
+    if (!item) throw new ApiError(404, "Không tìm thấy sản phẩm");
+    if (item._count.orderItems > 0) {
+      throw new ApiError(422, "Sản phẩm đã phát sinh giao dịch, chỉ có thể ngừng bán");
+    }
+    await prisma.product.update({
+      where: { id: item.id },
+      data: { deletedAt: new Date(), status: "INACTIVE" },
+    });
+    await writeAudit(prisma, request, "PRODUCT_DELETE", "Product", item.id, item, null);
+    return success(response, {}, "Xóa sản phẩm thành công");
+  }),
+);
+
+const uploadDirectory = path.resolve("uploads");
+if (!existsSync(uploadDirectory)) mkdirSync(uploadDirectory, { recursive: true });
+
+const upload = multer({
+  storage: hasCloudinary
+    ? multer.memoryStorage()
+    : multer.diskStorage({
+        destination: uploadDirectory,
+        filename: (request, file, callback) => {
+          const extension = path.extname(file.originalname).toLowerCase();
+          callback(null, `${Date.now()}-${Math.random().toString(16).slice(2)}${extension}`);
+        },
+      }),
+  limits: { fileSize: env.MAX_FILE_SIZE_MB * 1024 * 1024 },
+  fileFilter: (request, file, callback) => {
+    callback(null, ["image/jpeg", "image/png", "image/webp"].includes(file.mimetype));
+  },
+});
+
+router.post(
+  "/upload",
+  upload.single("image"),
+  asyncHandler(async (request, response) => {
+    if (!request.file) throw new ApiError(422, "Vui lòng chọn ảnh JPG, PNG hoặc WebP");
+    let result;
+    if (hasCloudinary) {
+      result = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { folder: "icecream-pos/products", resource_type: "image" },
+          (error, uploadResult) => (error ? reject(error) : resolve(uploadResult)),
+        );
+        stream.end(request.file.buffer);
+      });
+    } else {
+      result = {
+        secure_url: `${request.protocol}://${request.get("host")}/uploads/${request.file.filename}`,
+        public_id: null,
+      };
+    }
+    return created(
+      response,
+      { url: result.secure_url, publicId: result.public_id },
+      "Tải ảnh lên thành công",
+    );
+  }),
+);
+
+export default router;
