@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search, UserPlus, X } from "lucide-react";
+import { Crown, Search, UserPlus, X } from "lucide-react";
 import { IconButton, InputAdornment } from "@mui/material";
 import { toast } from "react-toastify";
 import api, { apiMessage } from "../../services/api";
@@ -9,10 +9,13 @@ import Button from "../../components/common/Button";
 import Input from "../../components/common/Input";
 import Modal from "../../components/common/Modal";
 import EmptyState from "../../components/common/EmptyState";
+import MembershipEnrollDialog from "../customers/MembershipEnrollDialog";
+import { formatDate } from "../../utils/format";
 
 export default function CustomerPicker({ customer, onSelect }) {
   const [open, setOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
+  const [membershipOpen, setMembershipOpen] = useState(false);
   const [search, setSearch] = useState("");
   const queryClient = useQueryClient();
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm();
@@ -41,16 +44,46 @@ export default function CustomerPicker({ customer, onSelect }) {
 
   if (customer) {
     return (
-      <div className="tw-flex tw-items-center tw-gap-3 tw-rounded-2xl tw-bg-mint-50 tw-p-3 dark:tw-bg-mint-700/20">
-        <div className="tw-flex tw-h-10 tw-w-10 tw-items-center tw-justify-center tw-rounded-full tw-bg-mint-200 tw-font-black tw-text-mint-700">
-          {customer.fullName.charAt(0)}
+      <>
+        <div className="tw-rounded-2xl tw-bg-mint-50 tw-p-3 dark:tw-bg-mint-700/20">
+          <div className="tw-flex tw-items-center tw-gap-3">
+            <div className="tw-flex tw-h-10 tw-w-10 tw-items-center tw-justify-center tw-rounded-full tw-bg-mint-200 tw-font-black tw-text-mint-700">
+              {customer.fullName.charAt(0)}
+            </div>
+            <div className="tw-min-w-0 tw-flex-1">
+              <div className="tw-truncate tw-text-sm tw-font-black">{customer.fullName}</div>
+              <div className="tw-text-xs tw-text-slate-500">{customer.phone} · {customer.points} điểm</div>
+            </div>
+            <IconButton size="small" onClick={() => onSelect(null)} aria-label="Bỏ khách hàng"><X size={17} /></IconButton>
+          </div>
+          <div className="tw-mt-2 tw-flex tw-items-center tw-justify-between tw-gap-2 tw-border-t tw-border-mint-200/70 tw-pt-2 dark:tw-border-mint-800">
+            {customer.activeMembership ? (
+              <span className="tw-flex tw-min-w-0 tw-items-center tw-gap-1.5 tw-text-[11px] tw-font-bold tw-text-mint-800 dark:tw-text-mint-200">
+                <Crown size={14} />
+                <span className="tw-truncate">{customer.activeMembership.plan.name}</span>
+                <span className="tw-whitespace-nowrap">· đến {formatDate(customer.activeMembership.endsAt)}</span>
+              </span>
+            ) : (
+              <span className="tw-text-[11px] tw-text-slate-500">Chưa đăng ký hội viên trả phí</span>
+            )}
+            <Button
+              size="small"
+              variant="text"
+              startIcon={<Crown size={14} />}
+              onClick={() => setMembershipOpen(true)}
+              className="!tw-whitespace-nowrap !tw-text-[11px]"
+            >
+              {customer.activeMembership ? "Gia hạn" : "Đăng ký"}
+            </Button>
+          </div>
         </div>
-        <div className="tw-min-w-0 tw-flex-1">
-          <div className="tw-truncate tw-text-sm tw-font-black">{customer.fullName}</div>
-          <div className="tw-text-xs tw-text-slate-500">{customer.phone} · {customer.points} điểm</div>
-        </div>
-        <IconButton size="small" onClick={() => onSelect(null)} aria-label="Bỏ khách hàng"><X size={17} /></IconButton>
-      </div>
+        <MembershipEnrollDialog
+          open={membershipOpen}
+          customer={customer}
+          onClose={() => setMembershipOpen(false)}
+          onSuccess={onSelect}
+        />
+      </>
     );
   }
 
@@ -86,7 +119,9 @@ export default function CustomerPicker({ customer, onSelect }) {
                 <div className="tw-flex tw-h-10 tw-w-10 tw-items-center tw-justify-center tw-rounded-full tw-bg-lavender-100 tw-font-black tw-text-lavender-500">{item.fullName.charAt(0)}</div>
                 <div className="tw-flex-1">
                   <strong className="tw-block tw-text-sm">{item.fullName}</strong>
-                  <span className="tw-text-xs tw-text-slate-500">{item.phone} · {item.membershipLevel.name}</span>
+                  <span className="tw-text-xs tw-text-slate-500">
+                    {item.phone} · {item.activeMembership ? "Hội viên trả phí" : item.membershipLevel.name}
+                  </span>
                 </div>
                 <span className="tw-text-xs tw-font-bold tw-text-mint-700">{item.points} điểm</span>
               </button>

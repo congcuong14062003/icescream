@@ -269,6 +269,7 @@ function drawTotals(document, fonts, order, startY) {
   const rows = [
     ["Tạm tính", order.originalAmount],
     ...(order.discountAmount ? [["Khuyến mãi", -order.discountAmount]] : []),
+    ...(order.membershipDiscount ? [["Quyền lợi hội viên", -order.membershipDiscount]] : []),
     ...(order.pointsDiscount ? [["Điểm thành viên", -order.pointsDiscount]] : []),
     ...(order.taxAmount ? [[`VAT ${order.vatRate || 0}%`, order.taxAmount]] : []),
     ...(order.deliveryFee ? [["Phí giao hàng", order.deliveryFee]] : []),

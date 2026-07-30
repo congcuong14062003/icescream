@@ -1,5 +1,6 @@
 import { ApiError } from "../utils/api-error.js";
 import { validatePromotion } from "./promotion.service.js";
+import { calculateMembershipBenefit } from "./membership.service.js";
 
 export async function calculateOrder(tx, input) {
   if (!input.items?.length) throw new ApiError(422, "Giỏ hàng đang trống");
@@ -62,6 +63,7 @@ export async function calculateOrder(tx, input) {
       productName: variant.product.name,
       variantName: variant.name,
       sku: variant.sku,
+      basePrice: variant.price,
       unitPrice,
       quantity: inputLine.quantity,
       scoopCount: variant.scoopCount,
@@ -78,29 +80,51 @@ export async function calculateOrder(tx, input) {
     customerId: input.customerId,
     lines,
   });
+  const membershipPricing = await calculateMembershipBenefit(
+    tx,
+    input.customerId,
+    lines,
+  );
+  const membershipDiscount = Math.min(
+    membershipPricing.discount,
+    Math.max(0, originalAmount - discount),
+  );
 
   let customer = null;
   let pointsDiscount = 0;
-  const pointsToRedeem = input.pointsToRedeem || 0;
+  let appliedPoints = 0;
+  let maxRedeemablePoints = 0;
+  let maxPointsDiscount = 0;
+  const requestedPoints = input.pointsToRedeem || 0;
   if (input.customerId) {
     customer = await tx.customer.findFirst({
       where: { id: input.customerId, deletedAt: null },
       include: { membershipLevel: true },
     });
     if (!customer) throw new ApiError(422, "Khách hàng không tồn tại");
-    if (pointsToRedeem > customer.points) {
+    if (requestedPoints > customer.points) {
       throw new ApiError(422, "Số điểm sử dụng vượt quá điểm hiện có");
     }
-    pointsDiscount = Math.min(
-      pointsToRedeem * customer.membershipLevel.pointValue,
-      originalAmount - discount,
+    const amountBeforePoints = Math.max(
+      0,
+      originalAmount - discount - membershipDiscount,
     );
-  } else if (pointsToRedeem > 0) {
+    maxPointsDiscount = Math.floor(amountBeforePoints * 0.2);
+    maxRedeemablePoints = Math.min(
+      customer.points,
+      Math.floor(maxPointsDiscount / customer.membershipLevel.pointValue),
+    );
+    appliedPoints = Math.min(requestedPoints, maxRedeemablePoints);
+    pointsDiscount = appliedPoints * customer.membershipLevel.pointValue;
+  } else if (requestedPoints > 0) {
     throw new ApiError(422, "Vui lòng chọn khách hàng trước khi sử dụng điểm");
   }
 
   const vatRate = 8;
-  const taxable = Math.max(0, originalAmount - discount - pointsDiscount);
+  const taxable = Math.max(
+    0,
+    originalAmount - discount - membershipDiscount - pointsDiscount,
+  );
   const taxAmount = Math.round((taxable * vatRate) / 100);
   const deliveryFee = input.deliveryFee || 0;
   const totalAmount = taxable + taxAmount + deliveryFee;
@@ -110,10 +134,15 @@ export async function calculateOrder(tx, input) {
     customer,
     promotion,
     promotionBenefit: benefit,
+    activeMembership: membershipPricing.subscription,
+    membershipBenefit: membershipPricing.benefit,
     originalAmount,
     discountAmount: discount,
+    membershipDiscount,
     pointsDiscount,
-    pointsToRedeem,
+    pointsToRedeem: appliedPoints,
+    maxRedeemablePoints,
+    maxPointsDiscount,
     vatRate,
     taxAmount,
     deliveryFee,

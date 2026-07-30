@@ -444,7 +444,7 @@ export default function PromotionFormDialog({
                   <FormControlLabel
                     disabled={type === "MEMBER"}
                     control={<Switch checked={type === "MEMBER" || field.value} onChange={(_, value) => field.onChange(value)} />}
-                    label="Chỉ dành cho khách thành viên"
+                    label="Chỉ dành cho hội viên trả phí còn hạn"
                   />
                 </div>
               )}

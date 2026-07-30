@@ -94,6 +94,12 @@ enum PointTransactionType {
   EXPIRE
 }
 
+enum MembershipSubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
 enum RefundStatus {
   PENDING
   COMPLETED
@@ -144,67 +150,69 @@ model RolePermission {
 }
 
 model Branch {
-  id             String                 @id @default(cuid())
-  code           String                 @unique
-  name           String
-  address        String                 @db.VarChar(500)
-  phone          String
-  openingHours   String?
-  managerId      String?
-  isActive       Boolean                @default(true)
-  deletedAt      DateTime?
-  manager        User?                  @relation("BranchManager", fields: [managerId], references: [id], onDelete: SetNull)
-  users          User[]                 @relation("UserBranch")
-  inventories    Inventory[]
-  inventoryBatch InventoryBatch[]
-  inventoryTxs   InventoryTransaction[] @relation("TransactionBranch")
-  transferFrom   InventoryTransaction[] @relation("TransactionFromBranch")
-  transferTo     InventoryTransaction[] @relation("TransactionToBranch")
-  orders         Order[]
-  purchaseOrders PurchaseOrder[]
-  shifts         WorkShift[]
-  stockIssues    StockIssue[]
-  stocktakes     Stocktake[]
-  createdAt      DateTime               @default(now())
-  updatedAt      DateTime               @updatedAt
+  id                      String                   @id @default(cuid())
+  code                    String                   @unique
+  name                    String
+  address                 String                   @db.VarChar(500)
+  phone                   String
+  openingHours            String?
+  managerId               String?
+  isActive                Boolean                  @default(true)
+  deletedAt               DateTime?
+  manager                 User?                    @relation("BranchManager", fields: [managerId], references: [id], onDelete: SetNull)
+  users                   User[]                   @relation("UserBranch")
+  inventories             Inventory[]
+  inventoryBatch          InventoryBatch[]
+  inventoryTxs            InventoryTransaction[]   @relation("TransactionBranch")
+  transferFrom            InventoryTransaction[]   @relation("TransactionFromBranch")
+  transferTo              InventoryTransaction[]   @relation("TransactionToBranch")
+  orders                  Order[]
+  purchaseOrders          PurchaseOrder[]
+  shifts                  WorkShift[]
+  stockIssues             StockIssue[]
+  stocktakes              Stocktake[]
+  membershipSubscriptions MembershipSubscription[]
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
 
   @@index([name])
   @@index([isActive, createdAt])
 }
 
 model User {
-  id                    String                 @id @default(cuid())
-  username              String                 @unique
-  email                 String                 @unique
-  passwordHash          String
-  fullName              String
-  phone                 String?
-  avatarUrl             String?                @db.Text
-  status                AccountStatus          @default(ACTIVE)
-  roleId                String
-  branchId              String?
-  lastLoginAt           DateTime?
-  passwordResetHash     String?
-  passwordResetExpires  DateTime?
-  deletedAt             DateTime?
-  role                  Role                   @relation(fields: [roleId], references: [id], onDelete: Restrict)
-  branch                Branch?                @relation("UserBranch", fields: [branchId], references: [id], onDelete: SetNull)
-  managedBranches       Branch[]               @relation("BranchManager")
-  refreshTokens         RefreshToken[]
-  loginHistories        LoginHistory[]
-  createdOrders         Order[]                @relation("OrderCreator")
-  assignedOrders        Order[]                @relation("OrderAssignee")
-  orderStatusChanges    OrderStatusHistory[]
-  inventoryTransactions InventoryTransaction[]
-  purchaseOrders        PurchaseOrder[]
-  shifts                WorkShift[]
-  shiftExpenses         ShiftExpense[]
-  refunds               Refund[]
-  createdStockIssues    StockIssue[]           @relation("StockIssueCreator")
-  createdStocktakes     Stocktake[]            @relation("StocktakeCreator")
-  auditLogs             AuditLog[]
-  createdAt             DateTime               @default(now())
-  updatedAt             DateTime               @updatedAt
+  id                             String                   @id @default(cuid())
+  username                       String                   @unique
+  email                          String                   @unique
+  passwordHash                   String
+  fullName                       String
+  phone                          String?
+  avatarUrl                      String?                  @db.Text
+  status                         AccountStatus            @default(ACTIVE)
+  roleId                         String
+  branchId                       String?
+  lastLoginAt                    DateTime?
+  passwordResetHash              String?
+  passwordResetExpires           DateTime?
+  deletedAt                      DateTime?
+  role                           Role                     @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  branch                         Branch?                  @relation("UserBranch", fields: [branchId], references: [id], onDelete: SetNull)
+  managedBranches                Branch[]                 @relation("BranchManager")
+  refreshTokens                  RefreshToken[]
+  loginHistories                 LoginHistory[]
+  createdOrders                  Order[]                  @relation("OrderCreator")
+  assignedOrders                 Order[]                  @relation("OrderAssignee")
+  orderStatusChanges             OrderStatusHistory[]
+  inventoryTransactions          InventoryTransaction[]
+  purchaseOrders                 PurchaseOrder[]
+  shifts                         WorkShift[]
+  shiftExpenses                  ShiftExpense[]
+  refunds                        Refund[]
+  createdStockIssues             StockIssue[]             @relation("StockIssueCreator")
+  createdStocktakes              Stocktake[]              @relation("StocktakeCreator")
+  createdMembershipSubscriptions MembershipSubscription[] @relation("MembershipSubscriptionCreator")
+  auditLogs                      AuditLog[]
+  createdAt                      DateTime                 @default(now())
+  updatedAt                      DateTime                 @updatedAt
 
   @@index([fullName])
   @@index([status, createdAt])
@@ -257,26 +265,27 @@ model Category {
 }
 
 model Product {
-  id           String             @id @default(cuid())
-  code         String             @unique
-  name         String
-  categoryId   String
-  description  String?            @db.Text
-  imageUrl     String?            @db.Text
-  price        Int
-  costPrice    Int
-  status       ProductStatus      @default(ACTIVE)
-  isFeatured   Boolean            @default(false)
-  displayOrder Int                @default(0)
-  deletedAt    DateTime?
-  category     Category           @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  images       ProductImage[]
-  variants     ProductVariant[]
-  recipes      ProductRecipe[]
-  promotions   PromotionProduct[]
-  orderItems   OrderItem[]
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
+  id              String                  @id @default(cuid())
+  code            String                  @unique
+  name            String
+  categoryId      String
+  description     String?                 @db.Text
+  imageUrl        String?                 @db.Text
+  price           Int
+  costPrice       Int
+  status          ProductStatus           @default(ACTIVE)
+  isFeatured      Boolean                 @default(false)
+  displayOrder    Int                     @default(0)
+  deletedAt       DateTime?
+  category        Category                @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  images          ProductImage[]
+  variants        ProductVariant[]
+  recipes         ProductRecipe[]
+  promotions      PromotionProduct[]
+  orderItems      OrderItem[]
+  membershipPlans MembershipPlanProduct[]
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
 
   @@index([name])
   @@index([status, createdAt])
@@ -297,21 +306,22 @@ model ProductImage {
 }
 
 model ProductVariant {
-  id         String          @id @default(cuid())
-  productId  String
-  sku        String          @unique
-  name       String
-  size       String?
-  cupType    String?
-  scoopCount Int             @default(1)
-  price      Int
-  costPrice  Int
-  isActive   Boolean         @default(true)
-  product    Product         @relation(fields: [productId], references: [id], onDelete: Restrict)
-  recipes    ProductRecipe[]
-  orderItems OrderItem[]
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @updatedAt
+  id                     String           @id @default(cuid())
+  productId              String
+  sku                    String           @unique
+  name                   String
+  size                   String?
+  cupType                String?
+  scoopCount             Int              @default(1)
+  price                  Int
+  costPrice              Int
+  isActive               Boolean          @default(true)
+  product                Product          @relation(fields: [productId], references: [id], onDelete: Restrict)
+  recipes                ProductRecipe[]
+  orderItems             OrderItem[]
+  membershipBenefitPlans MembershipPlan[] @relation("MembershipBenefitVariant")
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
 
   @@index([productId, isActive])
   @@index([name])
@@ -631,28 +641,103 @@ model MembershipLevel {
 }
 
 model Customer {
-  id                String                     @id @default(cuid())
-  code              String                     @unique
-  fullName          String
-  phone             String                     @unique
-  email             String?                    @unique
-  dateOfBirth       DateTime?
-  address           String?                    @db.VarChar(500)
-  membershipLevelId String
-  totalSpending     Int                        @default(0)
-  totalOrders       Int                        @default(0)
-  points            Int                        @default(0)
-  deletedAt         DateTime?
-  membershipLevel   MembershipLevel            @relation(fields: [membershipLevelId], references: [id], onDelete: Restrict)
-  pointTransactions CustomerPointTransaction[]
-  orders            Order[]
-  promotionUsages   PromotionUsage[]
-  createdAt         DateTime                   @default(now())
-  updatedAt         DateTime                   @updatedAt
+  id                      String                     @id @default(cuid())
+  code                    String                     @unique
+  fullName                String
+  phone                   String                     @unique
+  email                   String?                    @unique
+  dateOfBirth             DateTime?
+  address                 String?                    @db.VarChar(500)
+  membershipLevelId       String
+  totalSpending           Int                        @default(0)
+  totalOrders             Int                        @default(0)
+  points                  Int                        @default(0)
+  deletedAt               DateTime?
+  membershipLevel         MembershipLevel            @relation(fields: [membershipLevelId], references: [id], onDelete: Restrict)
+  pointTransactions       CustomerPointTransaction[]
+  orders                  Order[]
+  promotionUsages         PromotionUsage[]
+  membershipSubscriptions MembershipSubscription[]
+  createdAt               DateTime                   @default(now())
+  updatedAt               DateTime                   @updatedAt
 
   @@index([fullName])
   @@index([phone])
   @@index([createdAt])
+}
+
+model MembershipPlan {
+  id                String                   @id @default(cuid())
+  code              String                   @unique
+  name              String
+  description       String?                  @db.Text
+  price             Int
+  durationDays      Int
+  dailyFreeQuantity Int                      @default(1)
+  benefitVariantId  String?
+  isActive          Boolean                  @default(true)
+  benefitVariant    ProductVariant?          @relation("MembershipBenefitVariant", fields: [benefitVariantId], references: [id], onDelete: Restrict)
+  products          MembershipPlanProduct[]
+  subscriptions     MembershipSubscription[]
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @updatedAt
+
+  @@index([name])
+  @@index([isActive, createdAt])
+  @@index([benefitVariantId])
+}
+
+model MembershipPlanProduct {
+  membershipPlanId String
+  productId        String
+  membershipPlan   MembershipPlan @relation(fields: [membershipPlanId], references: [id], onDelete: Cascade)
+  product          Product        @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@id([membershipPlanId, productId])
+  @@index([productId])
+}
+
+model MembershipSubscription {
+  id               String                       @id @default(cuid())
+  code             String                       @unique
+  customerId       String
+  membershipPlanId String
+  branchId         String
+  createdById      String
+  startsAt         DateTime
+  endsAt           DateTime
+  amountPaid       Int
+  paymentMethod    PaymentMethod
+  referenceCode    String?
+  status           MembershipSubscriptionStatus @default(ACTIVE)
+  note             String?                      @db.Text
+  customer         Customer                     @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  membershipPlan   MembershipPlan               @relation(fields: [membershipPlanId], references: [id], onDelete: Restrict)
+  branch           Branch                       @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  createdBy        User                         @relation("MembershipSubscriptionCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  benefitUsages    MembershipBenefitUsage[]
+  createdAt        DateTime                     @default(now())
+  updatedAt        DateTime                     @updatedAt
+
+  @@index([customerId, status, startsAt, endsAt])
+  @@index([membershipPlanId, createdAt])
+  @@index([branchId, createdAt])
+  @@index([createdById, createdAt])
+}
+
+model MembershipBenefitUsage {
+  id             String                 @id @default(cuid())
+  subscriptionId String
+  orderId        String                 @unique
+  benefitDate    DateTime               @db.Date
+  quantity       Int                    @default(1)
+  discountAmount Int
+  subscription   MembershipSubscription @relation(fields: [subscriptionId], references: [id], onDelete: Restrict)
+  order          Order                  @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  createdAt      DateTime               @default(now())
+
+  @@unique([subscriptionId, benefitDate])
+  @@index([benefitDate, createdAt])
 }
 
 model CustomerPointTransaction {
@@ -735,43 +820,45 @@ model PromotionUsage {
 }
 
 model Order {
-  id                 String                     @id @default(cuid())
-  code               String                     @unique
-  branchId           String
-  customerId         String?
-  createdById        String
-  assignedToId       String?
-  shiftId            String?
-  promotionId        String?
-  originalAmount     Int
-  discountAmount     Int                        @default(0)
-  pointsDiscount     Int                        @default(0)
-  vatRate            Float                      @default(0)
-  taxAmount          Int                        @default(0)
-  deliveryFee        Int                        @default(0)
-  totalAmount        Int
-  customerPaid       Int                        @default(0)
-  changeAmount       Int                        @default(0)
-  paymentStatus      PaymentStatus              @default(UNPAID)
-  status             OrderStatus                @default(PENDING)
-  note               String?                    @db.Text
-  cancellationReason String?                    @db.Text
-  completedAt        DateTime?
-  cancelledAt        DateTime?
-  branch             Branch                     @relation(fields: [branchId], references: [id], onDelete: Restrict)
-  customer           Customer?                  @relation(fields: [customerId], references: [id], onDelete: SetNull)
-  createdBy          User                       @relation("OrderCreator", fields: [createdById], references: [id], onDelete: Restrict)
-  assignedTo         User?                      @relation("OrderAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
-  shift              WorkShift?                 @relation(fields: [shiftId], references: [id], onDelete: SetNull)
-  promotion          Promotion?                 @relation(fields: [promotionId], references: [id], onDelete: SetNull)
-  items              OrderItem[]
-  payments           Payment[]
-  refunds            Refund[]
-  statusHistory      OrderStatusHistory[]
-  pointTransactions  CustomerPointTransaction[]
-  promotionUsage     PromotionUsage?
-  createdAt          DateTime                   @default(now())
-  updatedAt          DateTime                   @updatedAt
+  id                     String                     @id @default(cuid())
+  code                   String                     @unique
+  branchId               String
+  customerId             String?
+  createdById            String
+  assignedToId           String?
+  shiftId                String?
+  promotionId            String?
+  originalAmount         Int
+  discountAmount         Int                        @default(0)
+  pointsDiscount         Int                        @default(0)
+  membershipDiscount     Int                        @default(0)
+  vatRate                Float                      @default(0)
+  taxAmount              Int                        @default(0)
+  deliveryFee            Int                        @default(0)
+  totalAmount            Int
+  customerPaid           Int                        @default(0)
+  changeAmount           Int                        @default(0)
+  paymentStatus          PaymentStatus              @default(UNPAID)
+  status                 OrderStatus                @default(PENDING)
+  note                   String?                    @db.Text
+  cancellationReason     String?                    @db.Text
+  completedAt            DateTime?
+  cancelledAt            DateTime?
+  branch                 Branch                     @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  customer               Customer?                  @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  createdBy              User                       @relation("OrderCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  assignedTo             User?                      @relation("OrderAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  shift                  WorkShift?                 @relation(fields: [shiftId], references: [id], onDelete: SetNull)
+  promotion              Promotion?                 @relation(fields: [promotionId], references: [id], onDelete: SetNull)
+  items                  OrderItem[]
+  payments               Payment[]
+  refunds                Refund[]
+  statusHistory          OrderStatusHistory[]
+  pointTransactions      CustomerPointTransaction[]
+  promotionUsage         PromotionUsage?
+  membershipBenefitUsage MembershipBenefitUsage?
+  createdAt              DateTime                   @default(now())
+  updatedAt              DateTime                   @updatedAt
 
   @@index([status, createdAt])
   @@index([paymentStatus, createdAt])

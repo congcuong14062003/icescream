@@ -1,4 +1,5 @@
 import { ApiError } from "../utils/api-error.js";
+import { assertPaidMember } from "./membership.service.js";
 
 function buyXGetYBenefit(promotion, lines) {
   const productIds = new Set(promotion.products.map((item) => item.productId));
@@ -73,8 +74,8 @@ export async function validatePromotion(tx, code, context) {
   if (promotion.totalUsageLimit && promotion._count.usages >= promotion.totalUsageLimit) {
     throw new ApiError(422, "Mã khuyến mãi đã hết lượt sử dụng");
   }
-  if (promotion.memberOnly && !context.customerId) {
-    throw new ApiError(422, "Mã khuyến mãi chỉ dành cho khách hàng thành viên");
+  if (promotion.memberOnly) {
+    await assertPaidMember(tx, context.customerId);
   }
   if (context.customerId) {
     const customerUsage = await tx.promotionUsage.count({

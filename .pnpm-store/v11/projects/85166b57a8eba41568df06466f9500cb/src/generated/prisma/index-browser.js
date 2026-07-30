@@ -482,6 +482,53 @@ exports.Prisma.CustomerScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.MembershipPlanScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  description: 'description',
+  price: 'price',
+  durationDays: 'durationDays',
+  dailyFreeQuantity: 'dailyFreeQuantity',
+  benefitVariantId: 'benefitVariantId',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.MembershipPlanProductScalarFieldEnum = {
+  membershipPlanId: 'membershipPlanId',
+  productId: 'productId'
+};
+
+exports.Prisma.MembershipSubscriptionScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  customerId: 'customerId',
+  membershipPlanId: 'membershipPlanId',
+  branchId: 'branchId',
+  createdById: 'createdById',
+  startsAt: 'startsAt',
+  endsAt: 'endsAt',
+  amountPaid: 'amountPaid',
+  paymentMethod: 'paymentMethod',
+  referenceCode: 'referenceCode',
+  status: 'status',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.MembershipBenefitUsageScalarFieldEnum = {
+  id: 'id',
+  subscriptionId: 'subscriptionId',
+  orderId: 'orderId',
+  benefitDate: 'benefitDate',
+  quantity: 'quantity',
+  discountAmount: 'discountAmount',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.CustomerPointTransactionScalarFieldEnum = {
   id: 'id',
   customerId: 'customerId',
@@ -548,6 +595,7 @@ exports.Prisma.OrderScalarFieldEnum = {
   originalAmount: 'originalAmount',
   discountAmount: 'discountAmount',
   pointsDiscount: 'pointsDiscount',
+  membershipDiscount: 'membershipDiscount',
   vatRate: 'vatRate',
   taxAmount: 'taxAmount',
   deliveryFee: 'deliveryFee',
@@ -925,6 +973,36 @@ exports.Prisma.CustomerOrderByRelevanceFieldEnum = {
   membershipLevelId: 'membershipLevelId'
 };
 
+exports.Prisma.MembershipPlanOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  description: 'description',
+  benefitVariantId: 'benefitVariantId'
+};
+
+exports.Prisma.MembershipPlanProductOrderByRelevanceFieldEnum = {
+  membershipPlanId: 'membershipPlanId',
+  productId: 'productId'
+};
+
+exports.Prisma.MembershipSubscriptionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  customerId: 'customerId',
+  membershipPlanId: 'membershipPlanId',
+  branchId: 'branchId',
+  createdById: 'createdById',
+  referenceCode: 'referenceCode',
+  note: 'note'
+};
+
+exports.Prisma.MembershipBenefitUsageOrderByRelevanceFieldEnum = {
+  id: 'id',
+  subscriptionId: 'subscriptionId',
+  orderId: 'orderId'
+};
+
 exports.Prisma.CustomerPointTransactionOrderByRelevanceFieldEnum = {
   id: 'id',
   customerId: 'customerId',
@@ -1097,6 +1175,20 @@ exports.PurchaseOrderStatus = exports.$Enums.PurchaseOrderStatus = {
   CANCELLED: 'CANCELLED'
 };
 
+exports.PaymentMethod = exports.$Enums.PaymentMethod = {
+  CASH: 'CASH',
+  BANK_TRANSFER: 'BANK_TRANSFER',
+  CARD: 'CARD',
+  EWALLET: 'EWALLET',
+  MIXED: 'MIXED'
+};
+
+exports.MembershipSubscriptionStatus = exports.$Enums.MembershipSubscriptionStatus = {
+  ACTIVE: 'ACTIVE',
+  EXPIRED: 'EXPIRED',
+  CANCELLED: 'CANCELLED'
+};
+
 exports.PointTransactionType = exports.$Enums.PointTransactionType = {
   EARN: 'EARN',
   REDEEM: 'REDEEM',
@@ -1130,14 +1222,6 @@ exports.OrderStatus = exports.$Enums.OrderStatus = {
   READY: 'READY',
   COMPLETED: 'COMPLETED',
   CANCELLED: 'CANCELLED'
-};
-
-exports.PaymentMethod = exports.$Enums.PaymentMethod = {
-  CASH: 'CASH',
-  BANK_TRANSFER: 'BANK_TRANSFER',
-  CARD: 'CARD',
-  EWALLET: 'EWALLET',
-  MIXED: 'MIXED'
 };
 
 exports.RefundStatus = exports.$Enums.RefundStatus = {
@@ -1180,6 +1264,10 @@ exports.Prisma.ModelName = {
   PurchaseOrderItem: 'PurchaseOrderItem',
   MembershipLevel: 'MembershipLevel',
   Customer: 'Customer',
+  MembershipPlan: 'MembershipPlan',
+  MembershipPlanProduct: 'MembershipPlanProduct',
+  MembershipSubscription: 'MembershipSubscription',
+  MembershipBenefitUsage: 'MembershipBenefitUsage',
   CustomerPointTransaction: 'CustomerPointTransaction',
   Promotion: 'Promotion',
   PromotionProduct: 'PromotionProduct',

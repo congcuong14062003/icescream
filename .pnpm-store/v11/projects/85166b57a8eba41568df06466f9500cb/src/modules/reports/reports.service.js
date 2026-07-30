@@ -58,7 +58,7 @@ function financialMetrics(orders, actualCostByOrder) {
     const orderProfit = orderRevenue - orderCost;
 
     salesBeforeDiscount += order.originalAmount;
-    discounts += order.discountAmount + order.pointsDiscount;
+    discounts += order.discountAmount + order.pointsDiscount + order.membershipDiscount;
     grossCollected += order.totalAmount;
     taxCollected += order.taxAmount;
     deliveryRevenue += order.deliveryFee;
@@ -127,6 +127,8 @@ export async function buildReport({ from, to, branchId }) {
     allOrders,
     newCustomers,
     previousOrders,
+    currentMemberships,
+    previousMemberships,
     topProductsRaw,
     topFlavorsRaw,
     topToppingsRaw,
@@ -145,6 +147,7 @@ export async function buildReport({ from, to, branchId }) {
         taxAmount: true,
         discountAmount: true,
         pointsDiscount: true,
+        membershipDiscount: true,
         deliveryFee: true,
         createdAt: true,
         branch: { select: { name: true } },
@@ -169,6 +172,7 @@ export async function buildReport({ from, to, branchId }) {
         taxAmount: true,
         discountAmount: true,
         pointsDiscount: true,
+        membershipDiscount: true,
         deliveryFee: true,
         items: {
           select: {
@@ -182,6 +186,28 @@ export async function buildReport({ from, to, branchId }) {
           select: { amount: true },
         },
       },
+    }),
+    prisma.membershipSubscription.findMany({
+      where: {
+        createdAt: { gte: from, lte: to },
+        ...(branchId ? { branchId } : {}),
+      },
+      select: {
+        amountPaid: true,
+        paymentMethod: true,
+        createdAt: true,
+        branchId: true,
+        createdById: true,
+        branch: { select: { name: true } },
+        createdBy: { select: { fullName: true } },
+      },
+    }),
+    prisma.membershipSubscription.findMany({
+      where: {
+        createdAt: { gte: previousFrom, lte: previousTo },
+        ...(branchId ? { branchId } : {}),
+      },
+      select: { amountPaid: true },
     }),
     prisma.orderItem.groupBy({
       by: ["productId", "productName"],
@@ -252,20 +278,34 @@ export async function buildReport({ from, to, branchId }) {
   }
   const currentFinancials = financialMetrics(completedOrders, actualCostByOrder);
   const previousFinancials = financialMetrics(previousOrders, actualCostByOrder);
-  const profitChange = previousFinancials.grossProfit !== 0
+  const membershipRevenue = currentMemberships.reduce(
+    (sum, item) => sum + item.amountPaid,
+    0,
+  );
+  const previousMembershipRevenue = previousMemberships.reduce(
+    (sum, item) => sum + item.amountPaid,
+    0,
+  );
+  const currentNetRevenue = currentFinancials.netRevenue + membershipRevenue;
+  const previousNetRevenue =
+    previousFinancials.netRevenue + previousMembershipRevenue;
+  const currentGrossProfit = currentFinancials.grossProfit + membershipRevenue;
+  const previousGrossProfit =
+    previousFinancials.grossProfit + previousMembershipRevenue;
+  const profitChange = previousGrossProfit !== 0
     ? Number(
         (
-          ((currentFinancials.grossProfit - previousFinancials.grossProfit) /
-            Math.abs(previousFinancials.grossProfit)) *
+          ((currentGrossProfit - previousGrossProfit) /
+            Math.abs(previousGrossProfit)) *
           100
         ).toFixed(1),
       )
     : null;
-  const revenueChange = previousFinancials.netRevenue > 0
+  const revenueChange = previousNetRevenue > 0
     ? Number(
         (
-          ((currentFinancials.netRevenue - previousFinancials.netRevenue) /
-            previousFinancials.netRevenue) *
+          ((currentNetRevenue - previousNetRevenue) /
+            previousNetRevenue) *
           100
         ).toFixed(1),
       )
@@ -274,25 +314,28 @@ export async function buildReport({ from, to, branchId }) {
   const financials = {
     salesBeforeDiscount: currentFinancials.salesBeforeDiscount,
     discounts: currentFinancials.discounts,
-    grossCollected: currentFinancials.grossCollected,
+    grossCollected: currentFinancials.grossCollected + membershipRevenue,
     taxCollected: currentFinancials.taxCollected,
     deliveryRevenue: currentFinancials.deliveryRevenue,
     refunds: currentFinancials.refunds,
-    netRevenue: currentFinancials.netRevenue,
+    membershipRevenue,
+    netRevenue: currentNetRevenue,
     costOfGoods: currentFinancials.costOfGoods,
-    grossProfit: currentFinancials.grossProfit,
-    grossMargin: currentFinancials.grossMargin,
+    grossProfit: currentGrossProfit,
+    grossMargin: currentNetRevenue > 0
+      ? Number(((currentGrossProfit / currentNetRevenue) * 100).toFixed(1))
+      : 0,
     actualCostOrders: currentFinancials.actualCostOrders,
     actualCostCoverage: currentFinancials.actualCostCoverage,
-    previousNetRevenue: previousFinancials.netRevenue,
-    previousGrossProfit: previousFinancials.grossProfit,
+    previousNetRevenue,
+    previousGrossProfit,
     revenueChange,
     profitChange,
   };
 
   const refunded = currentFinancials.refunds;
-  const netRevenue = currentFinancials.netRevenue;
-  const previousRevenue = previousFinancials.netRevenue;
+  const netRevenue = currentNetRevenue;
+  const previousRevenue = previousNetRevenue;
   const estimatedCost = currentFinancials.costOfGoods;
 
   const seriesMap = new Map();
@@ -341,6 +384,45 @@ export async function buildReport({ from, to, branchId }) {
       paymentMap.set(payment.method, (paymentMap.get(payment.method) || 0) + payment.amount);
     }
   }
+  for (const membership of currentMemberships) {
+    const date = membership.createdAt.toISOString().slice(0, 10);
+    const day = seriesMap.get(date) || {
+      date,
+      revenue: 0,
+      cost: 0,
+      profit: 0,
+      orders: 0,
+    };
+    day.revenue += membership.amountPaid;
+    day.profit += membership.amountPaid;
+    day.memberships = (day.memberships || 0) + 1;
+    seriesMap.set(date, day);
+
+    const branch = branchMap.get(membership.branchId) || {
+      name: membership.branch.name,
+      revenue: 0,
+      cost: 0,
+      profit: 0,
+      orders: 0,
+    };
+    branch.revenue += membership.amountPaid;
+    branch.profit += membership.amountPaid;
+    branch.memberships = (branch.memberships || 0) + 1;
+    branchMap.set(membership.branchId, branch);
+
+    const employee = employeeMap.get(membership.createdById) || {
+      name: membership.createdBy.fullName,
+      revenue: 0,
+      orders: 0,
+    };
+    employee.revenue += membership.amountPaid;
+    employee.memberships = (employee.memberships || 0) + 1;
+    employeeMap.set(membership.createdById, employee);
+    paymentMap.set(
+      membership.paymentMethod,
+      (paymentMap.get(membership.paymentMethod) || 0) + membership.amountPaid,
+    );
+  }
 
   const revenueSeries = [...seriesMap.values()].map((item) => ({
     ...item,
@@ -364,10 +446,13 @@ export async function buildReport({ from, to, branchId }) {
     financials,
     summary: {
       revenue: netRevenue,
-      grossRevenue: currentFinancials.grossCollected,
+      grossRevenue: currentFinancials.grossCollected + membershipRevenue,
+      membershipRevenue,
       refunds: refunded,
       orders: completedOrders.length,
-      averageOrderValue: completedOrders.length ? Math.round(netRevenue / completedOrders.length) : 0,
+      averageOrderValue: completedOrders.length
+        ? Math.round(currentFinancials.netRevenue / completedOrders.length)
+        : 0,
       newCustomers,
       estimatedCost,
       estimatedProfit: netRevenue - estimatedCost,

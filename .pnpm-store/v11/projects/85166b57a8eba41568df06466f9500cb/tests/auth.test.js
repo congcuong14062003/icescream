@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import request from "supertest";
 import app from "../src/app.js";
+import { prisma } from "../src/config/prisma.js";
 
 test("health endpoint uses the unified response shape", async () => {
   const response = await request(app).get("/api/health").expect(200);
@@ -349,4 +350,204 @@ test("only managers receive revenue and profit details from dashboard API", asyn
   assert.equal(warehouseReport.body.data.branchProfitability, undefined);
   assert.equal(warehouseReport.body.data.summary.estimatedProfit, undefined);
   assert.equal(warehouseReport.body.data.revenueSeries[0]?.profit, undefined);
+});
+
+test("manager can enroll a paid member and POS quotes the daily free item", async () => {
+  const [managerLogin, cashierLogin] = await Promise.all([
+    request(app)
+      .post("/api/auth/login")
+      .send({ login: "manager", password: "IceCream@123" })
+      .expect(200),
+    request(app)
+      .post("/api/auth/login")
+      .send({ login: "cashier", password: "IceCream@123" })
+      .expect(200),
+  ]);
+  const managerAuthorization = `Bearer ${managerLogin.body.data.accessToken}`;
+  const cashierAuthorization = `Bearer ${cashierLogin.body.data.accessToken}`;
+  const suffix = Date.now().toString().slice(-8);
+  let customerId;
+  let subscriptionId;
+
+  try {
+    const plans = await request(app)
+      .get("/api/memberships/plans?active=true")
+      .set("Authorization", managerAuthorization)
+      .expect(200);
+    const plan = plans.body.data[0];
+    assert.ok(plan);
+    assert.equal(plan.dailyFreeQuantity, 1);
+    assert.ok(plan.benefitVariant);
+
+    const customer = await request(app)
+      .post("/api/customers")
+      .set("Authorization", managerAuthorization)
+      .send({
+        fullName: "Khách kiểm thử hội viên",
+        phone: `098${suffix}`,
+        email: `member-${suffix}@example.vn`,
+        address: "Khách kiểm thử tự động",
+      })
+      .expect(201);
+    customerId = customer.body.data.id;
+
+    const enrollment = await request(app)
+      .post("/api/memberships/subscriptions")
+      .set("Authorization", managerAuthorization)
+      .send({
+        customerId,
+        membershipPlanId: plan.id,
+        paymentMethod: "CASH",
+        note: "Đăng ký từ API test",
+      })
+      .expect(201);
+    subscriptionId = enrollment.body.data.id;
+    assert.equal(enrollment.body.data.amountPaid, plan.price);
+
+    const giftVariant = plan.benefitVariant;
+    const [products, flavors] = await Promise.all([
+      request(app)
+        .get(`/api/products/${giftVariant.product.id}`)
+        .set("Authorization", cashierAuthorization)
+        .expect(200),
+      request(app)
+        .get("/api/flavors?status=AVAILABLE&size=100")
+        .set("Authorization", cashierAuthorization)
+        .expect(200),
+    ]);
+    const variant = products.body.data.variants.find(
+      (item) => item.id === giftVariant.id,
+    );
+    const flavor = flavors.body.data.find((item) => item.extraPrice === 0);
+    const catalog = await request(app)
+      .get("/api/products?status=ACTIVE&size=100")
+      .set("Authorization", cashierAuthorization)
+      .expect(200);
+    const paidProduct = catalog.body.data.find(
+      (item) =>
+        item.id !== giftVariant.product.id &&
+        item.variants.some((candidate) => candidate.isActive),
+    );
+    const paidVariant = paidProduct.variants.find((candidate) => candidate.isActive);
+    const paidOnlyQuote = await request(app)
+      .post("/api/orders/quote")
+      .set("Authorization", cashierAuthorization)
+      .send({
+        items: [{
+          variantId: paidVariant.id,
+          quantity: 1,
+          flavorIds: Array.from(
+            { length: paidVariant.scoopCount },
+            () => flavor.id,
+          ),
+          toppingIds: [],
+        }],
+        customerId,
+        pointsToRedeem: 0,
+        deliveryFee: 0,
+      })
+      .expect(200);
+    assert.equal(paidOnlyQuote.body.data.membershipDiscount, 0);
+    assert.equal(paidOnlyQuote.body.data.membershipBenefit.available, false);
+
+    const quote = await request(app)
+      .post("/api/orders/quote")
+      .set("Authorization", cashierAuthorization)
+      .send({
+        items: [{
+          variantId: variant.id,
+          quantity: 1,
+          flavorIds: Array.from({ length: variant.scoopCount }, () => flavor.id),
+          toppingIds: [],
+        }],
+        customerId,
+        pointsToRedeem: 0,
+        deliveryFee: 0,
+      })
+      .expect(200);
+    assert.equal(quote.body.data.activeMembership.plan.code, plan.code);
+    assert.equal(quote.body.data.membershipBenefit.available, true);
+    assert.equal(quote.body.data.membershipBenefit.freeQuantity, 1);
+    assert.equal(quote.body.data.membershipDiscount, variant.price);
+    assert.equal(quote.body.data.totalAmount, 0);
+
+    const twoGiftItems = await request(app)
+      .post("/api/orders/quote")
+      .set("Authorization", cashierAuthorization)
+      .send({
+        items: [{
+          variantId: variant.id,
+          quantity: 2,
+          flavorIds: Array.from({ length: variant.scoopCount }, () => flavor.id),
+          toppingIds: [],
+        }],
+        customerId,
+        pointsToRedeem: 0,
+        deliveryFee: 0,
+      })
+      .expect(200);
+    assert.equal(twoGiftItems.body.data.membershipDiscount, variant.price);
+    assert.equal(twoGiftItems.body.data.membershipBenefit.freeQuantity, 1);
+  } finally {
+    if (subscriptionId) {
+      await prisma.membershipSubscription.delete({ where: { id: subscriptionId } });
+    }
+    if (customerId) {
+      await prisma.customer.delete({ where: { id: customerId } });
+    }
+  }
+});
+
+test("points redemption is capped at twenty percent of the invoice", async () => {
+  const login = await request(app)
+    .post("/api/auth/login")
+    .send({ login: "cashier", password: "IceCream@123" })
+    .expect(200);
+  const authorization = `Bearer ${login.body.data.accessToken}`;
+  const [customers, products, flavors] = await Promise.all([
+    request(app)
+      .get("/api/customers?size=100")
+      .set("Authorization", authorization)
+      .expect(200),
+    request(app)
+      .get("/api/products?status=ACTIVE&size=100")
+      .set("Authorization", authorization)
+      .expect(200),
+    request(app)
+      .get("/api/flavors?status=AVAILABLE&size=100")
+      .set("Authorization", authorization)
+      .expect(200),
+  ]);
+  const customer = customers.body.data
+    .filter((item) => !item.activeMembership && item.points > 0)
+    .sort((left, right) => right.points - left.points)[0];
+  const product = products.body.data.find((item) =>
+    item.variants.some((variant) => variant.isActive && variant.price >= 29000),
+  );
+  const variant = product.variants.find((item) => item.isActive);
+  const flavor = flavors.body.data.find((item) => item.extraPrice === 0);
+  const quote = await request(app)
+    .post("/api/orders/quote")
+    .set("Authorization", authorization)
+    .send({
+      items: [{
+        variantId: variant.id,
+        quantity: 3,
+        flavorIds: Array.from({ length: variant.scoopCount }, () => flavor.id),
+        toppingIds: [],
+      }],
+      customerId: customer.id,
+      pointsToRedeem: customer.points,
+      deliveryFee: 0,
+    })
+    .expect(200);
+  const maximumDiscount = Math.floor(quote.body.data.originalAmount * 0.2);
+  assert.ok(quote.body.data.pointsDiscount <= maximumDiscount);
+  assert.equal(
+    quote.body.data.pointsToRedeem,
+    quote.body.data.maxRedeemablePoints,
+  );
+  assert.ok(
+    quote.body.data.pointsDiscount <= quote.body.data.maxPointsDiscount,
+  );
 });

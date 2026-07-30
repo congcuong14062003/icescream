@@ -18,6 +18,8 @@ IceCream POS là ứng dụng full-stack quản lý và bán hàng tại quầy 
 - Lưu/khôi phục đơn tạm, thanh toán, in/xuất PDF, trạng thái đơn theo thời gian thực, hoàn tiền và lịch sử trạng thái.
 - Backend tự tính lại toàn bộ giá, khuyến mãi và tổng thanh toán; không tin số tổng từ frontend.
 - Khách hàng, hạng thành viên, tích/dùng điểm, lịch sử điểm và tự nâng hạng.
+- Hội viên trả phí: quản lý cấu hình gói/phí/thời hạn và một biến thể quà cố định; thu ngân đăng ký hoặc gia hạn, ghi nhận phương thức thu phí; POS thêm quà vào đơn và tự miễn phí đúng một đơn vị mỗi ngày, chặn dùng lặp và hỗ trợ khuyến mãi chỉ dành cho hội viên còn hạn.
+- Điểm khách hàng chỉ được giảm tối đa 20% tiền hàng sau các ưu đãi khác; backend tự tính số điểm thực dùng và không tin giới hạn do frontend gửi.
 - Kho theo chi nhánh/lô/hạn dùng, nhập–xuất–điều chỉnh–chuyển kho, cảnh báo tồn thấp/hết hạn, công thức định lượng và chặn tồn âm.
 - Nhà cung cấp và phiếu nhập; chỉ tăng kho khi phiếu chuyển sang `RECEIVED`.
 - Ca làm việc, tiền đầu ca, doanh thu theo phương thức, chi phí, kiểm đếm và chênh lệch cuối ca.
@@ -92,7 +94,7 @@ Mật khẩu chung: `IceCream@123`
 | Thu ngân | `cashier` | `cashier@icecream.local` |
 | Nhân viên kho | `warehouse` | `warehouse@icecream.local` |
 
-Seed tạo tổng cộng 10 nhân viên, 2 chi nhánh, 8 danh mục, 30 sản phẩm, 12 hương vị, 15 topping, 30 nguyên liệu, 50 khách hàng, 100 đơn hàng, tồn kho theo lô, công thức, khuyến mãi và ca mẫu.
+Seed tạo tổng cộng 10 nhân viên, 2 chi nhánh, 8 danh mục, 30 sản phẩm, 12 hương vị, 15 topping, 30 nguyên liệu, 50 khách hàng, 100 đơn hàng, tồn kho theo lô, công thức, khuyến mãi, gói hội viên 30 ngày và ca mẫu.
 
 ## Biến môi trường
 

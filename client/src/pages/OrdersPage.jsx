@@ -172,7 +172,7 @@ export default function OrdersPage() {
             </div>
             <div className="tw-ml-auto tw-max-w-sm tw-space-y-2 tw-text-sm">
               <div className="tw-flex tw-justify-between"><span>Tạm tính</span><span>{formatMoney(order.originalAmount)}</span></div>
-              <div className="tw-flex tw-justify-between"><span>Giảm giá</span><span>-{formatMoney(order.discountAmount + order.pointsDiscount)}</span></div>
+              <div className="tw-flex tw-justify-between"><span>Giảm giá</span><span>-{formatMoney(order.discountAmount + order.pointsDiscount + (order.membershipDiscount || 0))}</span></div>
               <div className="tw-flex tw-justify-between"><span>VAT</span><span>{formatMoney(order.taxAmount)}</span></div>
               <div className="tw-flex tw-justify-between tw-border-t tw-pt-2 tw-text-lg tw-font-black"><span>Tổng cộng</span><span>{formatMoney(order.totalAmount)}</span></div>
             </div>

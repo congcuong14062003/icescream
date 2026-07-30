@@ -23,6 +23,7 @@ import suppliersRoutes from "./modules/suppliers/suppliers.routes.js";
 import purchaseOrdersRoutes from "./modules/purchase-orders/purchase-orders.routes.js";
 import shiftsRoutes from "./modules/shifts/shifts.routes.js";
 import reportsRoutes from "./modules/reports/reports.routes.js";
+import membershipsRoutes from "./modules/memberships/memberships.routes.js";
 import { success } from "./utils/response.js";
 
 const app = express();
@@ -91,6 +92,7 @@ app.use("/api/suppliers", suppliersRoutes);
 app.use("/api/purchase-orders", purchaseOrdersRoutes);
 app.use("/api/shifts", shiftsRoutes);
 app.use("/api/reports", reportsRoutes);
+app.use("/api/memberships", membershipsRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

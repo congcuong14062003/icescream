@@ -153,6 +153,7 @@ function dateDaysAgo(days, hour = 10) {
 async function clearDatabase() {
   const operations = [
     prisma.auditLog.deleteMany(),
+    prisma.membershipBenefitUsage.deleteMany(),
     prisma.stocktakeItem.deleteMany(),
     prisma.stocktake.deleteMany(),
     prisma.stockIssueItem.deleteMany(),
@@ -168,6 +169,7 @@ async function clearDatabase() {
     prisma.orderItem.deleteMany(),
     prisma.order.deleteMany(),
     prisma.workShift.deleteMany(),
+    prisma.membershipSubscription.deleteMany(),
     prisma.promotionProduct.deleteMany(),
     prisma.promotionCategory.deleteMany(),
     prisma.promotion.deleteMany(),
@@ -177,6 +179,7 @@ async function clearDatabase() {
     prisma.purchaseOrderItem.deleteMany(),
     prisma.purchaseOrder.deleteMany(),
     prisma.productRecipe.deleteMany(),
+    prisma.membershipPlanProduct.deleteMany(),
     prisma.flavorIngredient.deleteMany(),
     prisma.productImage.deleteMany(),
     prisma.productVariant.deleteMany(),
@@ -187,6 +190,7 @@ async function clearDatabase() {
     prisma.ingredient.deleteMany(),
     prisma.supplier.deleteMany(),
     prisma.customer.deleteMany(),
+    prisma.membershipPlan.deleteMany(),
     prisma.membershipLevel.deleteMany(),
     prisma.loginHistory.deleteMany(),
     prisma.refreshToken.deleteMany(),
@@ -509,6 +513,21 @@ async function main() {
     }
   }
 
+  const monthlyMembershipPlan = await prisma.membershipPlan.create({
+    data: {
+      code: "HOIVIEN30",
+      name: "Hội viên Kem Mỗi Ngày",
+      description: "Hiệu lực 30 ngày, mỗi ngày được miễn phí 1 sản phẩm kem đủ điều kiện.",
+      price: 399000,
+      durationDays: 30,
+      dailyFreeQuantity: 1,
+      benefitVariantId: variants[0].id,
+      products: {
+        create: [{ productId: products[0].id }],
+      },
+    },
+  });
+
   const memberships = [];
   for (const [memberCode, name, minSpending, pointRate, birthdayDiscount, displayOrder] of [
     ["NEW", "Thành viên mới", 0, 0.01, 5, 1],
@@ -552,6 +571,21 @@ async function main() {
   }
 
   const now = new Date();
+  await prisma.membershipSubscription.create({
+    data: {
+      code: "HV-DEMO-001",
+      customerId: customers[0].id,
+      membershipPlanId: monthlyMembershipPlan.id,
+      branchId: branches[0].id,
+      createdById: users[2].id,
+      startsAt: new Date(now.getTime() - 2 * 86400000),
+      endsAt: new Date(now.getTime() + 28 * 86400000),
+      amountPaid: monthlyMembershipPlan.price,
+      paymentMethod: "CASH",
+      note: "Gói hội viên mẫu",
+    },
+  });
+
   const promo = await prisma.promotion.create({
     data: {
       code: "MUAHE10",

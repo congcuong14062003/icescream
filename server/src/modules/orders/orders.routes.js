@@ -13,6 +13,7 @@ import { asyncHandler } from "../../utils/async-handler.js";
 import { createBusinessCode } from "../../utils/code.js";
 import { getPagination, paginationMeta } from "../../utils/pagination.js";
 import { created, success } from "../../utils/response.js";
+import { benefitDateFor, publicMembership } from "../../services/membership.service.js";
 
 const router = Router();
 router.use(authenticate);
@@ -83,6 +84,7 @@ function orderDataFromPricing(request, pricing, branchId, shiftId, code, status)
     originalAmount: pricing.originalAmount,
     discountAmount: pricing.discountAmount,
     pointsDiscount: pricing.pointsDiscount,
+    membershipDiscount: pricing.membershipDiscount,
     vatRate: pricing.vatRate,
     taxAmount: pricing.taxAmount,
     deliveryFee: pricing.deliveryFee,
@@ -112,6 +114,7 @@ router.post(
             phone: pricing.customer.phone,
             points: pricing.customer.points,
             membershipLevel: pricing.customer.membershipLevel,
+            activeMembership: publicMembership(pricing.activeMembership),
           }
         : null,
       promotion: pricing.promotion
@@ -125,6 +128,8 @@ router.post(
             benefit: pricing.promotionBenefit,
           }
         : null,
+      activeMembership: publicMembership(pricing.activeMembership),
+      membershipBenefit: pricing.membershipBenefit,
     }, "Tính giá đơn hàng thành công");
   }),
 );
@@ -250,11 +255,24 @@ router.post(
       if (restoredDraft) {
         await tx.order.delete({ where: { id: restoredDraft.id } });
       }
+      const currentPricing = await calculateOrder(tx, request.body);
+      if (!request.body.saveAsDraft) {
+        const paymentTotal = request.body.payments.reduce(
+          (sum, payment) => sum + payment.amount,
+          0,
+        );
+        if (paymentTotal !== currentPricing.totalAmount) {
+          throw new ApiError(
+            409,
+            "Quyền lợi hoặc giá đơn vừa thay đổi; vui lòng kiểm tra lại tổng thanh toán",
+          );
+        }
+      }
       const createdOrder = await tx.order.create({
         data: {
-          ...orderDataFromPricing(request, pricing, branchId, shift.id, code, status),
+          ...orderDataFromPricing(request, currentPricing, branchId, shift.id, code, status),
           items: {
-            create: pricing.lines.map((line) => ({
+            create: currentPricing.lines.map((line) => ({
               productId: line.productId,
               variantId: line.variantId,
               productName: line.productName,
@@ -300,15 +318,30 @@ router.post(
       });
 
       if (!request.body.saveAsDraft) {
-        await deductInventory(tx, branchId, pricing.lines, request.user.id, createdOrder.id);
-        await updateCustomerAfterCompletion(tx, createdOrder, pricing);
-        if (pricing.promotion) {
+        await deductInventory(tx, branchId, currentPricing.lines, request.user.id, createdOrder.id);
+        await updateCustomerAfterCompletion(tx, createdOrder, currentPricing);
+        if (currentPricing.promotion) {
           await tx.promotionUsage.create({
             data: {
-              promotionId: pricing.promotion.id,
+              promotionId: currentPricing.promotion.id,
               customerId: request.body.customerId || null,
               orderId: createdOrder.id,
-              discount: pricing.discountAmount,
+              discount: currentPricing.discountAmount,
+            },
+          });
+        }
+        if (
+          currentPricing.activeMembership &&
+          currentPricing.membershipBenefit?.available &&
+          currentPricing.membershipDiscount > 0
+        ) {
+          await tx.membershipBenefitUsage.create({
+            data: {
+              subscriptionId: currentPricing.activeMembership.id,
+              orderId: createdOrder.id,
+              benefitDate: benefitDateFor(),
+              quantity: currentPricing.membershipBenefit.freeQuantity,
+              discountAmount: currentPricing.membershipDiscount,
             },
           });
         }
@@ -331,7 +364,7 @@ router.post(
           action: request.body.saveAsDraft ? "ORDER_DRAFT_CREATE" : "ORDER_CHECKOUT",
           entityType: "Order",
           entityId: createdOrder.id,
-          newData: { code, totalAmount: pricing.totalAmount, status },
+          newData: { code, totalAmount: currentPricing.totalAmount, status },
           ipAddress: request.ip,
           userAgent: request.get("user-agent"),
         },

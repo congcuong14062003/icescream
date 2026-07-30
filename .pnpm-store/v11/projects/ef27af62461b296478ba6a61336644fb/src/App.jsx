@@ -12,6 +12,7 @@ const PosPage = lazy(() => import("./pages/PosPage"));
 const OrdersPage = lazy(() => import("./pages/OrdersPage"));
 const ProductsPage = lazy(() => import("./pages/ProductsPage"));
 const PromotionsPage = lazy(() => import("./pages/PromotionsPage"));
+const MembershipPlansPage = lazy(() => import("./pages/MembershipPlansPage"));
 const CustomersPage = lazy(() => import("./pages/CustomersPage"));
 const InventoryPage = lazy(() => import("./pages/InventoryPage"));
 const PurchaseOrdersPage = lazy(() => import("./pages/PurchaseOrdersPage"));
@@ -48,6 +49,7 @@ export default function App() {
         <Route path="orders" element={<Guard permissions={["orders.view"]}><Page><OrdersPage /></Page></Guard>} />
         <Route path="products" element={<Guard permissions={["products.view"]}><Page><ProductsPage /></Page></Guard>} />
         <Route path="promotions" element={<Guard permissions={["promotions.manage"]}><Page><PromotionsPage /></Page></Guard>} />
+        <Route path="memberships" element={<Guard permissions={["promotions.manage"]}><Page><MembershipPlansPage /></Page></Guard>} />
         <Route path="customers" element={<Guard permissions={["customers.view"]}><Page><CustomersPage /></Page></Guard>} />
         <Route path="inventory" element={<Guard permissions={["inventory.view"]}><Page><InventoryPage /></Page></Guard>} />
         <Route path="purchase-orders" element={<Guard permissions={["inventory.manage"]}><Page><PurchaseOrdersPage /></Page></Guard>} />

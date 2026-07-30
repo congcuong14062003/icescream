@@ -12,6 +12,8 @@ export default function ProductCustomizer({
   flavors,
   toppings,
   initial,
+  presetVariantId,
+  lockVariant = false,
   onClose,
   onSave,
 }) {
@@ -23,12 +25,17 @@ export default function ProductCustomizer({
 
   useEffect(() => {
     if (!product) return;
-    setVariantId(initial?.variantId || product.variants.find((item) => item.isActive)?.id || "");
+    setVariantId(
+      initial?.variantId ||
+      presetVariantId ||
+      product.variants.find((item) => item.isActive)?.id ||
+      "",
+    );
     setFlavorIds(initial?.flavorIds || []);
     setToppingIds(initial?.toppingIds || []);
     setQuantity(initial?.quantity || 1);
     setNote(initial?.note || "");
-  }, [product, initial, open]);
+  }, [product, initial, presetVariantId, open]);
 
   const variant = product?.variants.find((item) => item.id === variantId);
   const totalUnit = useMemo(() => {
@@ -82,7 +89,7 @@ export default function ProductCustomizer({
     <Modal
       open={open}
       onClose={onClose}
-      title={initial ? "Chỉnh sửa món" : "Tùy chọn món kem"}
+      title={initial ? "Chỉnh sửa món" : presetVariantId ? "Thêm quà hội viên" : "Tùy chọn món kem"}
       maxWidth="md"
       actions={
         <>
@@ -115,6 +122,7 @@ export default function ProductCustomizer({
             <Select
               label="Biến thể"
               value={variantId}
+              disabled={lockVariant}
               onChange={(event) => selectVariant(event.target.value)}
               options={product.variants
                 .filter((item) => item.isActive)
