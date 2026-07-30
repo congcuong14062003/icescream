@@ -8,6 +8,7 @@ import {
   CircleDollarSign,
   Clock3,
   CreditCard,
+  Gift,
   IceCreamBowl,
   Minus,
   NotebookPen,
@@ -17,6 +18,7 @@ import {
   Save,
   Search,
   ShoppingCart,
+  Sparkles,
   Smartphone,
   Trash2,
   XCircle,
@@ -90,6 +92,13 @@ export default function PosPage() {
     queryKey: ["my-drafts"],
     queryFn: () => api.get("/orders/drafts/mine").then((response) => response.data.data),
     enabled: draftsOpen,
+  });
+  const promotionsQuery = useQuery({
+    queryKey: ["pos-promotions"],
+    queryFn: () =>
+      api
+        .get("/promotions", { params: { active: true, size: 20 } })
+        .then((response) => response.data.data),
   });
 
   const orderInput = useMemo(
@@ -172,6 +181,11 @@ export default function PosPage() {
   const removeLine = (cartId) => setCart((current) => current.filter((line) => line.cartId !== cartId));
   const applyPromotion = () => {
     setPromotionCode(promotionInput.trim().toUpperCase());
+  };
+  const selectPromotion = (promotion) => {
+    const nextCode = promotionCode === promotion.code ? "" : promotion.code;
+    setPromotionInput(nextCode);
+    setPromotionCode(nextCode);
   };
   const restoreDraft = (draft) => {
     setCart(
@@ -327,6 +341,49 @@ export default function PosPage() {
             <AccordionDetails sx={{ px: 0, pt: 1 }}>
               <div className="tw-space-y-3">
                 <CustomerPicker customer={customer} onSelect={(value) => { setCustomer(value); setPointsToRedeem(0); }} />
+                {promotionsQuery.data?.some((promotion) => promotion.type === "BUY_X_GET_Y") && (
+                  <div>
+                    <div className="tw-mb-2 tw-flex tw-items-center tw-gap-1.5 tw-text-[11px] tw-font-bold tw-uppercase tw-tracking-wide tw-text-slate-500">
+                      <Sparkles size={14} className="tw-text-amber-500" /> Ưu đãi nhanh
+                    </div>
+                    <div className="tw-space-y-2">
+                      {promotionsQuery.data
+                        .filter((promotion) => promotion.type === "BUY_X_GET_Y")
+                        .map((promotion) => {
+                          const selected = promotionCode === promotion.code;
+                          return (
+                            <button
+                              key={promotion.id}
+                              type="button"
+                              onClick={() => selectPromotion(promotion)}
+                              className={`tw-flex tw-w-full tw-items-center tw-gap-3 tw-rounded-xl tw-border tw-p-3 tw-text-left tw-transition ${
+                                selected
+                                  ? "tw-border-amber-400 tw-bg-amber-50 tw-shadow-sm dark:tw-border-amber-600 dark:tw-bg-amber-500/10"
+                                  : "tw-border-slate-200 tw-bg-white hover:tw-border-amber-300 hover:tw-bg-amber-50/60 dark:tw-border-slate-700 dark:tw-bg-slate-900"
+                              }`}
+                            >
+                              <span className="tw-flex tw-h-9 tw-w-9 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-lg tw-bg-amber-100 tw-text-amber-700 dark:tw-bg-amber-500/15 dark:tw-text-amber-300">
+                                <Gift size={18} />
+                              </span>
+                              <span className="tw-min-w-0 tw-flex-1">
+                                <strong className="tw-block tw-text-sm">{promotion.name}</strong>
+                                <span className="tw-block tw-truncate tw-text-[11px] tw-text-slate-500">
+                                  Mua {promotion.buyQuantity} tặng {promotion.getQuantity} · Mã {promotion.code}
+                                </span>
+                              </span>
+                              <span className={`tw-rounded-full tw-px-2.5 tw-py-1 tw-text-[10px] tw-font-black ${
+                                selected
+                                  ? "tw-bg-amber-500 tw-text-white"
+                                  : "tw-bg-slate-100 tw-text-slate-500 dark:tw-bg-slate-800"
+                              }`}>
+                                {selected ? "Đang dùng" : "Áp dụng"}
+                              </span>
+                            </button>
+                          );
+                        })}
+                    </div>
+                  </div>
+                )}
                 <div className="tw-flex tw-gap-2">
                   <Input label="Mã giảm giá" value={promotionInput} onChange={(event) => setPromotionInput(event.target.value.toUpperCase())} />
                   <Button variant="outlined" onClick={applyPromotion} disabled={!promotionInput.trim()}>Áp dụng</Button>
@@ -349,6 +406,32 @@ export default function PosPage() {
           {quoteQuery.isError && (
             <div className="tw-mb-3 tw-rounded-xl tw-bg-rose-50 tw-p-2 tw-text-xs tw-font-bold tw-text-rose-600 dark:tw-bg-rose-900/20">
               {apiMessage(quoteQuery.error)}
+            </div>
+          )}
+          {quote?.promotion && (
+            <div className="tw-mb-3 tw-flex tw-items-start tw-gap-2.5 tw-rounded-xl tw-border tw-border-emerald-200 tw-bg-emerald-50 tw-p-3 dark:tw-border-emerald-800 dark:tw-bg-emerald-900/20">
+              <Gift size={18} className="tw-mt-0.5 tw-shrink-0 tw-text-emerald-600" />
+              <div className="tw-min-w-0 tw-flex-1">
+                <strong className="tw-block tw-text-xs tw-text-emerald-800 dark:tw-text-emerald-200">
+                  Đã áp dụng {quote.promotion.name}
+                </strong>
+                <span className="tw-mt-0.5 tw-block tw-text-[11px] tw-text-emerald-700/80 dark:tw-text-emerald-300/80">
+                  {quote.promotion.type === "BUY_X_GET_Y"
+                    ? `Tặng ${quote.promotion.benefit?.freeQuantity || quote.promotion.getQuantity} món giá thấp nhất`
+                    : `Mã ${quote.promotion.code}`}{" "}
+                  · Giảm {formatMoney(quote.discountAmount)}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setPromotionCode("");
+                  setPromotionInput("");
+                }}
+                className="tw-border-0 tw-bg-transparent tw-p-0 tw-text-[11px] tw-font-bold tw-text-emerald-700 tw-underline"
+              >
+                Bỏ
+              </button>
             </div>
           )}
           <div className="tw-space-y-2 tw-rounded-xl tw-bg-slate-50 tw-p-3 tw-text-xs dark:tw-bg-slate-800/70">

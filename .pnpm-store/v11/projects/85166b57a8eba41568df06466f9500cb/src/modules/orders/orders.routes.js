@@ -115,7 +115,15 @@ router.post(
           }
         : null,
       promotion: pricing.promotion
-        ? { id: pricing.promotion.id, code: pricing.promotion.code, name: pricing.promotion.name }
+        ? {
+            id: pricing.promotion.id,
+            code: pricing.promotion.code,
+            name: pricing.promotion.name,
+            type: pricing.promotion.type,
+            buyQuantity: pricing.promotion.buyQuantity,
+            getQuantity: pricing.promotion.getQuantity,
+            benefit: pricing.promotionBenefit,
+          }
         : null,
     }, "Tính giá đơn hàng thành công");
   }),

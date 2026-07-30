@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
+  BadgePercent,
   Boxes,
   Gauge,
   IceCreamBowl,
@@ -27,6 +28,7 @@ const navigation = [
   { to: "/pos", label: "Bán hàng POS", icon: ShoppingBag, permissions: ["pos.use"], primary: true },
   { to: "/orders", label: "Đơn hàng", icon: ReceiptText, permissions: ["orders.view"] },
   { to: "/products", label: "Sản phẩm", icon: IceCreamBowl, permissions: ["products.view"] },
+  { to: "/promotions", label: "Ưu đãi", icon: BadgePercent, permissions: ["promotions.manage"] },
   { to: "/customers", label: "Khách hàng", icon: UsersRound, permissions: ["customers.view"] },
   { to: "/inventory", label: "Kho nguyên liệu", icon: Boxes, permissions: ["inventory.view"] },
   { to: "/purchase-orders", label: "Phiếu nhập kho", icon: PackageOpen, permissions: ["inventory.manage"] },

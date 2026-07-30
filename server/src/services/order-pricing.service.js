@@ -73,7 +73,7 @@ export async function calculateOrder(tx, input) {
   }
 
   const originalAmount = lines.reduce((sum, line) => sum + line.lineTotal, 0);
-  const { promotion, discount } = await validatePromotion(tx, input.promotionCode, {
+  const { promotion, discount, benefit } = await validatePromotion(tx, input.promotionCode, {
     originalAmount,
     customerId: input.customerId,
     lines,
@@ -109,6 +109,7 @@ export async function calculateOrder(tx, input) {
     lines,
     customer,
     promotion,
+    promotionBenefit: benefit,
     originalAmount,
     discountAmount: discount,
     pointsDiscount,
@@ -119,4 +120,3 @@ export async function calculateOrder(tx, input) {
     totalAmount,
   };
 }
-

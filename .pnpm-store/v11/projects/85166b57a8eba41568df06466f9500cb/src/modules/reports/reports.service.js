@@ -12,6 +12,90 @@ function endOfDay(date) {
   return result;
 }
 
+function estimatedOrderCost(order) {
+  return order.items.reduce(
+    (itemSum, item) =>
+      itemSum +
+      (item.variant?.costPrice || 0) * item.quantity +
+      item.toppings.reduce(
+        (toppingSum, orderTopping) =>
+          toppingSum +
+          orderTopping.topping.costPrice *
+            orderTopping.quantity *
+            item.quantity,
+        0,
+      ),
+    0,
+  );
+}
+
+function financialMetrics(orders, actualCostByOrder) {
+  const byOrder = new Map();
+  let salesBeforeDiscount = 0;
+  let discounts = 0;
+  let grossCollected = 0;
+  let taxCollected = 0;
+  let deliveryRevenue = 0;
+  let refunds = 0;
+  let netRevenue = 0;
+  let costOfGoods = 0;
+  let actualCostOrders = 0;
+
+  for (const order of orders) {
+    const refundedAmount = order.refunds.reduce(
+      (sum, refund) => sum + refund.amount,
+      0,
+    );
+    const revenueBeforeRefund = Math.max(0, order.totalAmount - order.taxAmount);
+    const refundBeforeTax = order.totalAmount > 0
+      ? Math.round((refundedAmount * revenueBeforeRefund) / order.totalAmount)
+      : 0;
+    const orderRevenue = Math.max(0, revenueBeforeRefund - refundBeforeTax);
+    const hasActualCost = actualCostByOrder.has(order.id);
+    const orderCost = hasActualCost
+      ? actualCostByOrder.get(order.id)
+      : estimatedOrderCost(order);
+    const orderProfit = orderRevenue - orderCost;
+
+    salesBeforeDiscount += order.originalAmount;
+    discounts += order.discountAmount + order.pointsDiscount;
+    grossCollected += order.totalAmount;
+    taxCollected += order.taxAmount;
+    deliveryRevenue += order.deliveryFee;
+    refunds += refundedAmount;
+    netRevenue += orderRevenue;
+    costOfGoods += orderCost;
+    if (hasActualCost) actualCostOrders += 1;
+    byOrder.set(order.id, {
+      revenue: orderRevenue,
+      cost: orderCost,
+      profit: orderProfit,
+      hasActualCost,
+    });
+  }
+
+  const grossProfit = netRevenue - costOfGoods;
+  return {
+    byOrder,
+    salesBeforeDiscount,
+    discounts,
+    grossCollected,
+    taxCollected,
+    deliveryRevenue,
+    refunds,
+    netRevenue,
+    costOfGoods,
+    grossProfit,
+    grossMargin: netRevenue > 0
+      ? Number(((grossProfit / netRevenue) * 100).toFixed(1))
+      : 0,
+    actualCostOrders,
+    actualCostCoverage: orders.length
+      ? Number(((actualCostOrders / orders.length) * 100).toFixed(1))
+      : 0,
+  };
+}
+
 export function reportRange(query) {
   const to = query.to ? endOfDay(new Date(query.to)) : endOfDay(new Date());
   const from = query.from
@@ -56,9 +140,12 @@ export async function buildReport({ from, to, branchId }) {
         code: true,
         branchId: true,
         createdById: true,
+        originalAmount: true,
         totalAmount: true,
         taxAmount: true,
         discountAmount: true,
+        pointsDiscount: true,
+        deliveryFee: true,
         createdAt: true,
         branch: { select: { name: true } },
         createdBy: { select: { fullName: true } },
@@ -73,7 +160,29 @@ export async function buildReport({ from, to, branchId }) {
       select: { status: true },
     }),
     prisma.customer.count({ where: { createdAt: { gte: from, lte: to }, deletedAt: null } }),
-    prisma.order.findMany({ where: previousWhere, select: { totalAmount: true } }),
+    prisma.order.findMany({
+      where: previousWhere,
+      select: {
+        id: true,
+        originalAmount: true,
+        totalAmount: true,
+        taxAmount: true,
+        discountAmount: true,
+        pointsDiscount: true,
+        deliveryFee: true,
+        items: {
+          select: {
+            quantity: true,
+            variant: { select: { costPrice: true } },
+            toppings: { include: { topping: true } },
+          },
+        },
+        refunds: {
+          where: { status: "COMPLETED" },
+          select: { amount: true },
+        },
+      },
+    }),
     prisma.orderItem.groupBy({
       by: ["productId", "productName"],
       where: { order: completedWhere },
@@ -122,47 +231,109 @@ export async function buildReport({ from, to, branchId }) {
   const flavorMap = new Map(flavorDetails.map((item) => [item.id, item]));
   const toppingMap = new Map(toppingDetails.map((item) => [item.id, item]));
 
-  const revenue = completedOrders.reduce((sum, order) => sum + order.totalAmount, 0);
-  const refunded = completedOrders.reduce(
-    (sum, order) => sum + order.refunds.reduce((refundSum, refund) => refundSum + refund.amount, 0),
-    0,
-  );
-  const netRevenue = revenue - refunded;
-  const previousRevenue = previousOrders.reduce((sum, order) => sum + order.totalAmount, 0);
-  const estimatedCost = completedOrders.reduce(
-    (sum, order) =>
-      sum +
-      order.items.reduce(
-        (itemSum, item) =>
-          itemSum +
-          (item.variant?.costPrice || 0) * item.quantity +
-          item.toppings.reduce(
-            (toppingSum, orderTopping) => toppingSum + orderTopping.topping.costPrice * orderTopping.quantity * item.quantity,
-            0,
-          ),
-        0,
-      ),
-    0,
-  );
+  const allOrderIds = [...completedOrders, ...previousOrders].map((order) => order.id);
+  const saleTransactions = allOrderIds.length
+    ? await prisma.inventoryTransaction.findMany({
+        where: {
+          type: "SALE",
+          referenceType: "Order",
+          referenceId: { in: allOrderIds },
+        },
+        select: { referenceId: true, quantity: true, unitCost: true },
+      })
+    : [];
+  const actualCostByOrder = new Map();
+  for (const transaction of saleTransactions) {
+    const cost = Math.round(Math.abs(transaction.quantity) * transaction.unitCost);
+    actualCostByOrder.set(
+      transaction.referenceId,
+      (actualCostByOrder.get(transaction.referenceId) || 0) + cost,
+    );
+  }
+  const currentFinancials = financialMetrics(completedOrders, actualCostByOrder);
+  const previousFinancials = financialMetrics(previousOrders, actualCostByOrder);
+  const profitChange = previousFinancials.grossProfit !== 0
+    ? Number(
+        (
+          ((currentFinancials.grossProfit - previousFinancials.grossProfit) /
+            Math.abs(previousFinancials.grossProfit)) *
+          100
+        ).toFixed(1),
+      )
+    : null;
+  const revenueChange = previousFinancials.netRevenue > 0
+    ? Number(
+        (
+          ((currentFinancials.netRevenue - previousFinancials.netRevenue) /
+            previousFinancials.netRevenue) *
+          100
+        ).toFixed(1),
+      )
+    : null;
+
+  const financials = {
+    salesBeforeDiscount: currentFinancials.salesBeforeDiscount,
+    discounts: currentFinancials.discounts,
+    grossCollected: currentFinancials.grossCollected,
+    taxCollected: currentFinancials.taxCollected,
+    deliveryRevenue: currentFinancials.deliveryRevenue,
+    refunds: currentFinancials.refunds,
+    netRevenue: currentFinancials.netRevenue,
+    costOfGoods: currentFinancials.costOfGoods,
+    grossProfit: currentFinancials.grossProfit,
+    grossMargin: currentFinancials.grossMargin,
+    actualCostOrders: currentFinancials.actualCostOrders,
+    actualCostCoverage: currentFinancials.actualCostCoverage,
+    previousNetRevenue: previousFinancials.netRevenue,
+    previousGrossProfit: previousFinancials.grossProfit,
+    revenueChange,
+    profitChange,
+  };
+
+  const refunded = currentFinancials.refunds;
+  const netRevenue = currentFinancials.netRevenue;
+  const previousRevenue = previousFinancials.netRevenue;
+  const estimatedCost = currentFinancials.costOfGoods;
 
   const seriesMap = new Map();
   const branchMap = new Map();
   const employeeMap = new Map();
   const paymentMap = new Map();
   for (const order of completedOrders) {
+    const orderFinancials = currentFinancials.byOrder.get(order.id);
     const date = order.createdAt.toISOString().slice(0, 10);
-    const day = seriesMap.get(date) || { date, revenue: 0, orders: 0 };
-    day.revenue += order.totalAmount;
+    const day = seriesMap.get(date) || {
+      date,
+      revenue: 0,
+      cost: 0,
+      profit: 0,
+      orders: 0,
+    };
+    day.revenue += orderFinancials.revenue;
+    day.cost += orderFinancials.cost;
+    day.profit += orderFinancials.profit;
     day.orders += 1;
     seriesMap.set(date, day);
 
-    const branch = branchMap.get(order.branchId) || { name: order.branch.name, revenue: 0, orders: 0 };
-    branch.revenue += order.totalAmount;
+    const branch = branchMap.get(order.branchId) || {
+      name: order.branch.name,
+      revenue: 0,
+      cost: 0,
+      profit: 0,
+      orders: 0,
+    };
+    branch.revenue += orderFinancials.revenue;
+    branch.cost += orderFinancials.cost;
+    branch.profit += orderFinancials.profit;
     branch.orders += 1;
     branchMap.set(order.branchId, branch);
 
-    const employee = employeeMap.get(order.createdById) || { name: order.createdBy.fullName, revenue: 0, orders: 0 };
-    employee.revenue += order.totalAmount;
+    const employee = employeeMap.get(order.createdById) || {
+      name: order.createdBy.fullName,
+      revenue: 0,
+      orders: 0,
+    };
+    employee.revenue += orderFinancials.revenue;
     employee.orders += 1;
     employeeMap.set(order.createdById, employee);
 
@@ -171,13 +342,29 @@ export async function buildReport({ from, to, branchId }) {
     }
   }
 
+  const revenueSeries = [...seriesMap.values()].map((item) => ({
+    ...item,
+    margin: item.revenue > 0
+      ? Number(((item.profit / item.revenue) * 100).toFixed(1))
+      : 0,
+  }));
+  const branchProfitability = [...branchMap.values()]
+    .map((item) => ({
+      ...item,
+      margin: item.revenue > 0
+        ? Number(((item.profit / item.revenue) * 100).toFixed(1))
+        : 0,
+    }))
+    .sort((left, right) => right.profit - left.profit);
+
   const completedCount = allOrders.filter((item) => item.status === "COMPLETED").length;
   const cancelledCount = allOrders.filter((item) => item.status === "CANCELLED").length;
   return {
     range: { from, to, previousFrom, previousTo },
+    financials,
     summary: {
       revenue: netRevenue,
-      grossRevenue: revenue,
+      grossRevenue: currentFinancials.grossCollected,
       refunds: refunded,
       orders: completedOrders.length,
       averageOrderValue: completedOrders.length ? Math.round(netRevenue / completedOrders.length) : 0,
@@ -185,13 +372,17 @@ export async function buildReport({ from, to, branchId }) {
       estimatedCost,
       estimatedProfit: netRevenue - estimatedCost,
       previousRevenue,
-      revenueChange:
-        previousRevenue > 0 ? Number((((netRevenue - previousRevenue) / previousRevenue) * 100).toFixed(1)) : null,
+      revenueChange,
       completionRate: allOrders.length ? Number(((completedCount / allOrders.length) * 100).toFixed(1)) : 0,
       cancellationRate: allOrders.length ? Number(((cancelledCount / allOrders.length) * 100).toFixed(1)) : 0,
     },
-    revenueSeries: [...seriesMap.values()],
-    branchRevenue: [...branchMap.values()].sort((a, b) => b.revenue - a.revenue),
+    revenueSeries,
+    branchRevenue: branchProfitability.map(({ name, revenue, orders }) => ({
+      name,
+      revenue,
+      orders,
+    })),
+    branchProfitability,
     employeeRevenue: [...employeeMap.values()].sort((a, b) => b.revenue - a.revenue),
     paymentRevenue: [...paymentMap.entries()].map(([method, amount]) => ({ method, amount })),
     topProducts: topProductsRaw.map((item) => ({
@@ -215,4 +406,3 @@ export async function buildReport({ from, to, branchId }) {
     expiringBatches,
   };
 }
-

@@ -9,6 +9,31 @@ import { buildReport, reportRange } from "./reports.service.js";
 const router = Router();
 router.use(authenticate, requirePermission("reports.view", "dashboard.view"));
 
+function canViewFinancials(user) {
+  return user.role.code === "ADMIN" || user.permissions.includes("reports.view");
+}
+
+function reportForUser(report, user) {
+  if (canViewFinancials(user)) return report;
+  const {
+    financials: _financials,
+    branchProfitability: _branchProfitability,
+    ...safeReport
+  } = report;
+  const {
+    estimatedCost: _estimatedCost,
+    estimatedProfit: _estimatedProfit,
+    ...safeSummary
+  } = safeReport.summary;
+  return {
+    ...safeReport,
+    summary: safeSummary,
+    revenueSeries: safeReport.revenueSeries.map(
+      ({ cost: _cost, profit: _profit, margin: _margin, ...item }) => item,
+    ),
+  };
+}
+
 router.get(
   "/dashboard",
   asyncHandler(async (request, response) => {
@@ -18,7 +43,11 @@ router.get(
         ? request.query.branchId || undefined
         : request.user.branch?.id;
     const report = await buildReport({ ...range, branchId });
-    return success(response, report, "Lấy dữ liệu dashboard thành công");
+    return success(
+      response,
+      reportForUser(report, request.user),
+      "Lấy dữ liệu dashboard thành công",
+    );
   }),
 );
 
@@ -34,28 +63,62 @@ router.get(
     summary.columns = [
       { header: "Chỉ số", key: "metric", width: 32 },
       { header: "Giá trị", key: "value", width: 22 },
+      { header: "Đơn vị", key: "unit", width: 14 },
     ];
     summary.addRows([
-      { metric: "Doanh thu thuần", value: report.summary.revenue },
-      { metric: "Số đơn hoàn thành", value: report.summary.orders },
-      { metric: "Giá trị đơn trung bình", value: report.summary.averageOrderValue },
-      { metric: "Khách hàng mới", value: report.summary.newCustomers },
-      { metric: "Lợi nhuận ước tính", value: report.summary.estimatedProfit },
-      { metric: "Tỷ lệ hoàn thành (%)", value: report.summary.completionRate },
-      { metric: "Tỷ lệ hủy (%)", value: report.summary.cancellationRate },
+      { metric: "Doanh số trước ưu đãi", value: report.financials.salesBeforeDiscount, unit: "VNĐ" },
+      { metric: "Giảm giá và điểm", value: report.financials.discounts, unit: "VNĐ" },
+      { metric: "Doanh thu thuần chưa VAT", value: report.financials.netRevenue, unit: "VNĐ" },
+      { metric: "Thuế VAT đã thu", value: report.financials.taxCollected, unit: "VNĐ" },
+      { metric: "Tiền hoàn trả", value: report.financials.refunds, unit: "VNĐ" },
+      { metric: "Giá vốn hàng bán", value: report.financials.costOfGoods, unit: "VNĐ" },
+      { metric: "Lợi nhuận gộp", value: report.financials.grossProfit, unit: "VNĐ" },
+      { metric: "Biên lợi nhuận gộp", value: report.financials.grossMargin, unit: "%" },
+      { metric: "Số đơn hoàn thành", value: report.summary.orders, unit: "đơn" },
+      { metric: "Giá trị đơn trung bình", value: report.summary.averageOrderValue, unit: "VNĐ" },
+      { metric: "Khách hàng mới", value: report.summary.newCustomers, unit: "khách" },
+      { metric: "Tỷ lệ hoàn thành", value: report.summary.completionRate, unit: "%" },
+      { metric: "Tỷ lệ hủy", value: report.summary.cancellationRate, unit: "%" },
     ]);
-    summary.getColumn("value").numFmt = '#,##0" ₫"';
+    for (let rowIndex = 2; rowIndex <= summary.rowCount; rowIndex += 1) {
+      const unit = summary.getCell(rowIndex, 3).value;
+      summary.getCell(rowIndex, 2).numFmt = unit === "%"
+        ? '0.0"%"'
+        : "#,##0";
+    }
     summary.getRow(1).font = { bold: true };
 
     const daily = workbook.addWorksheet("Doanh thu theo ngày");
     daily.columns = [
       { header: "Ngày", key: "date", width: 18 },
       { header: "Doanh thu", key: "revenue", width: 22 },
+      { header: "Giá vốn", key: "cost", width: 22 },
+      { header: "Lợi nhuận", key: "profit", width: 22 },
+      { header: "Biên lợi nhuận (%)", key: "margin", width: 20 },
       { header: "Số đơn", key: "orders", width: 12 },
     ];
     daily.addRows(report.revenueSeries);
-    daily.getColumn("revenue").numFmt = '#,##0" ₫"';
+    for (const column of ["revenue", "cost", "profit"]) {
+      daily.getColumn(column).numFmt = '#,##0" ₫"';
+    }
+    daily.getColumn("margin").numFmt = '0.0"%"';
     daily.getRow(1).font = { bold: true };
+
+    const branches = workbook.addWorksheet("Lợi nhuận chi nhánh");
+    branches.columns = [
+      { header: "Chi nhánh", key: "name", width: 32 },
+      { header: "Doanh thu", key: "revenue", width: 22 },
+      { header: "Giá vốn", key: "cost", width: 22 },
+      { header: "Lợi nhuận", key: "profit", width: 22 },
+      { header: "Biên lợi nhuận (%)", key: "margin", width: 20 },
+      { header: "Số đơn", key: "orders", width: 12 },
+    ];
+    branches.addRows(report.branchProfitability);
+    for (const column of ["revenue", "cost", "profit"]) {
+      branches.getColumn(column).numFmt = '#,##0" ₫"';
+    }
+    branches.getColumn("margin").numFmt = '0.0"%"';
+    branches.getRow(1).font = { bold: true };
 
     const products = workbook.addWorksheet("Sản phẩm bán chạy");
     products.columns = [
@@ -102,11 +165,15 @@ router.get(
       );
     document.moveDown(2).fontSize(13).text("Tong quan");
     for (const [label, value] of [
-      ["Doanh thu thuan", `${report.summary.revenue.toLocaleString("vi-VN")} VND`],
+      ["Doanh thu thuan chua VAT", `${report.financials.netRevenue.toLocaleString("vi-VN")} VND`],
+      ["Gia von hang ban", `${report.financials.costOfGoods.toLocaleString("vi-VN")} VND`],
+      ["Loi nhuan gop", `${report.financials.grossProfit.toLocaleString("vi-VN")} VND`],
+      ["Bien loi nhuan", `${report.financials.grossMargin}%`],
+      ["Giam gia va diem", `${report.financials.discounts.toLocaleString("vi-VN")} VND`],
+      ["Tien hoan tra", `${report.financials.refunds.toLocaleString("vi-VN")} VND`],
       ["So don hoan thanh", report.summary.orders],
       ["Gia tri don trung binh", `${report.summary.averageOrderValue.toLocaleString("vi-VN")} VND`],
       ["Khach hang moi", report.summary.newCustomers],
-      ["Loi nhuan uoc tinh", `${report.summary.estimatedProfit.toLocaleString("vi-VN")} VND`],
       ["Ty le hoan thanh", `${report.summary.completionRate}%`],
     ]) {
       document.fontSize(10).text(`${label}: ${value}`);
@@ -120,4 +187,3 @@ router.get(
 );
 
 export default router;
-

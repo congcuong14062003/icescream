@@ -1,5 +1,4 @@
 import { ApiError } from "../utils/api-error.js";
-import { createBusinessCode } from "../utils/code.js";
 import { consumeInventoryBatches } from "./inventory-batch.service.js";
 
 function addNeed(map, ingredientId, quantity) {
@@ -51,7 +50,7 @@ export async function collectRecipeNeeds(tx, lines) {
 export async function deductInventory(tx, branchId, lines, userId, orderId) {
   const { needs, recipes } = await collectRecipeNeeds(tx, lines);
   const ingredientInfo = new Map(recipes.map((recipe) => [recipe.ingredientId, recipe.ingredient]));
-  for (const [ingredientId, required] of needs.entries()) {
+  for (const [transactionIndex, [ingredientId, required]] of [...needs.entries()].entries()) {
     const inventory = await tx.inventory.findUnique({
       where: { branchId_ingredientId: { branchId, ingredientId } },
     });
@@ -75,7 +74,7 @@ export async function deductInventory(tx, branchId, lines, userId, orderId) {
     });
     await tx.inventoryTransaction.create({
       data: {
-        code: createBusinessCode("KHO"),
+        code: `SALE-${orderId}-${String(transactionIndex + 1).padStart(3, "0")}`,
         type: "SALE",
         branchId,
         ingredientId,

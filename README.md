@@ -14,13 +14,14 @@ IceCream POS là ứng dụng full-stack quản lý và bán hàng tại quầy 
 - Phân quyền backend theo role/permission cho `ADMIN`, `MANAGER`, `CASHIER`, `WAREHOUSE`, `STAFF`; khóa/mở tài khoản nhân viên.
 - Quản lý sản phẩm, danh mục, biến thể, hương vị, topping, ảnh, tìm kiếm, lọc, phân trang và xóa mềm.
 - POS cảm ứng: chọn biến thể, số viên, từng hương vị, nhiều topping, số lượng, ghi chú, khách hàng, điểm, khuyến mãi, VAT, phí giao hàng, tiền khách đưa và tiền thừa.
+- Quản lý ưu đãi: tạo, sửa, bật/tắt, chọn sản phẩm hoặc danh mục, cấu hình thời gian và giới hạn sử dụng; hỗ trợ mua 3 tặng 1 với món hợp lệ rẻ nhất được miễn phí tại POS.
 - Lưu/khôi phục đơn tạm, thanh toán, in/xuất PDF, trạng thái đơn theo thời gian thực, hoàn tiền và lịch sử trạng thái.
 - Backend tự tính lại toàn bộ giá, khuyến mãi và tổng thanh toán; không tin số tổng từ frontend.
 - Khách hàng, hạng thành viên, tích/dùng điểm, lịch sử điểm và tự nâng hạng.
 - Kho theo chi nhánh/lô/hạn dùng, nhập–xuất–điều chỉnh–chuyển kho, cảnh báo tồn thấp/hết hạn, công thức định lượng và chặn tồn âm.
 - Nhà cung cấp và phiếu nhập; chỉ tăng kho khi phiếu chuyển sang `RECEIVED`.
 - Ca làm việc, tiền đầu ca, doanh thu theo phương thức, chi phí, kiểm đếm và chênh lệch cuối ca.
-- Dashboard lấy dữ liệu thật từ MySQL, lọc thời gian/chi nhánh, so sánh kỳ trước và xuất Excel/PDF.
+- Dashboard lấy dữ liệu thật từ MySQL, lọc thời gian/chi nhánh, so sánh kỳ trước và xuất Excel/PDF; quản lý có thống kê doanh thu, giá vốn theo lô, lợi nhuận và biên lợi nhuận.
 - Audit log cho các thao tác quan trọng, Helmet, CORS, rate limit, validate request và xử lý lỗi tập trung.
 
 ## Yêu cầu trên Windows

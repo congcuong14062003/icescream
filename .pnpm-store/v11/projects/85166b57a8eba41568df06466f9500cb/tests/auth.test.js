@@ -173,3 +173,180 @@ test("warehouse staff can issue stock and complete a stocktake only at their bra
   assert.ok(issues.body.data.some((item) => item.id === issue.body.data.id));
   assert.ok(stocktakes.body.data.some((item) => item.id === stocktake.body.data.id));
 });
+
+test("buy three get one promotion makes the cheapest eligible unit free", async () => {
+  const login = await request(app)
+    .post("/api/auth/login")
+    .send({ login: "cashier", password: "IceCream@123" })
+    .expect(200);
+  const authorization = `Bearer ${login.body.data.accessToken}`;
+  const [products, flavors] = await Promise.all([
+    request(app)
+      .get("/api/products?status=ACTIVE&size=10")
+      .set("Authorization", authorization)
+      .expect(200),
+    request(app)
+      .get("/api/flavors?status=AVAILABLE&size=100")
+      .set("Authorization", authorization)
+      .expect(200),
+  ]);
+  const product = products.body.data.find((item) =>
+    item.variants.some((variant) => variant.isActive),
+  );
+  const variant = product.variants.find((item) => item.isActive);
+  const flavor = flavors.body.data[0];
+  const flavorIds = Array.from({ length: variant.scoopCount }, () => flavor.id);
+  const unitPrice = variant.price + flavor.extraPrice * variant.scoopCount;
+  const baseInput = {
+    promotionCode: "MUA3TANG1",
+    pointsToRedeem: 0,
+    deliveryFee: 0,
+  };
+
+  const insufficient = await request(app)
+    .post("/api/orders/quote")
+    .set("Authorization", authorization)
+    .send({
+      ...baseInput,
+      items: [{ variantId: variant.id, quantity: 3, flavorIds, toppingIds: [] }],
+    })
+    .expect(422);
+  assert.match(insufficient.body.message, /ít nhất 4 sản phẩm/);
+
+  const quote = await request(app)
+    .post("/api/orders/quote")
+    .set("Authorization", authorization)
+    .send({
+      ...baseInput,
+      items: [{ variantId: variant.id, quantity: 4, flavorIds, toppingIds: [] }],
+    })
+    .expect(200);
+  assert.equal(quote.body.data.promotion.code, "MUA3TANG1");
+  assert.equal(quote.body.data.promotion.type, "BUY_X_GET_Y");
+  assert.equal(quote.body.data.promotion.benefit.freeQuantity, 1);
+  assert.equal(quote.body.data.originalAmount, unitPrice * 4);
+  assert.equal(quote.body.data.discountAmount, unitPrice);
+});
+
+test("manager can configure an offer and POS immediately follows its active status", async () => {
+  const [managerLogin, cashierLogin] = await Promise.all([
+    request(app)
+      .post("/api/auth/login")
+      .send({ login: "manager", password: "IceCream@123" })
+      .expect(200),
+    request(app)
+      .post("/api/auth/login")
+      .send({ login: "cashier", password: "IceCream@123" })
+      .expect(200),
+  ]);
+  const managerAuthorization = `Bearer ${managerLogin.body.data.accessToken}`;
+  const cashierAuthorization = `Bearer ${cashierLogin.body.data.accessToken}`;
+  const code = `TEST${Date.now().toString().slice(-8)}`;
+  const input = {
+    code,
+    name: "Ưu đãi cấu hình tự động",
+    description: "Dữ liệu kiểm thử màn hình quản lý ưu đãi",
+    type: "BUY_X_GET_Y",
+    value: 0,
+    startAt: new Date(Date.now() - 86400000).toISOString(),
+    endAt: new Date(Date.now() + 30 * 86400000).toISOString(),
+    minOrderValue: 0,
+    maxDiscount: null,
+    totalUsageLimit: 100,
+    usagePerCustomer: 5,
+    buyQuantity: 3,
+    getQuantity: 1,
+    startHour: null,
+    endHour: null,
+    memberOnly: false,
+    isActive: true,
+    productIds: [],
+    categoryIds: [],
+  };
+
+  const forbidden = await request(app)
+    .post("/api/promotions")
+    .set("Authorization", cashierAuthorization)
+    .send(input)
+    .expect(403);
+  assert.equal(forbidden.body.success, false);
+
+  let promotionId;
+  try {
+    const createdPromotion = await request(app)
+      .post("/api/promotions")
+      .set("Authorization", managerAuthorization)
+      .send(input)
+      .expect(201);
+    promotionId = createdPromotion.body.data.id;
+    assert.equal(createdPromotion.body.data.runtimeStatus, "ACTIVE");
+    assert.equal(createdPromotion.body.data.buyQuantity, 3);
+
+    const updatedPromotion = await request(app)
+      .put(`/api/promotions/${promotionId}`)
+      .set("Authorization", managerAuthorization)
+      .send({
+        ...input,
+        name: "Mua 2 tặng 1 cấu hình",
+        buyQuantity: 2,
+      })
+      .expect(200);
+    assert.equal(updatedPromotion.body.data.name, "Mua 2 tặng 1 cấu hình");
+    assert.equal(updatedPromotion.body.data.buyQuantity, 2);
+
+    const disabledPromotion = await request(app)
+      .patch(`/api/promotions/${promotionId}/status`)
+      .set("Authorization", managerAuthorization)
+      .send({ isActive: false })
+      .expect(200);
+    assert.equal(disabledPromotion.body.data.runtimeStatus, "INACTIVE");
+
+    const activePromotions = await request(app)
+      .get("/api/promotions?active=true&size=100")
+      .set("Authorization", cashierAuthorization)
+      .expect(200);
+    assert.equal(
+      activePromotions.body.data.some((item) => item.id === promotionId),
+      false,
+    );
+  } finally {
+    if (promotionId) {
+      await request(app)
+        .delete(`/api/promotions/${promotionId}`)
+        .set("Authorization", managerAuthorization);
+    }
+  }
+});
+
+test("only managers receive revenue and profit details from dashboard API", async () => {
+  const [managerLogin, warehouseLogin] = await Promise.all([
+    request(app)
+      .post("/api/auth/login")
+      .send({ login: "manager", password: "IceCream@123" })
+      .expect(200),
+    request(app)
+      .post("/api/auth/login")
+      .send({ login: "warehouse", password: "IceCream@123" })
+      .expect(200),
+  ]);
+  const [managerReport, warehouseReport] = await Promise.all([
+    request(app)
+      .get("/api/reports/dashboard")
+      .set("Authorization", `Bearer ${managerLogin.body.data.accessToken}`)
+      .expect(200),
+    request(app)
+      .get("/api/reports/dashboard")
+      .set("Authorization", `Bearer ${warehouseLogin.body.data.accessToken}`)
+      .expect(200),
+  ]);
+
+  assert.equal(typeof managerReport.body.data.financials.netRevenue, "number");
+  assert.equal(typeof managerReport.body.data.financials.costOfGoods, "number");
+  assert.equal(typeof managerReport.body.data.financials.grossProfit, "number");
+  assert.equal(typeof managerReport.body.data.financials.grossMargin, "number");
+  assert.ok(Array.isArray(managerReport.body.data.branchProfitability));
+  assert.equal(warehouseReport.body.data.financials, undefined);
+  assert.equal(warehouseReport.body.data.branchProfitability, undefined);
+  assert.equal(warehouseReport.body.data.summary.estimatedProfit, undefined);
+  assert.equal(warehouseReport.body.data.revenueSeries[0]?.profit, undefined);
+});

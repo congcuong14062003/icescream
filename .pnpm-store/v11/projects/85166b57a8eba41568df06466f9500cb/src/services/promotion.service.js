@@ -1,7 +1,56 @@
 import { ApiError } from "../utils/api-error.js";
 
+function buyXGetYBenefit(promotion, lines) {
+  const productIds = new Set(promotion.products.map((item) => item.productId));
+  const categoryIds = new Set(promotion.categories.map((item) => item.categoryId));
+  const hasProductScope = productIds.size > 0;
+  const hasCategoryScope = categoryIds.size > 0;
+  const eligibleLines = lines.filter((line) => {
+    if (!hasProductScope && !hasCategoryScope) return true;
+    return productIds.has(line.productId) || categoryIds.has(line.categoryId);
+  });
+  const buyQuantity = promotion.buyQuantity || 0;
+  const getQuantity = promotion.getQuantity || 0;
+  const groupQuantity = buyQuantity + getQuantity;
+  if (!buyQuantity || !getQuantity || !groupQuantity) {
+    throw new ApiError(422, "Chương trình mua tặng chưa được cấu hình đúng");
+  }
+
+  const eligibleQuantity = eligibleLines.reduce((sum, line) => sum + line.quantity, 0);
+  const freeQuantity = Math.floor(eligibleQuantity / groupQuantity) * getQuantity;
+  if (freeQuantity <= 0) {
+    throw new ApiError(
+      422,
+      `Cần ít nhất ${groupQuantity} sản phẩm phù hợp để nhận ưu đãi mua ${buyQuantity} tặng ${getQuantity}`,
+    );
+  }
+
+  const units = eligibleLines
+    .map((line) => ({ unitPrice: line.unitPrice, quantity: line.quantity }))
+    .sort((left, right) => left.unitPrice - right.unitPrice);
+  let remainingFree = freeQuantity;
+  let discount = 0;
+  for (const unit of units) {
+    if (remainingFree <= 0) break;
+    const appliedQuantity = Math.min(unit.quantity, remainingFree);
+    discount += unit.unitPrice * appliedQuantity;
+    remainingFree -= appliedQuantity;
+  }
+
+  return {
+    discount,
+    benefit: {
+      buyQuantity,
+      getQuantity,
+      groupQuantity,
+      eligibleQuantity,
+      freeQuantity,
+    },
+  };
+}
+
 export async function validatePromotion(tx, code, context) {
-  if (!code) return { promotion: null, discount: 0 };
+  if (!code) return { promotion: null, discount: 0, benefit: null };
   const now = new Date();
   const promotion = await tx.promotion.findUnique({
     where: { code: code.trim().toUpperCase() },
@@ -63,13 +112,17 @@ export async function validatePromotion(tx, code, context) {
   if (eligibleAmount <= 0) throw new ApiError(422, "Giỏ hàng không có sản phẩm phù hợp với mã");
 
   let discount;
-  if (["PERCENT", "PRODUCT", "CATEGORY", "MEMBER"].includes(promotion.type)) {
+  let benefit = null;
+  if (promotion.type === "BUY_X_GET_Y") {
+    const result = buyXGetYBenefit(promotion, context.lines);
+    discount = result.discount;
+    benefit = result.benefit;
+  } else if (["PERCENT", "PRODUCT", "CATEGORY", "MEMBER"].includes(promotion.type)) {
     discount = Math.round((eligibleAmount * promotion.value) / 100);
   } else {
     discount = promotion.value;
   }
   if (promotion.maxDiscount) discount = Math.min(discount, promotion.maxDiscount);
   discount = Math.min(discount, context.originalAmount);
-  return { promotion, discount };
+  return { promotion, discount, benefit };
 }
-

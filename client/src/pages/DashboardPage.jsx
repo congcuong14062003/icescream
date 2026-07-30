@@ -7,7 +7,9 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
+  ComposedChart,
   Legend,
+  Line,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -17,6 +19,9 @@ import {
 } from "recharts";
 import {
   AlertTriangle,
+  BadgeDollarSign,
+  CirclePercent,
+  Coins,
   Download,
   FileText,
   IceCreamBowl,
@@ -178,20 +183,148 @@ export default function DashboardPage() {
         <EmptyState title="Không tải được báo cáo" description={apiMessage(reportQuery.error)} action={<Button onClick={() => reportQuery.refetch()}>Thử lại</Button>} />
       ) : (
         <>
+          {report.financials && (
+            <section className="tw-space-y-4">
+              <div className="tw-flex tw-flex-col tw-gap-2 sm:tw-flex-row sm:tw-items-end sm:tw-justify-between">
+                <div>
+                  <div className="tw-flex tw-items-center tw-gap-2 tw-text-[11px] tw-font-bold tw-uppercase tw-tracking-[0.12em] tw-text-mint-700 dark:tw-text-mint-300">
+                    <BadgeDollarSign size={16} /> Tài chính dành cho quản lý
+                  </div>
+                  <h2 className="tw-mb-0 tw-mt-1 tw-text-xl tw-font-extrabold tw-tracking-[-0.03em]">
+                    Doanh thu & lợi nhuận
+                  </h2>
+                </div>
+                <div className="tw-text-xs tw-text-slate-400">
+                  {report.financials.actualCostCoverage}% đơn dùng giá vốn thực tế theo lô · đơn cũ dùng giá vốn sản phẩm
+                </div>
+              </div>
+              <div className="tw-grid tw-gap-4 sm:tw-grid-cols-2 xl:tw-grid-cols-4">
+                <StatCard
+                  label="Doanh thu thuần"
+                  value={formatMoney(report.financials.netRevenue)}
+                  helper={
+                    report.financials.revenueChange === null
+                      ? "Chưa có dữ liệu kỳ trước"
+                      : `${report.financials.revenueChange >= 0 ? "Tăng" : "Giảm"} ${Math.abs(report.financials.revenueChange)}% so với kỳ trước`
+                  }
+                  icon={Wallet}
+                />
+                <StatCard
+                  label="Giá vốn hàng bán"
+                  value={formatMoney(report.financials.costOfGoods)}
+                  helper={`${report.financials.actualCostOrders}/${report.summary.orders} đơn có giá vốn theo lô`}
+                  icon={Coins}
+                  color="amber"
+                />
+                <StatCard
+                  label="Lợi nhuận gộp"
+                  value={formatMoney(report.financials.grossProfit)}
+                  helper={
+                    report.financials.profitChange === null
+                      ? "Chưa có dữ liệu lợi nhuận kỳ trước"
+                      : `${report.financials.profitChange >= 0 ? "Tăng" : "Giảm"} ${Math.abs(report.financials.profitChange)}% so với kỳ trước`
+                  }
+                  icon={BadgeDollarSign}
+                  color="lavender"
+                />
+                <StatCard
+                  label="Biên lợi nhuận"
+                  value={`${report.financials.grossMargin.toLocaleString("vi-VN")}%`}
+                  helper={`Giảm giá ${formatMoney(report.financials.discounts)} · Hoàn ${formatMoney(report.financials.refunds)}`}
+                  icon={CirclePercent}
+                  color="blush"
+                />
+              </div>
+              <div className="tw-grid tw-gap-5 xl:tw-grid-cols-[1.55fr_1fr]">
+                <ChartCard title="Hiệu quả kinh doanh theo ngày" subtitle="Doanh thu chưa VAT, giá vốn và lợi nhuận gộp">
+                  {report.revenueSeries.length ? (
+                    <div className="tw-h-80">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <ComposedChart data={report.revenueSeries}>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#dbe5e2" />
+                          <XAxis dataKey="date" tickFormatter={(value) => value.slice(5).split("-").reverse().join("/")} tick={{ fontSize: 11 }} />
+                          <YAxis tickFormatter={(value) => `${Math.round(value / 1000000)}tr`} tick={{ fontSize: 11 }} />
+                          <Tooltip
+                            formatter={(value, name) => [
+                              formatMoney(value),
+                              { revenue: "Doanh thu", cost: "Giá vốn", profit: "Lợi nhuận" }[name] || name,
+                            ]}
+                            labelFormatter={(label) => formatDate(label)}
+                          />
+                          <Legend formatter={(value) => ({ revenue: "Doanh thu", cost: "Giá vốn", profit: "Lợi nhuận" }[value] || value)} />
+                          <Bar dataKey="revenue" fill="#16816e" radius={[5, 5, 0, 0]} maxBarSize={34} />
+                          <Bar dataKey="cost" fill="#e9a23b" radius={[5, 5, 0, 0]} maxBarSize={34} />
+                          <Line type="monotone" dataKey="profit" stroke="#8067d4" strokeWidth={2.5} dot={{ r: 3 }} />
+                        </ComposedChart>
+                      </ResponsiveContainer>
+                    </div>
+                  ) : <EmptyState title="Chưa có doanh thu trong kỳ" />}
+                </ChartCard>
+                <ChartCard title="Lợi nhuận theo chi nhánh" subtitle="So sánh doanh thu và biên lợi nhuận">
+                  {report.branchProfitability.length ? (
+                    <div className="tw-space-y-3">
+                      {report.branchProfitability.map((branch, index) => {
+                        const maxProfit = Math.max(
+                          1,
+                          ...report.branchProfitability.map((item) => Math.max(0, item.profit)),
+                        );
+                        return (
+                          <div key={branch.name} className="tw-rounded-2xl tw-border tw-border-slate-100 tw-p-4 dark:tw-border-slate-800">
+                            <div className="tw-flex tw-items-start tw-gap-3">
+                              <span className="tw-flex tw-h-8 tw-w-8 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-lg tw-bg-mint-50 tw-text-xs tw-font-black tw-text-mint-700 dark:tw-bg-mint-500/10">
+                                {index + 1}
+                              </span>
+                              <div className="tw-min-w-0 tw-flex-1">
+                                <div className="tw-flex tw-items-center tw-justify-between tw-gap-2">
+                                  <strong className="tw-truncate tw-text-sm">{branch.name}</strong>
+                                  <strong className={branch.profit >= 0 ? "tw-text-sm tw-text-emerald-600" : "tw-text-sm tw-text-rose-500"}>
+                                    {formatMoney(branch.profit)}
+                                  </strong>
+                                </div>
+                                <div className="tw-mt-1 tw-flex tw-justify-between tw-text-[11px] tw-text-slate-400">
+                                  <span>Doanh thu {formatMoney(branch.revenue)}</span>
+                                  <span>Biên {branch.margin}%</span>
+                                </div>
+                                <div className="tw-mt-2 tw-h-1.5 tw-overflow-hidden tw-rounded-full tw-bg-slate-100 dark:tw-bg-slate-800">
+                                  <div
+                                    className="tw-h-full tw-rounded-full tw-bg-gradient-to-r tw-from-mint-500 tw-to-lavender-500"
+                                    style={{ width: `${Math.max(3, (Math.max(0, branch.profit) / maxProfit) * 100)}%` }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : <EmptyState title="Chưa có dữ liệu chi nhánh" />}
+                </ChartCard>
+              </div>
+            </section>
+          )}
+
           <div className="tw-grid tw-gap-4 sm:tw-grid-cols-2 xl:tw-grid-cols-4">
             <StatCard
-              label="Doanh thu thuần"
-              value={formatMoney(report.summary.revenue)}
+              label={report.financials ? "Doanh số trước ưu đãi" : "Doanh thu thuần"}
+              value={formatMoney(report.financials?.salesBeforeDiscount ?? report.summary.revenue)}
               helper={
-                report.summary.revenueChange === null
-                  ? "Chưa có dữ liệu kỳ trước"
-                  : `${report.summary.revenueChange >= 0 ? "Tăng" : "Giảm"} ${Math.abs(report.summary.revenueChange)}% so với kỳ trước`
+                report.financials
+                  ? `Đã giảm ${formatMoney(report.financials.discounts)}`
+                  : report.summary.revenueChange === null
+                    ? "Chưa có dữ liệu kỳ trước"
+                    : `${report.summary.revenueChange >= 0 ? "Tăng" : "Giảm"} ${Math.abs(report.summary.revenueChange)}% so với kỳ trước`
               }
               icon={report.summary.revenueChange >= 0 ? TrendingUp : TrendingDown}
             />
             <StatCard label="Đơn hoàn thành" value={report.summary.orders.toLocaleString("vi-VN")} helper={`${report.summary.completionRate}% tỷ lệ hoàn thành`} icon={ReceiptText} color="blush" />
             <StatCard label="Giá trị đơn trung bình" value={formatMoney(report.summary.averageOrderValue)} helper={`${report.summary.cancellationRate}% đơn bị hủy`} icon={Wallet} color="lavender" />
-            <StatCard label="Khách hàng mới" value={report.summary.newCustomers.toLocaleString("vi-VN")} helper={`Lợi nhuận ước tính ${formatMoney(report.summary.estimatedProfit)}`} icon={UserPlus} color="amber" />
+            <StatCard
+              label="Khách hàng mới"
+              value={report.summary.newCustomers.toLocaleString("vi-VN")}
+              helper={report.financials ? `VAT đã thu ${formatMoney(report.financials.taxCollected)}` : "Khách phát sinh trong kỳ"}
+              icon={UserPlus}
+              color="amber"
+            />
           </div>
 
           <div className="tw-grid tw-gap-5 xl:tw-grid-cols-[1.6fr_1fr]">

@@ -583,6 +583,22 @@ async function main() {
       usagePerCustomer: 2,
     },
   });
+  await prisma.promotion.create({
+    data: {
+      code: "MUA3TANG1",
+      name: "Mua 3 tặng 1",
+      description: "Chọn 4 món kem bất kỳ, món có giá thấp nhất được miễn phí",
+      type: "BUY_X_GET_Y",
+      value: 0,
+      buyQuantity: 3,
+      getQuantity: 1,
+      startAt: new Date(now.getFullYear(), now.getMonth() - 1, 1),
+      endAt: new Date(now.getFullYear() + 3, 11, 31, 23, 59, 59),
+      minOrderValue: 0,
+      totalUsageLimit: 5000,
+      usagePerCustomer: 50,
+    },
+  });
 
   const shift = await prisma.workShift.create({
     data: {
