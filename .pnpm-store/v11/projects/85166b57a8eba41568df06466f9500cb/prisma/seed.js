@@ -154,6 +154,7 @@ async function clearDatabase() {
   const operations = [
     prisma.auditLog.deleteMany(),
     prisma.membershipBenefitUsage.deleteMany(),
+    prisma.customerVoucher.deleteMany(),
     prisma.stocktakeItem.deleteMany(),
     prisma.stocktake.deleteMany(),
     prisma.stockIssueItem.deleteMany(),
@@ -529,11 +530,21 @@ async function main() {
   });
 
   const memberships = [];
-  for (const [memberCode, name, minSpending, pointRate, birthdayDiscount, displayOrder] of [
-    ["NEW", "Thành viên mới", 0, 0.01, 5, 1],
-    ["SILVER", "Bạc", 1000000, 0.015, 10, 2],
-    ["GOLD", "Vàng", 5000000, 0.02, 15, 3],
-    ["DIAMOND", "Kim cương", 15000000, 0.03, 20, 4],
+  for (const [
+    memberCode,
+    name,
+    minSpending,
+    minPoints,
+    pointRate,
+    birthdayDiscount,
+    displayOrder,
+    voucherEnabled,
+    voucherValue,
+  ] of [
+    ["NEW", "Thành viên mới", 0, 0, 1, 5, 1, false, 0],
+    ["SILVER", "Bạc", 1000000, 100, 1.5, 10, 2, true, 30000],
+    ["GOLD", "Vàng", 5000000, 700, 2, 15, 3, true, 50000],
+    ["DIAMOND", "Kim cương", 15000000, 2700, 3, 20, 4, true, 100000],
   ]) {
     memberships.push(
       await prisma.membershipLevel.create({
@@ -541,9 +552,16 @@ async function main() {
           code: memberCode,
           name,
           minSpending,
+          minPoints,
           pointRate,
           birthdayDiscount,
           displayOrder,
+          voucherEnabled,
+          voucherType: "FIXED_AMOUNT",
+          voucherValue,
+          voucherValidityDays: 15,
+          voucherCooldownDays: 15,
+          voucherRenewalOrderMinAmount: 200000,
         },
       }),
     );
@@ -564,7 +582,7 @@ async function main() {
           membershipLevelId: memberships[levelIndex].id,
           totalSpending: memberships[levelIndex].minSpending + index * 50000,
           totalOrders: 1 + (index % 20),
-          points: 20 + index * 3,
+          points: memberships[levelIndex].minPoints + 20 + index * 3,
         },
       }),
     );

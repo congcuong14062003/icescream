@@ -13,18 +13,28 @@ IceCream POS là ứng dụng full-stack quản lý và bán hàng tại quầy 
 - Đăng nhập bằng username/email, refresh token bằng cookie HttpOnly, đăng xuất, đổi/quên/đặt lại mật khẩu, cập nhật hồ sơ và lịch sử đăng nhập.
 - Phân quyền backend theo role/permission cho `ADMIN`, `MANAGER`, `CASHIER`, `WAREHOUSE`, `STAFF`; khóa/mở tài khoản nhân viên.
 - Quản lý sản phẩm, danh mục, biến thể, hương vị, topping, ảnh, tìm kiếm, lọc, phân trang và xóa mềm.
-- POS cảm ứng: chọn biến thể, số viên, từng hương vị, nhiều topping, số lượng, ghi chú, khách hàng, điểm, khuyến mãi, VAT, phí giao hàng, tiền khách đưa và tiền thừa.
+- POS cảm ứng: chọn biến thể, số viên, từng hương vị, nhiều topping, số lượng, ghi chú, khách hàng, khuyến mãi/voucher, VAT, phí giao hàng, tiền khách đưa và tiền thừa.
 - Quản lý ưu đãi: tạo, sửa, bật/tắt, chọn sản phẩm hoặc danh mục, cấu hình thời gian và giới hạn sử dụng; hỗ trợ mua 3 tặng 1 với món hợp lệ rẻ nhất được miễn phí tại POS.
 - Lưu/khôi phục đơn tạm, thanh toán, in/xuất PDF, trạng thái đơn theo thời gian thực, hoàn tiền và lịch sử trạng thái.
 - Backend tự tính lại toàn bộ giá, khuyến mãi và tổng thanh toán; không tin số tổng từ frontend.
-- Khách hàng, hạng thành viên, tích/dùng điểm, lịch sử điểm và tự nâng hạng.
+- Khách hàng, điểm xếp hạng, lịch sử điểm, tự nâng hạng và voucher theo hạng.
 - Hội viên trả phí: quản lý cấu hình gói/phí/thời hạn và một biến thể quà cố định; thu ngân đăng ký hoặc gia hạn, ghi nhận phương thức thu phí; POS thêm quà vào đơn và tự miễn phí đúng một đơn vị mỗi ngày, chặn dùng lặp và hỗ trợ khuyến mãi chỉ dành cho hội viên còn hạn.
-- Điểm khách hàng chỉ được giảm tối đa 20% tiền hàng sau các ưu đãi khác; backend tự tính số điểm thực dùng và không tin giới hạn do frontend gửi.
+- Điểm khách hàng chỉ dùng để xét và nâng hạng, không quy đổi thành tiền. Khi lên hạng, hệ thống tự cấp voucher; hạn dùng, thời gian chờ và mức hóa đơn để cấp lại được quản lý cấu hình riêng theo từng hạng.
 - Kho theo chi nhánh/lô/hạn dùng, nhập–xuất–điều chỉnh–chuyển kho, cảnh báo tồn thấp/hết hạn, công thức định lượng và chặn tồn âm.
 - Nhà cung cấp và phiếu nhập; chỉ tăng kho khi phiếu chuyển sang `RECEIVED`.
 - Ca làm việc, tiền đầu ca, doanh thu theo phương thức, chi phí, kiểm đếm và chênh lệch cuối ca.
 - Dashboard lấy dữ liệu thật từ MySQL, lọc thời gian/chi nhánh, so sánh kỳ trước và xuất Excel/PDF; quản lý có thống kê doanh thu, giá vốn theo lô, lợi nhuận và biên lợi nhuận.
 - Audit log cho các thao tác quan trọng, Helmet, CORS, rate limit, validate request và xử lý lỗi tập trung.
+
+## Chính sách điểm và voucher theo hạng
+
+Tài khoản `ADMIN` hoặc `MANAGER` mở menu **Hạng & voucher** (`/loyalty`) để cấu hình riêng cho từng hạng:
+
+- Mốc điểm lên hạng và số điểm nhận trên mỗi `10.000đ`.
+- Bật/tắt voucher, loại giảm tiền/phần trăm, giá trị giảm, mức giảm tối đa và giá trị đơn tối thiểu để dùng.
+- Số ngày voucher còn hiệu lực, số ngày chờ sau khi dùng và giá trị hóa đơn tối thiểu để được cấp lại.
+
+Mặc định voucher có hạn `15 ngày`, thời gian chờ sau khi dùng là `15 ngày` và hóa đơn cấp lại tối thiểu là `200.000đ`. Backend tự cấp voucher trong transaction hoàn tất đơn, kiểm tra đúng chủ sở hữu khi áp dụng và khóa voucher ngay khi thanh toán; client không được tự gửi số tiền giảm.
 
 ## Yêu cầu trên Windows
 

@@ -457,9 +457,18 @@ exports.Prisma.MembershipLevelScalarFieldEnum = {
   code: 'code',
   name: 'name',
   minSpending: 'minSpending',
+  minPoints: 'minPoints',
   pointRate: 'pointRate',
   pointValue: 'pointValue',
   birthdayDiscount: 'birthdayDiscount',
+  voucherEnabled: 'voucherEnabled',
+  voucherType: 'voucherType',
+  voucherValue: 'voucherValue',
+  voucherMaxDiscount: 'voucherMaxDiscount',
+  voucherMinOrderValue: 'voucherMinOrderValue',
+  voucherValidityDays: 'voucherValidityDays',
+  voucherCooldownDays: 'voucherCooldownDays',
+  voucherRenewalOrderMinAmount: 'voucherRenewalOrderMinAmount',
   displayOrder: 'displayOrder',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -583,6 +592,25 @@ exports.Prisma.PromotionUsageScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.CustomerVoucherScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  customerId: 'customerId',
+  membershipLevelId: 'membershipLevelId',
+  issuedFromOrderId: 'issuedFromOrderId',
+  usedOrderId: 'usedOrderId',
+  type: 'type',
+  value: 'value',
+  maxDiscount: 'maxDiscount',
+  minOrderValue: 'minOrderValue',
+  issueReason: 'issueReason',
+  status: 'status',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.OrderScalarFieldEnum = {
   id: 'id',
   code: 'code',
@@ -594,6 +622,7 @@ exports.Prisma.OrderScalarFieldEnum = {
   promotionId: 'promotionId',
   originalAmount: 'originalAmount',
   discountAmount: 'discountAmount',
+  voucherDiscount: 'voucherDiscount',
   pointsDiscount: 'pointsDiscount',
   membershipDiscount: 'membershipDiscount',
   vatRate: 'vatRate',
@@ -1034,6 +1063,15 @@ exports.Prisma.PromotionUsageOrderByRelevanceFieldEnum = {
   orderId: 'orderId'
 };
 
+exports.Prisma.CustomerVoucherOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  customerId: 'customerId',
+  membershipLevelId: 'membershipLevelId',
+  issuedFromOrderId: 'issuedFromOrderId',
+  usedOrderId: 'usedOrderId'
+};
+
 exports.Prisma.OrderOrderByRelevanceFieldEnum = {
   id: 'id',
   code: 'code',
@@ -1175,6 +1213,11 @@ exports.PurchaseOrderStatus = exports.$Enums.PurchaseOrderStatus = {
   CANCELLED: 'CANCELLED'
 };
 
+exports.VoucherDiscountType = exports.$Enums.VoucherDiscountType = {
+  PERCENT: 'PERCENT',
+  FIXED_AMOUNT: 'FIXED_AMOUNT'
+};
+
 exports.PaymentMethod = exports.$Enums.PaymentMethod = {
   CASH: 'CASH',
   BANK_TRANSFER: 'BANK_TRANSFER',
@@ -1205,6 +1248,18 @@ exports.PromotionType = exports.$Enums.PromotionType = {
   CATEGORY: 'CATEGORY',
   MEMBER: 'MEMBER',
   HAPPY_HOUR: 'HAPPY_HOUR'
+};
+
+exports.VoucherIssueReason = exports.$Enums.VoucherIssueReason = {
+  TIER_UPGRADE: 'TIER_UPGRADE',
+  QUALIFYING_ORDER: 'QUALIFYING_ORDER'
+};
+
+exports.VoucherStatus = exports.$Enums.VoucherStatus = {
+  ACTIVE: 'ACTIVE',
+  USED: 'USED',
+  EXPIRED: 'EXPIRED',
+  CANCELLED: 'CANCELLED'
 };
 
 exports.PaymentStatus = exports.$Enums.PaymentStatus = {
@@ -1273,6 +1328,7 @@ exports.Prisma.ModelName = {
   PromotionProduct: 'PromotionProduct',
   PromotionCategory: 'PromotionCategory',
   PromotionUsage: 'PromotionUsage',
+  CustomerVoucher: 'CustomerVoucher',
   Order: 'Order',
   OrderItem: 'OrderItem',
   OrderItemFlavor: 'OrderItemFlavor',

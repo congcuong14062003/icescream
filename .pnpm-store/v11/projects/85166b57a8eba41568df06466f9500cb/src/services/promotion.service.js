@@ -51,17 +51,62 @@ function buyXGetYBenefit(promotion, lines) {
 }
 
 export async function validatePromotion(tx, code, context) {
-  if (!code) return { promotion: null, discount: 0, benefit: null };
+  if (!code) {
+    return { promotion: null, voucher: null, discount: 0, benefit: null };
+  }
   const now = new Date();
+  const normalizedCode = code.trim().toUpperCase();
   const promotion = await tx.promotion.findUnique({
-    where: { code: code.trim().toUpperCase() },
+    where: { code: normalizedCode },
     include: {
       products: true,
       categories: true,
       _count: { select: { usages: true } },
     },
   });
-  if (!promotion || !promotion.isActive) throw new ApiError(422, "Mã khuyến mãi không tồn tại hoặc đã ngừng");
+  if (!promotion) {
+    const voucher = await tx.customerVoucher.findUnique({
+      where: { code: normalizedCode },
+      include: {
+        membershipLevel: {
+          select: { id: true, code: true, name: true },
+        },
+      },
+    });
+    if (!voucher) {
+      throw new ApiError(422, "Mã ưu đãi hoặc voucher không tồn tại");
+    }
+    if (!context.customerId) {
+      throw new ApiError(422, "Vui lòng chọn khách hàng sở hữu voucher");
+    }
+    if (voucher.customerId !== context.customerId) {
+      throw new ApiError(422, "Voucher không thuộc khách hàng đang chọn");
+    }
+    if (voucher.status !== "ACTIVE" || voucher.expiresAt <= now) {
+      throw new ApiError(422, "Voucher đã được sử dụng, hết hạn hoặc bị hủy");
+    }
+    if (context.originalAmount < voucher.minOrderValue) {
+      throw new ApiError(
+        422,
+        `Đơn hàng tối thiểu để dùng voucher là ${voucher.minOrderValue.toLocaleString("vi-VN")}đ`,
+      );
+    }
+    let voucherDiscount =
+      voucher.type === "PERCENT"
+        ? Math.round((context.originalAmount * voucher.value) / 100)
+        : voucher.value;
+    if (voucher.maxDiscount) {
+      voucherDiscount = Math.min(voucherDiscount, voucher.maxDiscount);
+    }
+    voucherDiscount = Math.min(voucherDiscount, context.originalAmount);
+    return {
+      promotion: null,
+      voucher,
+      discount: voucherDiscount,
+      benefit: null,
+    };
+  }
+  if (!promotion.isActive) throw new ApiError(422, "Mã khuyến mãi đã ngừng");
   if (promotion.startAt > now || promotion.endAt < now) {
     throw new ApiError(422, "Mã khuyến mãi chưa đến hạn hoặc đã hết hạn");
   }
@@ -125,5 +170,5 @@ export async function validatePromotion(tx, code, context) {
   }
   if (promotion.maxDiscount) discount = Math.min(discount, promotion.maxDiscount);
   discount = Math.min(discount, context.originalAmount);
-  return { promotion, discount, benefit };
+  return { promotion, voucher: null, discount, benefit };
 }

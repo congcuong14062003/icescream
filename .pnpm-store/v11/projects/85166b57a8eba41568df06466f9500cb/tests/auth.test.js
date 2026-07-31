@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import request from "supertest";
 import app from "../src/app.js";
 import { prisma } from "../src/config/prisma.js";
+import { updateCustomerAfterCompletion } from "../src/services/loyalty.service.js";
 
 test("health endpoint uses the unified response shape", async () => {
   const response = await request(app).get("/api/health").expect(200);
@@ -498,7 +499,7 @@ test("manager can enroll a paid member and POS quotes the daily free item", asyn
   }
 });
 
-test("points redemption is capped at twenty percent of the invoice", async () => {
+test("loyalty points cannot be redeemed and tier settings are manager-only", async () => {
   const login = await request(app)
     .post("/api/auth/login")
     .send({ login: "cashier", password: "IceCream@123" })
@@ -526,7 +527,7 @@ test("points redemption is capped at twenty percent of the invoice", async () =>
   );
   const variant = product.variants.find((item) => item.isActive);
   const flavor = flavors.body.data.find((item) => item.extraPrice === 0);
-  const quote = await request(app)
+  const response = await request(app)
     .post("/api/orders/quote")
     .set("Authorization", authorization)
     .send({
@@ -540,14 +541,224 @@ test("points redemption is capped at twenty percent of the invoice", async () =>
       pointsToRedeem: customer.points,
       deliveryFee: 0,
     })
+    .expect(422);
+  assert.match(response.body.message, /chỉ dùng để thăng hạng/i);
+
+  const levels = await request(app)
+    .get("/api/memberships/levels")
+    .set("Authorization", authorization)
     .expect(200);
-  const maximumDiscount = Math.floor(quote.body.data.originalAmount * 0.2);
-  assert.ok(quote.body.data.pointsDiscount <= maximumDiscount);
+  assert.ok(levels.body.data.length >= 4);
+  const level = levels.body.data[0];
+  await request(app)
+    .put(`/api/memberships/levels/${level.id}`)
+    .set("Authorization", authorization)
+    .send({
+      minPoints: level.minPoints,
+      pointRate: level.pointRate,
+      voucherEnabled: level.voucherEnabled,
+      voucherType: level.voucherType,
+      voucherValue: level.voucherValue,
+      voucherMaxDiscount: level.voucherMaxDiscount,
+      voucherMinOrderValue: level.voucherMinOrderValue,
+      voucherValidityDays: level.voucherValidityDays,
+      voucherCooldownDays: level.voucherCooldownDays,
+      voucherRenewalOrderMinAmount: level.voucherRenewalOrderMinAmount,
+    })
+    .expect(403);
+
+  const managerLogin = await request(app)
+    .post("/api/auth/login")
+    .send({ login: "manager", password: "IceCream@123" })
+    .expect(200);
+  await request(app)
+    .put(`/api/memberships/levels/${level.id}`)
+    .set("Authorization", `Bearer ${managerLogin.body.data.accessToken}`)
+    .send({
+      minPoints: level.minPoints,
+      pointRate: level.pointRate,
+      voucherEnabled: level.voucherEnabled,
+      voucherType: level.voucherType,
+      voucherValue: level.voucherValue,
+      voucherMaxDiscount: level.voucherMaxDiscount,
+      voucherMinOrderValue: level.voucherMinOrderValue,
+      voucherValidityDays: level.voucherValidityDays,
+      voucherCooldownDays: level.voucherCooldownDays,
+      voucherRenewalOrderMinAmount: level.voucherRenewalOrderMinAmount,
+    })
+    .expect(200);
+});
+
+test("tier upgrade issues a voucher and using it does not issue another during cooldown", async () => {
+  const cashierLogin = await request(app)
+    .post("/api/auth/login")
+    .send({ login: "cashier", password: "IceCream@123" })
+    .expect(200);
+  const authorization = `Bearer ${cashierLogin.body.data.accessToken}`;
+  const [products, flavors, levels] = await Promise.all([
+    request(app)
+      .get("/api/products?status=ACTIVE&size=100")
+      .set("Authorization", authorization)
+      .expect(200),
+    request(app)
+      .get("/api/flavors?status=AVAILABLE&size=100")
+      .set("Authorization", authorization)
+      .expect(200),
+    request(app)
+      .get("/api/memberships/levels")
+      .set("Authorization", authorization)
+      .expect(200),
+  ]);
+  const silver = levels.body.data.find((level) => level.code === "SILVER");
+  assert.ok(silver?.voucherEnabled);
+  const product = products.body.data.find((item) =>
+    item.variants.some((variant) => variant.isActive && variant.price >= 20000),
+  );
+  const variant = product.variants.find((item) => item.isActive);
+  const flavor = flavors.body.data.find((item) => item.extraPrice === 0);
+  const phone = `098${String(Date.now()).slice(-7)}`;
+  const createdCustomer = await request(app)
+    .post("/api/customers")
+    .set("Authorization", authorization)
+    .send({ fullName: "Khách kiểm thử voucher", phone })
+    .expect(201);
+  const customerId = createdCustomer.body.data.id;
+  const items = [{
+    variantId: variant.id,
+    quantity: 1,
+    flavorIds: Array.from({ length: variant.scoopCount }, () => flavor.id),
+    toppingIds: [],
+  }];
+
+  const initialQuote = await request(app)
+    .post("/api/orders/quote")
+    .set("Authorization", authorization)
+    .send({ items, customerId, deliveryFee: 0 })
+    .expect(200);
+  const earnedPoints = Math.floor(
+    (initialQuote.body.data.totalAmount / 10000) *
+      createdCustomer.body.data.membershipLevel.pointRate,
+  );
+  await prisma.customer.update({
+    where: { id: customerId },
+    data: { points: Math.max(0, silver.minPoints - earnedPoints) },
+  });
+
+  const firstOrder = await request(app)
+    .post("/api/orders")
+    .set("Authorization", authorization)
+    .send({
+      items,
+      customerId,
+      deliveryFee: 0,
+      saveAsDraft: false,
+      customerPaid: initialQuote.body.data.totalAmount,
+      payments: [{
+        method: "CASH",
+        amount: initialQuote.body.data.totalAmount,
+      }],
+    })
+    .expect(201);
+  const voucher = firstOrder.body.data.issuedVouchers.find(
+    (item) => item.membershipLevel.code === "SILVER",
+  );
+  assert.ok(voucher);
+  assert.equal(voucher.issueReason, "TIER_UPGRADE");
+
+  const voucherQuote = await request(app)
+    .post("/api/orders/quote")
+    .set("Authorization", authorization)
+    .send({
+      items,
+      customerId,
+      promotionCode: voucher.code,
+      deliveryFee: 0,
+    })
+    .expect(200);
+  assert.equal(voucherQuote.body.data.voucher.code, voucher.code);
+  assert.ok(voucherQuote.body.data.voucherDiscount > 0);
+  const voucherTotal = voucherQuote.body.data.totalAmount;
+  await request(app)
+    .post("/api/orders")
+    .set("Authorization", authorization)
+    .send({
+      items,
+      customerId,
+      promotionCode: voucher.code,
+      deliveryFee: 0,
+      saveAsDraft: false,
+      customerPaid: voucherTotal,
+      payments:
+        voucherTotal > 0
+          ? [{ method: "CASH", amount: voucherTotal }]
+          : [],
+    })
+    .expect(201);
+
+  const detail = await request(app)
+    .get(`/api/customers/${customerId}`)
+    .set("Authorization", authorization)
+    .expect(200);
   assert.equal(
-    quote.body.data.pointsToRedeem,
-    quote.body.data.maxRedeemablePoints,
+    detail.body.data.vouchers.filter((item) => item.status === "USED").length,
+    1,
   );
-  assert.ok(
-    quote.body.data.pointsDiscount <= quote.body.data.maxPointsDiscount,
+  assert.equal(detail.body.data.activeVouchers.length, 0);
+
+  await prisma.customerVoucher.update({
+    where: { id: voucher.id },
+    data: { usedAt: new Date(Date.now() - 16 * 86400000) },
+  });
+  const orderBase = {
+    branchId: firstOrder.body.data.branchId,
+    customerId,
+    createdById: firstOrder.body.data.createdById,
+    shiftId: firstOrder.body.data.shiftId,
+    originalAmount: 0,
+    discountAmount: 0,
+    voucherDiscount: 0,
+    pointsDiscount: 0,
+    membershipDiscount: 0,
+    vatRate: 0,
+    taxAmount: 0,
+    deliveryFee: 0,
+    customerPaid: 0,
+    changeAmount: 0,
+    paymentStatus: "PAID",
+    status: "COMPLETED",
+    completedAt: new Date(),
+  };
+  const belowThreshold = await prisma.order.create({
+    data: {
+      ...orderBase,
+      code: `TEST-LOW-${Date.now()}`,
+      totalAmount: silver.voucherRenewalOrderMinAmount - 1,
+    },
+  });
+  await prisma.$transaction((tx) =>
+    updateCustomerAfterCompletion(tx, belowThreshold),
   );
+  assert.equal(
+    await prisma.customerVoucher.count({
+      where: { customerId, status: "ACTIVE" },
+    }),
+    0,
+  );
+
+  const qualifyingOrder = await prisma.order.create({
+    data: {
+      ...orderBase,
+      code: `TEST-OK-${Date.now()}`,
+      totalAmount: silver.voucherRenewalOrderMinAmount,
+    },
+  });
+  await prisma.$transaction((tx) =>
+    updateCustomerAfterCompletion(tx, qualifyingOrder),
+  );
+  const renewalVoucher = await prisma.customerVoucher.findFirst({
+    where: { customerId, status: "ACTIVE" },
+    orderBy: { createdAt: "desc" },
+  });
+  assert.ok(renewalVoucher);
+  assert.equal(renewalVoucher.issueReason, "QUALIFYING_ORDER");
 });

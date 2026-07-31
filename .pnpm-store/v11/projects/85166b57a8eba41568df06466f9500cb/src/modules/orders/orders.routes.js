@@ -5,7 +5,11 @@ import { prisma } from "../../config/prisma.js";
 import { authenticate, requirePermission } from "../../middlewares/auth.js";
 import { validate } from "../../middlewares/validate.js";
 import { calculateOrder } from "../../services/order-pricing.service.js";
-import { deductInventory, updateCustomerAfterCompletion } from "../../services/inventory.service.js";
+import { deductInventory } from "../../services/inventory.service.js";
+import {
+  consumeCustomerVoucher,
+  updateCustomerAfterCompletion,
+} from "../../services/loyalty.service.js";
 import { renderInvoicePdf } from "../../services/invoice-pdf.service.js";
 import { emitOrderEvent } from "../../services/socket.service.js";
 import { ApiError } from "../../utils/api-error.js";
@@ -57,6 +61,16 @@ const orderInclude = {
   createdBy: { select: { id: true, fullName: true, username: true } },
   assignedTo: { select: { id: true, fullName: true } },
   promotion: { select: { id: true, code: true, name: true } },
+  usedVoucher: {
+    include: {
+      membershipLevel: { select: { id: true, code: true, name: true } },
+    },
+  },
+  issuedVouchers: {
+    include: {
+      membershipLevel: { select: { id: true, code: true, name: true } },
+    },
+  },
   items: {
     include: {
       product: { select: { id: true, code: true, name: true, imageUrl: true } },
@@ -83,6 +97,7 @@ function orderDataFromPricing(request, pricing, branchId, shiftId, code, status)
     promotionId: pricing.promotion?.id || null,
     originalAmount: pricing.originalAmount,
     discountAmount: pricing.discountAmount,
+    voucherDiscount: pricing.voucherDiscount,
     pointsDiscount: pricing.pointsDiscount,
     membershipDiscount: pricing.membershipDiscount,
     vatRate: pricing.vatRate,
@@ -126,6 +141,16 @@ router.post(
             buyQuantity: pricing.promotion.buyQuantity,
             getQuantity: pricing.promotion.getQuantity,
             benefit: pricing.promotionBenefit,
+          }
+        : null,
+      voucher: pricing.voucher
+        ? {
+            id: pricing.voucher.id,
+            code: pricing.voucher.code,
+            type: pricing.voucher.type,
+            value: pricing.voucher.value,
+            expiresAt: pricing.voucher.expiresAt,
+            membershipLevel: pricing.voucher.membershipLevel,
           }
         : null,
       activeMembership: publicMembership(pricing.activeMembership),
@@ -318,8 +343,13 @@ router.post(
       });
 
       if (!request.body.saveAsDraft) {
+        await consumeCustomerVoucher(
+          tx,
+          currentPricing.voucher,
+          createdOrder.id,
+        );
         await deductInventory(tx, branchId, currentPricing.lines, request.user.id, createdOrder.id);
-        await updateCustomerAfterCompletion(tx, createdOrder, currentPricing);
+        await updateCustomerAfterCompletion(tx, createdOrder);
         if (currentPricing.promotion) {
           await tx.promotionUsage.create({
             data: {
@@ -420,18 +450,7 @@ router.patch(
           toppings: item.toppings.map((itemTopping) => ({ id: itemTopping.toppingId, quantity: itemTopping.quantity })),
         }));
         await deductInventory(tx, existing.branchId, lines, request.user.id, existing.id);
-        const customer = existing.customerId
-          ? await tx.customer.findUnique({
-              where: { id: existing.customerId },
-              include: { membershipLevel: true },
-            })
-          : null;
-        await updateCustomerAfterCompletion(tx, existing, {
-          customer,
-          pointsToRedeem: existing.pointsDiscount && customer
-            ? Math.floor(existing.pointsDiscount / customer.membershipLevel.pointValue)
-            : 0,
-        });
+        await updateCustomerAfterCompletion(tx, existing);
       }
       await tx.order.update({
         where: { id: existing.id },

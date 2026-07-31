@@ -364,15 +364,27 @@ router.post(
   asyncHandler(async (request, response) => {
     const result = await validatePromotion(prisma, request.body.code, request.body);
     return success(response, {
-      promotion: {
-        id: result.promotion.id,
-        code: result.promotion.code,
-        name: result.promotion.name,
-        type: result.promotion.type,
-      },
+      promotion: result.promotion
+        ? {
+            id: result.promotion.id,
+            code: result.promotion.code,
+            name: result.promotion.name,
+            type: result.promotion.type,
+          }
+        : null,
+      voucher: result.voucher
+        ? {
+            id: result.voucher.id,
+            code: result.voucher.code,
+            type: result.voucher.type,
+            value: result.voucher.value,
+            expiresAt: result.voucher.expiresAt,
+            membershipLevel: result.voucher.membershipLevel,
+          }
+        : null,
       discount: result.discount,
       benefit: result.benefit,
-    }, "Mã khuyến mãi hợp lệ");
+    }, result.voucher ? "Voucher hợp lệ" : "Mã khuyến mãi hợp lệ");
   }),
 );
 

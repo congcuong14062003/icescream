@@ -58,7 +58,11 @@ function financialMetrics(orders, actualCostByOrder) {
     const orderProfit = orderRevenue - orderCost;
 
     salesBeforeDiscount += order.originalAmount;
-    discounts += order.discountAmount + order.pointsDiscount + order.membershipDiscount;
+    discounts +=
+      order.discountAmount +
+      order.voucherDiscount +
+      order.pointsDiscount +
+      order.membershipDiscount;
     grossCollected += order.totalAmount;
     taxCollected += order.taxAmount;
     deliveryRevenue += order.deliveryFee;
@@ -146,6 +150,7 @@ export async function buildReport({ from, to, branchId }) {
         totalAmount: true,
         taxAmount: true,
         discountAmount: true,
+        voucherDiscount: true,
         pointsDiscount: true,
         membershipDiscount: true,
         deliveryFee: true,
@@ -171,6 +176,7 @@ export async function buildReport({ from, to, branchId }) {
         totalAmount: true,
         taxAmount: true,
         discountAmount: true,
+        voucherDiscount: true,
         pointsDiscount: true,
         membershipDiscount: true,
         deliveryFee: true,

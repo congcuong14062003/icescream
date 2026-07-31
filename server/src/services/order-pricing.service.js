@@ -75,7 +75,7 @@ export async function calculateOrder(tx, input) {
   }
 
   const originalAmount = lines.reduce((sum, line) => sum + line.lineTotal, 0);
-  const { promotion, discount, benefit } = await validatePromotion(tx, input.promotionCode, {
+  const { promotion, voucher, discount, benefit } = await validatePromotion(tx, input.promotionCode, {
     originalAmount,
     customerId: input.customerId,
     lines,
@@ -90,40 +90,27 @@ export async function calculateOrder(tx, input) {
     Math.max(0, originalAmount - discount),
   );
 
-  let customer = null;
-  let pointsDiscount = 0;
-  let appliedPoints = 0;
-  let maxRedeemablePoints = 0;
-  let maxPointsDiscount = 0;
   const requestedPoints = input.pointsToRedeem || 0;
+  if (requestedPoints > 0) {
+    throw new ApiError(
+      422,
+      "Điểm tích lũy chỉ dùng để thăng hạng và không thể đổi thành tiền",
+    );
+  }
+
+  let customer = null;
   if (input.customerId) {
     customer = await tx.customer.findFirst({
       where: { id: input.customerId, deletedAt: null },
       include: { membershipLevel: true },
     });
     if (!customer) throw new ApiError(422, "Khách hàng không tồn tại");
-    if (requestedPoints > customer.points) {
-      throw new ApiError(422, "Số điểm sử dụng vượt quá điểm hiện có");
-    }
-    const amountBeforePoints = Math.max(
-      0,
-      originalAmount - discount - membershipDiscount,
-    );
-    maxPointsDiscount = Math.floor(amountBeforePoints * 0.2);
-    maxRedeemablePoints = Math.min(
-      customer.points,
-      Math.floor(maxPointsDiscount / customer.membershipLevel.pointValue),
-    );
-    appliedPoints = Math.min(requestedPoints, maxRedeemablePoints);
-    pointsDiscount = appliedPoints * customer.membershipLevel.pointValue;
-  } else if (requestedPoints > 0) {
-    throw new ApiError(422, "Vui lòng chọn khách hàng trước khi sử dụng điểm");
   }
 
   const vatRate = 8;
   const taxable = Math.max(
     0,
-    originalAmount - discount - membershipDiscount - pointsDiscount,
+    originalAmount - discount - membershipDiscount,
   );
   const taxAmount = Math.round((taxable * vatRate) / 100);
   const deliveryFee = input.deliveryFee || 0;
@@ -133,16 +120,16 @@ export async function calculateOrder(tx, input) {
     lines,
     customer,
     promotion,
+    voucher,
     promotionBenefit: benefit,
     activeMembership: membershipPricing.subscription,
     membershipBenefit: membershipPricing.benefit,
     originalAmount,
-    discountAmount: discount,
+    discountAmount: promotion ? discount : 0,
+    voucherDiscount: voucher ? discount : 0,
     membershipDiscount,
-    pointsDiscount,
-    pointsToRedeem: appliedPoints,
-    maxRedeemablePoints,
-    maxPointsDiscount,
+    pointsDiscount: 0,
+    pointsToRedeem: 0,
     vatRate,
     taxAmount,
     deliveryFee,

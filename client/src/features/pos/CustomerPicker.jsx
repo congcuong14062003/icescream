@@ -52,7 +52,12 @@ export default function CustomerPicker({ customer, onSelect }) {
             </div>
             <div className="tw-min-w-0 tw-flex-1">
               <div className="tw-truncate tw-text-sm tw-font-black">{customer.fullName}</div>
-              <div className="tw-text-xs tw-text-slate-500">{customer.phone} · {customer.points} điểm</div>
+              <div className="tw-text-xs tw-text-slate-500">
+                {customer.phone} · {customer.points} điểm xếp hạng
+                {customer.activeVouchers?.length
+                  ? ` · ${customer.activeVouchers.length} voucher`
+                  : ""}
+              </div>
             </div>
             <IconButton size="small" onClick={() => onSelect(null)} aria-label="Bỏ khách hàng"><X size={17} /></IconButton>
           </div>
@@ -123,7 +128,14 @@ export default function CustomerPicker({ customer, onSelect }) {
                     {item.phone} · {item.activeMembership ? "Hội viên trả phí" : item.membershipLevel.name}
                   </span>
                 </div>
-                <span className="tw-text-xs tw-font-bold tw-text-mint-700">{item.points} điểm</span>
+                <span className="tw-text-right tw-text-xs tw-font-bold tw-text-mint-700">
+                  {item.points} điểm
+                  {item.activeVouchers?.length ? (
+                    <small className="tw-block tw-font-medium tw-text-amber-600">
+                      {item.activeVouchers.length} voucher
+                    </small>
+                  ) : null}
+                </span>
               </button>
             ))
           ) : (

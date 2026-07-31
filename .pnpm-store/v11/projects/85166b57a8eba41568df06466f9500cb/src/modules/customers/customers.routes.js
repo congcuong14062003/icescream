@@ -10,6 +10,7 @@ import { created, success } from "../../utils/response.js";
 import { ApiError } from "../../utils/api-error.js";
 import { writeAudit } from "../../utils/audit.js";
 import { publicMembership } from "../../services/membership.service.js";
+import { publicVoucher } from "../../services/loyalty.service.js";
 
 const router = Router();
 router.use(authenticate);
@@ -44,12 +45,17 @@ const currentMembershipInclude = {
 
 function serializeCustomer(customer) {
   const subscriptions = customer.membershipSubscriptions || [];
+  const vouchers = (customer.vouchers || []).map((voucher) =>
+    publicVoucher(voucher),
+  );
   const activeMembership = publicMembership(
     subscriptions.find((item) => item.status === "ACTIVE" && item.startsAt <= new Date() && item.endsAt > new Date()),
   );
   return {
     ...customer,
     activeMembership,
+    vouchers,
+    activeVouchers: vouchers.filter((voucher) => voucher.isUsable),
   };
 }
 
@@ -77,6 +83,13 @@ router.get(
         where,
         include: {
           membershipLevel: true,
+          vouchers: {
+            where: { status: "ACTIVE", expiresAt: { gt: new Date() } },
+            include: {
+              membershipLevel: { select: { id: true, code: true, name: true } },
+            },
+            orderBy: { expiresAt: "asc" },
+          },
           membershipSubscriptions: {
             where: {
               status: "ACTIVE",
@@ -112,6 +125,15 @@ router.get(
       include: {
         membershipLevel: true,
         pointTransactions: { orderBy: { createdAt: "desc" }, take: 30 },
+        vouchers: {
+          include: {
+            membershipLevel: { select: { id: true, code: true, name: true } },
+            issuedFromOrder: { select: { id: true, code: true } },
+            usedOrder: { select: { id: true, code: true } },
+          },
+          orderBy: { createdAt: "desc" },
+          take: 50,
+        },
         membershipSubscriptions: {
           include: {
             ...currentMembershipInclude,
@@ -143,7 +165,7 @@ router.post(
   requirePermission("customers.manage", "pos.use"),
   validate(customerSchema),
   asyncHandler(async (request, response) => {
-    const defaultLevel = await prisma.membershipLevel.findFirst({ orderBy: { minSpending: "asc" } });
+    const defaultLevel = await prisma.membershipLevel.findFirst({ orderBy: { minPoints: "asc" } });
     if (!defaultLevel) throw new ApiError(500, "Hệ thống chưa cấu hình hạng thành viên");
     const customer = await prisma.customer.create({
       data: {
@@ -154,6 +176,12 @@ router.post(
       },
       include: {
         membershipLevel: true,
+        vouchers: {
+          where: { status: "ACTIVE", expiresAt: { gt: new Date() } },
+          include: {
+            membershipLevel: { select: { id: true, code: true, name: true } },
+          },
+        },
         membershipSubscriptions: {
           where: {
             status: "ACTIVE",
@@ -187,6 +215,12 @@ router.put(
       data: { ...request.body, email: request.body.email || null },
       include: {
         membershipLevel: true,
+        vouchers: {
+          where: { status: "ACTIVE", expiresAt: { gt: new Date() } },
+          include: {
+            membershipLevel: { select: { id: true, code: true, name: true } },
+          },
+        },
         membershipSubscriptions: {
           where: {
             status: "ACTIVE",

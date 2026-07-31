@@ -94,6 +94,23 @@ enum PointTransactionType {
   EXPIRE
 }
 
+enum VoucherDiscountType {
+  PERCENT
+  FIXED_AMOUNT
+}
+
+enum VoucherStatus {
+  ACTIVE
+  USED
+  EXPIRED
+  CANCELLED
+}
+
+enum VoucherIssueReason {
+  TIER_UPGRADE
+  QUALIFYING_ORDER
+}
+
 enum MembershipSubscriptionStatus {
   ACTIVE
   EXPIRED
@@ -625,19 +642,30 @@ model PurchaseOrderItem {
 }
 
 model MembershipLevel {
-  id               String     @id @default(cuid())
-  code             String     @unique
-  name             String
-  minSpending      Int
-  pointRate        Float
-  pointValue       Int        @default(1000)
-  birthdayDiscount Int        @default(0)
-  displayOrder     Int        @default(0)
-  customers        Customer[]
-  createdAt        DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
+  id                           String              @id @default(cuid())
+  code                         String              @unique
+  name                         String
+  minSpending                  Int
+  minPoints                    Int                 @default(0)
+  pointRate                    Float
+  pointValue                   Int                 @default(1000)
+  birthdayDiscount             Int                 @default(0)
+  voucherEnabled               Boolean             @default(false)
+  voucherType                  VoucherDiscountType @default(FIXED_AMOUNT)
+  voucherValue                 Int                 @default(0)
+  voucherMaxDiscount           Int?
+  voucherMinOrderValue         Int                 @default(0)
+  voucherValidityDays          Int                 @default(15)
+  voucherCooldownDays          Int                 @default(15)
+  voucherRenewalOrderMinAmount Int                 @default(200000)
+  displayOrder                 Int                 @default(0)
+  customers                    Customer[]
+  vouchers                     CustomerVoucher[]
+  createdAt                    DateTime            @default(now())
+  updatedAt                    DateTime            @updatedAt
 
   @@index([minSpending])
+  @@index([minPoints])
 }
 
 model Customer {
@@ -658,6 +686,7 @@ model Customer {
   orders                  Order[]
   promotionUsages         PromotionUsage[]
   membershipSubscriptions MembershipSubscription[]
+  vouchers                CustomerVoucher[]
   createdAt               DateTime                   @default(now())
   updatedAt               DateTime                   @updatedAt
 
@@ -819,6 +848,33 @@ model PromotionUsage {
   @@index([customerId, promotionId])
 }
 
+model CustomerVoucher {
+  id                String              @id @default(cuid())
+  code              String              @unique
+  customerId        String
+  membershipLevelId String
+  issuedFromOrderId String?
+  usedOrderId       String?             @unique
+  type              VoucherDiscountType
+  value             Int
+  maxDiscount       Int?
+  minOrderValue     Int                 @default(0)
+  issueReason       VoucherIssueReason
+  status            VoucherStatus       @default(ACTIVE)
+  expiresAt         DateTime
+  usedAt            DateTime?
+  customer          Customer            @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  membershipLevel   MembershipLevel     @relation(fields: [membershipLevelId], references: [id], onDelete: Restrict)
+  issuedFromOrder   Order?              @relation("VoucherIssuedOrder", fields: [issuedFromOrderId], references: [id], onDelete: SetNull)
+  usedOrder         Order?              @relation("VoucherUsedOrder", fields: [usedOrderId], references: [id], onDelete: SetNull)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@index([customerId, status, expiresAt])
+  @@index([membershipLevelId, createdAt])
+  @@index([issuedFromOrderId])
+}
+
 model Order {
   id                     String                     @id @default(cuid())
   code                   String                     @unique
@@ -830,6 +886,7 @@ model Order {
   promotionId            String?
   originalAmount         Int
   discountAmount         Int                        @default(0)
+  voucherDiscount        Int                        @default(0)
   pointsDiscount         Int                        @default(0)
   membershipDiscount     Int                        @default(0)
   vatRate                Float                      @default(0)
@@ -857,6 +914,8 @@ model Order {
   pointTransactions      CustomerPointTransaction[]
   promotionUsage         PromotionUsage?
   membershipBenefitUsage MembershipBenefitUsage?
+  issuedVouchers         CustomerVoucher[]          @relation("VoucherIssuedOrder")
+  usedVoucher            CustomerVoucher?           @relation("VoucherUsedOrder")
   createdAt              DateTime                   @default(now())
   updatedAt              DateTime                   @updatedAt
 

@@ -12,6 +12,43 @@ import { writeAudit } from "../../utils/audit.js";
 const router = Router();
 router.use(authenticate);
 
+const levelSchema = z
+  .object({
+    minPoints: z.coerce.number().int().min(0).max(100000000),
+    pointRate: z.coerce.number().min(0).max(100),
+    voucherEnabled: z.boolean(),
+    voucherType: z.enum(["PERCENT", "FIXED_AMOUNT"]),
+    voucherValue: z.coerce.number().int().min(0).max(100000000),
+    voucherMaxDiscount: z.preprocess(
+      (value) => (value === "" || value == null ? null : value),
+      z.coerce.number().int().positive().max(100000000).nullable(),
+    ),
+    voucherMinOrderValue: z.coerce.number().int().min(0).max(100000000),
+    voucherValidityDays: z.coerce.number().int().min(1).max(3650),
+    voucherCooldownDays: z.coerce.number().int().min(0).max(3650),
+    voucherRenewalOrderMinAmount: z.coerce
+      .number()
+      .int()
+      .min(0)
+      .max(100000000),
+  })
+  .superRefine((value, context) => {
+    if (value.voucherEnabled && value.voucherValue <= 0) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["voucherValue"],
+        message: "Giá trị voucher phải lớn hơn 0 khi bật cấp voucher",
+      });
+    }
+    if (value.voucherType === "PERCENT" && value.voucherValue > 100) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["voucherValue"],
+        message: "Voucher phần trăm không được vượt quá 100%",
+      });
+    }
+  });
+
 const planSchema = z.object({
   code: z.string().trim().min(2).max(30).transform((value) => value.toUpperCase()),
   name: z.string().trim().min(2).max(120),
@@ -56,6 +93,72 @@ function serializePlan(plan) {
     productIds: plan.products.map((item) => item.productId),
   };
 }
+
+router.get(
+  "/levels",
+  requirePermission("customers.view", "pos.use"),
+  asyncHandler(async (request, response) => {
+    const levels = await prisma.membershipLevel.findMany({
+      include: {
+        _count: { select: { customers: true, vouchers: true } },
+      },
+      orderBy: [{ displayOrder: "asc" }, { minPoints: "asc" }],
+    });
+    return success(response, levels, "Lấy cấu hình hạng khách hàng thành công");
+  }),
+);
+
+router.put(
+  "/levels/:id",
+  requirePermission("promotions.manage"),
+  validate(levelSchema),
+  asyncHandler(async (request, response) => {
+    const existing = await prisma.membershipLevel.findUnique({
+      where: { id: request.params.id },
+    });
+    if (!existing) throw new ApiError(404, "Không tìm thấy hạng khách hàng");
+
+    const levels = await prisma.membershipLevel.findMany({
+      orderBy: { displayOrder: "asc" },
+    });
+    const index = levels.findIndex((item) => item.id === existing.id);
+    const previous = levels[index - 1];
+    const next = levels[index + 1];
+    if (!previous && request.body.minPoints !== 0) {
+      throw new ApiError(422, "Hạng đầu tiên phải bắt đầu từ 0 điểm");
+    }
+    if (previous && request.body.minPoints <= previous.minPoints) {
+      throw new ApiError(
+        422,
+        `Mốc điểm phải lớn hơn hạng ${previous.name} (${previous.minPoints.toLocaleString("vi-VN")} điểm)`,
+      );
+    }
+    if (next && request.body.minPoints >= next.minPoints) {
+      throw new ApiError(
+        422,
+        `Mốc điểm phải nhỏ hơn hạng ${next.name} (${next.minPoints.toLocaleString("vi-VN")} điểm)`,
+      );
+    }
+
+    const level = await prisma.membershipLevel.update({
+      where: { id: existing.id },
+      data: request.body,
+      include: {
+        _count: { select: { customers: true, vouchers: true } },
+      },
+    });
+    await writeAudit(
+      prisma,
+      request,
+      "MEMBERSHIP_LEVEL_CONFIG_UPDATE",
+      "MembershipLevel",
+      level.id,
+      existing,
+      level,
+    );
+    return success(response, level, "Cập nhật cấu hình hạng và voucher thành công");
+  }),
+);
 
 async function getSellableBenefitVariant(tx, benefitVariantId) {
   const variant = await tx.productVariant.findFirst({

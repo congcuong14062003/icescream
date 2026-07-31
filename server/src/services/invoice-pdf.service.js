@@ -269,8 +269,16 @@ function drawTotals(document, fonts, order, startY) {
   const rows = [
     ["Tạm tính", order.originalAmount],
     ...(order.discountAmount ? [["Khuyến mãi", -order.discountAmount]] : []),
+    ...(order.voucherDiscount
+      ? [[
+          order.usedVoucher?.code
+            ? `Voucher ${order.usedVoucher.code}`
+            : "Voucher khách hàng",
+          -order.voucherDiscount,
+        ]]
+      : []),
     ...(order.membershipDiscount ? [["Quyền lợi hội viên", -order.membershipDiscount]] : []),
-    ...(order.pointsDiscount ? [["Điểm thành viên", -order.pointsDiscount]] : []),
+    ...(order.pointsDiscount ? [["Điểm đã dùng (dữ liệu cũ)", -order.pointsDiscount]] : []),
     ...(order.taxAmount ? [[`VAT ${order.vatRate || 0}%`, order.taxAmount]] : []),
     ...(order.deliveryFee ? [["Phí giao hàng", order.deliveryFee]] : []),
   ];

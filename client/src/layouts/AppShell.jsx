@@ -17,6 +17,7 @@ import {
   UsersRound,
   WalletCards,
   Crown,
+  Award,
   X,
 } from "lucide-react";
 import { Avatar, IconButton, Tooltip } from "@mui/material";
@@ -31,6 +32,7 @@ const navigation = [
   { to: "/products", label: "Sản phẩm", icon: IceCreamBowl, permissions: ["products.view"] },
   { to: "/promotions", label: "Ưu đãi", icon: BadgePercent, permissions: ["promotions.manage"] },
   { to: "/memberships", label: "Gói hội viên", icon: Crown, permissions: ["promotions.manage"] },
+  { to: "/loyalty", label: "Hạng & voucher", icon: Award, permissions: ["promotions.manage"] },
   { to: "/customers", label: "Khách hàng", icon: UsersRound, permissions: ["customers.view"] },
   { to: "/inventory", label: "Kho nguyên liệu", icon: Boxes, permissions: ["inventory.view"] },
   { to: "/purchase-orders", label: "Phiếu nhập kho", icon: PackageOpen, permissions: ["inventory.manage"] },

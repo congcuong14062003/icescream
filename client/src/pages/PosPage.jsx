@@ -58,7 +58,6 @@ export default function PosPage() {
   const [orderNote, setOrderNote] = useState("");
   const [promotionInput, setPromotionInput] = useState("");
   const [promotionCode, setPromotionCode] = useState("");
-  const [pointsToRedeem, setPointsToRedeem] = useState(0);
   const [deliveryFee, setDeliveryFee] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("CASH");
   const [customerPaid, setCustomerPaid] = useState(0);
@@ -114,10 +113,9 @@ export default function PosPage() {
       })),
       customerId: customer?.id || null,
       promotionCode: promotionCode || null,
-      pointsToRedeem: Number(pointsToRedeem || 0),
       deliveryFee: Number(deliveryFee || 0),
     }),
-    [cart, customer, promotionCode, pointsToRedeem, deliveryFee],
+    [cart, customer, promotionCode, deliveryFee],
   );
 
   const quoteQuery = useQuery({
@@ -131,15 +129,6 @@ export default function PosPage() {
   const localTotal = cart.reduce((sum, line) => sum + line.displayUnitPrice * line.quantity, 0);
   const total = quote?.totalAmount ?? localTotal;
   const change = paymentMethod === "CASH" ? Math.max(0, Number(customerPaid || 0) - total) : 0;
-
-  useEffect(() => {
-    if (
-      quote &&
-      pointsToRedeem > quote.maxRedeemablePoints
-    ) {
-      setPointsToRedeem(quote.maxRedeemablePoints);
-    }
-  }, [quote, pointsToRedeem]);
 
   const saveOrderMutation = useMutation({
     mutationFn: (saveAsDraft) =>
@@ -161,6 +150,9 @@ export default function PosPage() {
       queryClient.invalidateQueries({ queryKey: ["my-drafts"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
       queryClient.invalidateQueries({ queryKey: ["inventory"] });
+      queryClient.invalidateQueries({ queryKey: ["customers"] });
+      queryClient.invalidateQueries({ queryKey: ["customer-search"] });
+      queryClient.invalidateQueries({ queryKey: ["customer"] });
     },
     onError: (error) => toast.error(apiMessage(error)),
   });
@@ -171,7 +163,6 @@ export default function PosPage() {
     setOrderNote("");
     setPromotionInput("");
     setPromotionCode("");
-    setPointsToRedeem(0);
     setDeliveryFee(0);
     setCustomerPaid(0);
     setRestoredDraftId(null);
@@ -367,7 +358,55 @@ export default function PosPage() {
             </AccordionSummary>
             <AccordionDetails sx={{ px: 0, pt: 1 }}>
               <div className="tw-space-y-3">
-                <CustomerPicker customer={customer} onSelect={(value) => { setCustomer(value); setPointsToRedeem(0); }} />
+                <CustomerPicker
+                  customer={customer}
+                  onSelect={(value) => {
+                    setCustomer(value);
+                    setPromotionCode("");
+                    setPromotionInput("");
+                  }}
+                />
+                {customer?.activeVouchers?.length > 0 && (
+                  <div>
+                    <div className="tw-mb-2 tw-flex tw-items-center tw-gap-1.5 tw-text-[11px] tw-font-bold tw-uppercase tw-tracking-wide tw-text-slate-500">
+                      <Gift size={14} className="tw-text-mint-600" /> Voucher của khách
+                    </div>
+                    <div className="tw-space-y-2">
+                      {customer.activeVouchers.map((voucher) => {
+                        const selected = promotionCode === voucher.code;
+                        return (
+                          <button
+                            key={voucher.id}
+                            type="button"
+                            onClick={() => {
+                              const nextCode = selected ? "" : voucher.code;
+                              setPromotionInput(nextCode);
+                              setPromotionCode(nextCode);
+                            }}
+                            className={`tw-flex tw-w-full tw-items-center tw-justify-between tw-gap-3 tw-rounded-xl tw-border tw-p-3 tw-text-left tw-transition ${
+                              selected
+                                ? "tw-border-mint-500 tw-bg-mint-50 dark:tw-bg-mint-500/10"
+                                : "tw-border-slate-200 hover:tw-border-mint-300 dark:tw-border-slate-700"
+                            }`}
+                          >
+                            <span>
+                              <strong className="tw-block tw-text-sm">{voucher.code}</strong>
+                              <span className="tw-text-[11px] tw-text-slate-500">
+                                {voucher.type === "PERCENT"
+                                  ? `Giảm ${voucher.value}%`
+                                  : `Giảm ${formatMoney(voucher.value)}`}{" "}
+                                · Hạn {formatDate(voucher.expiresAt)}
+                              </span>
+                            </span>
+                            <span className="tw-rounded-full tw-bg-mint-100 tw-px-2.5 tw-py-1 tw-text-[10px] tw-font-black tw-text-mint-700 dark:tw-bg-mint-900/30">
+                              {selected ? "Đang dùng" : "Áp dụng"}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
                 {promotionsQuery.data?.some((promotion) => promotion.type === "BUY_X_GET_Y") && (
                   <div>
                     <div className="tw-mb-2 tw-flex tw-items-center tw-gap-1.5 tw-text-[11px] tw-font-bold tw-uppercase tw-tracking-wide tw-text-slate-500">
@@ -412,19 +451,9 @@ export default function PosPage() {
                   </div>
                 )}
                 <div className="tw-flex tw-gap-2">
-                  <Input label="Mã giảm giá" value={promotionInput} onChange={(event) => setPromotionInput(event.target.value.toUpperCase())} />
+                  <Input label="Mã ưu đãi / voucher" value={promotionInput} onChange={(event) => setPromotionInput(event.target.value.toUpperCase())} />
                   <Button variant="outlined" onClick={applyPromotion} disabled={!promotionInput.trim()}>Áp dụng</Button>
                 </div>
-                {customer && (
-                  <Input
-                    label={`Dùng điểm (tối đa ${quote?.maxRedeemablePoints ?? customer.points})`}
-                    type="number"
-                    value={pointsToRedeem}
-                    onChange={(event) => setPointsToRedeem(Math.min(quote?.maxRedeemablePoints ?? customer.points, Math.max(0, Number(event.target.value))))}
-                    inputProps={{ min: 0, max: quote?.maxRedeemablePoints ?? customer.points }}
-                    helperText={quote ? `Tối đa 20% tiền hàng sau ưu đãi: ${formatMoney(quote.maxPointsDiscount)}` : "Tối đa 20% tiền hàng sau ưu đãi"}
-                  />
-                )}
                 <Input label="Phí giao hàng" type="number" value={deliveryFee} onChange={(event) => setDeliveryFee(Math.max(0, Number(event.target.value)))} />
                 <Input label="Ghi chú toàn đơn" multiline rows={2} value={orderNote} onChange={(event) => setOrderNote(event.target.value)} />
               </div>
@@ -462,6 +491,29 @@ export default function PosPage() {
               </button>
             </div>
           )}
+          {quote?.voucher && (
+            <div className="tw-mb-3 tw-flex tw-items-start tw-gap-2.5 tw-rounded-xl tw-border tw-border-mint-200 tw-bg-mint-50 tw-p-3 dark:tw-border-mint-800 dark:tw-bg-mint-900/20">
+              <Gift size={18} className="tw-mt-0.5 tw-shrink-0 tw-text-mint-600" />
+              <div className="tw-min-w-0 tw-flex-1">
+                <strong className="tw-block tw-text-xs tw-text-mint-800 dark:tw-text-mint-200">
+                  Voucher {quote.voucher.code}
+                </strong>
+                <span className="tw-mt-0.5 tw-block tw-text-[11px] tw-text-mint-700/80 dark:tw-text-mint-300/80">
+                  Hạng {quote.voucher.membershipLevel.name} · Giảm {formatMoney(quote.voucherDiscount)}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setPromotionCode("");
+                  setPromotionInput("");
+                }}
+                className="tw-border-0 tw-bg-transparent tw-p-0 tw-text-[11px] tw-font-bold tw-text-mint-700 tw-underline"
+              >
+                Bỏ
+              </button>
+            </div>
+          )}
           {quote?.activeMembership && quote?.membershipBenefit && (
             <div className="tw-mb-3 tw-flex tw-items-start tw-gap-2.5 tw-rounded-xl tw-border tw-border-lavender-200 tw-bg-lavender-50 tw-p-3 dark:tw-border-lavender-800 dark:tw-bg-lavender-900/20">
               <Crown size={18} className="tw-mt-0.5 tw-shrink-0 tw-text-lavender-500" />
@@ -492,7 +544,7 @@ export default function PosPage() {
           )}
           <div className="tw-space-y-2 tw-rounded-xl tw-bg-slate-50 tw-p-3 tw-text-xs dark:tw-bg-slate-800/70">
             <div className="tw-flex tw-justify-between"><span className="tw-text-slate-500">Tiền hàng</span><span>{formatMoney(quote?.originalAmount ?? localTotal)}</span></div>
-            <div className="tw-flex tw-justify-between"><span className="tw-text-slate-500">Giảm giá</span><span>-{formatMoney((quote?.discountAmount || 0) + (quote?.membershipDiscount || 0) + (quote?.pointsDiscount || 0))}</span></div>
+            <div className="tw-flex tw-justify-between"><span className="tw-text-slate-500">Giảm giá</span><span>-{formatMoney((quote?.discountAmount || 0) + (quote?.voucherDiscount || 0) + (quote?.membershipDiscount || 0))}</span></div>
             <div className="tw-flex tw-justify-between"><span className="tw-text-slate-500">VAT {quote?.vatRate || 8}%</span><span>{formatMoney(quote?.taxAmount || 0)}</span></div>
             <div className="tw-flex tw-justify-between"><span className="tw-text-slate-500">Phí giao hàng</span><span>{formatMoney(quote?.deliveryFee || deliveryFee)}</span></div>
             <div className="tw-flex tw-items-end tw-justify-between tw-border-t tw-border-dashed tw-border-slate-300 tw-pt-3 dark:tw-border-slate-700">
@@ -588,8 +640,19 @@ export default function PosPage() {
         <div className="tw-flex tw-flex-col tw-items-center tw-py-5 tw-text-center">
           <CheckCircle2 size={58} className="tw-text-emerald-500" />
           <h3 className="tw-mb-1 tw-mt-4 tw-text-2xl tw-font-black">{completedOrder?.code}</h3>
-          <p className="tw-m-0 tw-text-slate-500">Đơn hàng đã lưu, kho và điểm khách hàng đã được cập nhật.</p>
+          <p className="tw-m-0 tw-text-slate-500">Đơn hàng đã lưu, kho và điểm xếp hạng đã được cập nhật.</p>
           <strong className="tw-mt-5 tw-text-3xl tw-text-mint-700">{formatMoney(completedOrder?.totalAmount)}</strong>
+          {completedOrder?.issuedVouchers?.map((voucher) => (
+            <div key={voucher.id} className="tw-mt-5 tw-w-full tw-rounded-2xl tw-border tw-border-amber-200 tw-bg-amber-50 tw-p-4 tw-text-left dark:tw-border-amber-800 dark:tw-bg-amber-900/20">
+              <div className="tw-flex tw-items-center tw-gap-2 tw-font-black tw-text-amber-800 dark:tw-text-amber-200">
+                <Gift size={18} /> Khách vừa nhận voucher hạng {voucher.membershipLevel.name}
+              </div>
+              <div className="tw-mt-2 tw-flex tw-items-end tw-justify-between tw-gap-3">
+                <strong className="tw-text-lg tw-tracking-wide">{voucher.code}</strong>
+                <span className="tw-text-xs tw-text-slate-500">Hạn {formatDate(voucher.expiresAt)}</span>
+              </div>
+            </div>
+          ))}
         </div>
       </Modal>
     </div>
