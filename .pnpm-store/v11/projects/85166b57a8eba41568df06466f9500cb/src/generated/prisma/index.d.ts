@@ -249,6 +249,11 @@ export type ShiftExpense = $Result.DefaultSelection<Prisma.$ShiftExpensePayload>
  */
 export type OrderStatusHistory = $Result.DefaultSelection<Prisma.$OrderStatusHistoryPayload>
 /**
+ * Model PaymentStatusHistory
+ * 
+ */
+export type PaymentStatusHistory = $Result.DefaultSelection<Prisma.$PaymentStatusHistoryPayload>
+/**
  * Model AuditLog
  * 
  */
@@ -1091,6 +1096,16 @@ export class PrismaClient<
   get orderStatusHistory(): Prisma.OrderStatusHistoryDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.paymentStatusHistory`: Exposes CRUD operations for the **PaymentStatusHistory** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PaymentStatusHistories
+    * const paymentStatusHistories = await prisma.paymentStatusHistory.findMany()
+    * ```
+    */
+  get paymentStatusHistory(): Prisma.PaymentStatusHistoryDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.auditLog`: Exposes CRUD operations for the **AuditLog** model.
     * Example usage:
     * ```ts
@@ -1587,6 +1602,7 @@ export namespace Prisma {
     WorkShift: 'WorkShift',
     ShiftExpense: 'ShiftExpense',
     OrderStatusHistory: 'OrderStatusHistory',
+    PaymentStatusHistory: 'PaymentStatusHistory',
     AuditLog: 'AuditLog'
   };
 
@@ -1606,7 +1622,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "role" | "permission" | "rolePermission" | "branch" | "user" | "refreshToken" | "loginHistory" | "category" | "product" | "productImage" | "productVariant" | "flavor" | "flavorIngredient" | "topping" | "ingredient" | "productRecipe" | "inventory" | "inventoryBatch" | "inventoryTransaction" | "stockIssue" | "stockIssueItem" | "stocktake" | "stocktakeItem" | "supplier" | "purchaseOrder" | "purchaseOrderItem" | "membershipLevel" | "customer" | "membershipPlan" | "membershipPlanProduct" | "membershipSubscription" | "membershipBenefitUsage" | "customerPointTransaction" | "promotion" | "promotionProduct" | "promotionCategory" | "promotionUsage" | "customerVoucher" | "order" | "orderItem" | "orderItemFlavor" | "orderItemTopping" | "payment" | "refund" | "workShift" | "shiftExpense" | "orderStatusHistory" | "auditLog"
+      modelProps: "role" | "permission" | "rolePermission" | "branch" | "user" | "refreshToken" | "loginHistory" | "category" | "product" | "productImage" | "productVariant" | "flavor" | "flavorIngredient" | "topping" | "ingredient" | "productRecipe" | "inventory" | "inventoryBatch" | "inventoryTransaction" | "stockIssue" | "stockIssueItem" | "stocktake" | "stocktakeItem" | "supplier" | "purchaseOrder" | "purchaseOrderItem" | "membershipLevel" | "customer" | "membershipPlan" | "membershipPlanProduct" | "membershipSubscription" | "membershipBenefitUsage" | "customerPointTransaction" | "promotion" | "promotionProduct" | "promotionCategory" | "promotionUsage" | "customerVoucher" | "order" | "orderItem" | "orderItemFlavor" | "orderItemTopping" | "payment" | "refund" | "workShift" | "shiftExpense" | "orderStatusHistory" | "paymentStatusHistory" | "auditLog"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4712,6 +4728,72 @@ export namespace Prisma {
           }
         }
       }
+      PaymentStatusHistory: {
+        payload: Prisma.$PaymentStatusHistoryPayload<ExtArgs>
+        fields: Prisma.PaymentStatusHistoryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PaymentStatusHistoryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentStatusHistoryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PaymentStatusHistoryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentStatusHistoryPayload>
+          }
+          findFirst: {
+            args: Prisma.PaymentStatusHistoryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentStatusHistoryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PaymentStatusHistoryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentStatusHistoryPayload>
+          }
+          findMany: {
+            args: Prisma.PaymentStatusHistoryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentStatusHistoryPayload>[]
+          }
+          create: {
+            args: Prisma.PaymentStatusHistoryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentStatusHistoryPayload>
+          }
+          createMany: {
+            args: Prisma.PaymentStatusHistoryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.PaymentStatusHistoryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentStatusHistoryPayload>
+          }
+          update: {
+            args: Prisma.PaymentStatusHistoryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentStatusHistoryPayload>
+          }
+          deleteMany: {
+            args: Prisma.PaymentStatusHistoryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PaymentStatusHistoryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.PaymentStatusHistoryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentStatusHistoryPayload>
+          }
+          aggregate: {
+            args: Prisma.PaymentStatusHistoryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePaymentStatusHistory>
+          }
+          groupBy: {
+            args: Prisma.PaymentStatusHistoryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PaymentStatusHistoryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PaymentStatusHistoryCountArgs<ExtArgs>
+            result: $Utils.Optional<PaymentStatusHistoryCountAggregateOutputType> | number
+          }
+        }
+      }
       AuditLog: {
         payload: Prisma.$AuditLogPayload<ExtArgs>
         fields: Prisma.AuditLogFieldRefs
@@ -4921,6 +5003,7 @@ export namespace Prisma {
     workShift?: WorkShiftOmit
     shiftExpense?: ShiftExpenseOmit
     orderStatusHistory?: OrderStatusHistoryOmit
+    paymentStatusHistory?: PaymentStatusHistoryOmit
     auditLog?: AuditLogOmit
   }
 
@@ -5218,6 +5301,7 @@ export namespace Prisma {
     createdOrders: number
     assignedOrders: number
     orderStatusChanges: number
+    paymentStatusChanges: number
     inventoryTransactions: number
     purchaseOrders: number
     shifts: number
@@ -5237,6 +5321,7 @@ export namespace Prisma {
     createdOrders?: boolean | UserCountOutputTypeCountCreatedOrdersArgs
     assignedOrders?: boolean | UserCountOutputTypeCountAssignedOrdersArgs
     orderStatusChanges?: boolean | UserCountOutputTypeCountOrderStatusChangesArgs
+    paymentStatusChanges?: boolean | UserCountOutputTypeCountPaymentStatusChangesArgs
     inventoryTransactions?: boolean | UserCountOutputTypeCountInventoryTransactionsArgs
     purchaseOrders?: boolean | UserCountOutputTypeCountPurchaseOrdersArgs
     shifts?: boolean | UserCountOutputTypeCountShiftsArgs
@@ -5300,6 +5385,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountOrderStatusChangesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: OrderStatusHistoryWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountPaymentStatusChangesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaymentStatusHistoryWhereInput
   }
 
   /**
@@ -6130,6 +6222,7 @@ export namespace Prisma {
     payments: number
     refunds: number
     statusHistory: number
+    paymentStatusHistory: number
     pointTransactions: number
     issuedVouchers: number
   }
@@ -6139,6 +6232,7 @@ export namespace Prisma {
     payments?: boolean | OrderCountOutputTypeCountPaymentsArgs
     refunds?: boolean | OrderCountOutputTypeCountRefundsArgs
     statusHistory?: boolean | OrderCountOutputTypeCountStatusHistoryArgs
+    paymentStatusHistory?: boolean | OrderCountOutputTypeCountPaymentStatusHistoryArgs
     pointTransactions?: boolean | OrderCountOutputTypeCountPointTransactionsArgs
     issuedVouchers?: boolean | OrderCountOutputTypeCountIssuedVouchersArgs
   }
@@ -6180,6 +6274,13 @@ export namespace Prisma {
    */
   export type OrderCountOutputTypeCountStatusHistoryArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: OrderStatusHistoryWhereInput
+  }
+
+  /**
+   * OrderCountOutputType without action
+   */
+  export type OrderCountOutputTypeCountPaymentStatusHistoryArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaymentStatusHistoryWhereInput
   }
 
   /**
@@ -10792,6 +10893,7 @@ export namespace Prisma {
     createdOrders?: boolean | User$createdOrdersArgs<ExtArgs>
     assignedOrders?: boolean | User$assignedOrdersArgs<ExtArgs>
     orderStatusChanges?: boolean | User$orderStatusChangesArgs<ExtArgs>
+    paymentStatusChanges?: boolean | User$paymentStatusChangesArgs<ExtArgs>
     inventoryTransactions?: boolean | User$inventoryTransactionsArgs<ExtArgs>
     purchaseOrders?: boolean | User$purchaseOrdersArgs<ExtArgs>
     shifts?: boolean | User$shiftsArgs<ExtArgs>
@@ -10836,6 +10938,7 @@ export namespace Prisma {
     createdOrders?: boolean | User$createdOrdersArgs<ExtArgs>
     assignedOrders?: boolean | User$assignedOrdersArgs<ExtArgs>
     orderStatusChanges?: boolean | User$orderStatusChangesArgs<ExtArgs>
+    paymentStatusChanges?: boolean | User$paymentStatusChangesArgs<ExtArgs>
     inventoryTransactions?: boolean | User$inventoryTransactionsArgs<ExtArgs>
     purchaseOrders?: boolean | User$purchaseOrdersArgs<ExtArgs>
     shifts?: boolean | User$shiftsArgs<ExtArgs>
@@ -10860,6 +10963,7 @@ export namespace Prisma {
       createdOrders: Prisma.$OrderPayload<ExtArgs>[]
       assignedOrders: Prisma.$OrderPayload<ExtArgs>[]
       orderStatusChanges: Prisma.$OrderStatusHistoryPayload<ExtArgs>[]
+      paymentStatusChanges: Prisma.$PaymentStatusHistoryPayload<ExtArgs>[]
       inventoryTransactions: Prisma.$InventoryTransactionPayload<ExtArgs>[]
       purchaseOrders: Prisma.$PurchaseOrderPayload<ExtArgs>[]
       shifts: Prisma.$WorkShiftPayload<ExtArgs>[]
@@ -11236,6 +11340,7 @@ export namespace Prisma {
     createdOrders<T extends User$createdOrdersArgs<ExtArgs> = {}>(args?: Subset<T, User$createdOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     assignedOrders<T extends User$assignedOrdersArgs<ExtArgs> = {}>(args?: Subset<T, User$assignedOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     orderStatusChanges<T extends User$orderStatusChangesArgs<ExtArgs> = {}>(args?: Subset<T, User$orderStatusChangesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderStatusHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    paymentStatusChanges<T extends User$paymentStatusChangesArgs<ExtArgs> = {}>(args?: Subset<T, User$paymentStatusChangesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentStatusHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     inventoryTransactions<T extends User$inventoryTransactionsArgs<ExtArgs> = {}>(args?: Subset<T, User$inventoryTransactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InventoryTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     purchaseOrders<T extends User$purchaseOrdersArgs<ExtArgs> = {}>(args?: Subset<T, User$purchaseOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PurchaseOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     shifts<T extends User$shiftsArgs<ExtArgs> = {}>(args?: Subset<T, User$shiftsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkShiftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -11794,6 +11899,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: OrderStatusHistoryScalarFieldEnum | OrderStatusHistoryScalarFieldEnum[]
+  }
+
+  /**
+   * User.paymentStatusChanges
+   */
+  export type User$paymentStatusChangesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentStatusHistory
+     */
+    select?: PaymentStatusHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentStatusHistory
+     */
+    omit?: PaymentStatusHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentStatusHistoryInclude<ExtArgs> | null
+    where?: PaymentStatusHistoryWhereInput
+    orderBy?: PaymentStatusHistoryOrderByWithRelationInput | PaymentStatusHistoryOrderByWithRelationInput[]
+    cursor?: PaymentStatusHistoryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PaymentStatusHistoryScalarFieldEnum | PaymentStatusHistoryScalarFieldEnum[]
   }
 
   /**
@@ -47803,6 +47932,7 @@ export namespace Prisma {
     payments?: boolean | Order$paymentsArgs<ExtArgs>
     refunds?: boolean | Order$refundsArgs<ExtArgs>
     statusHistory?: boolean | Order$statusHistoryArgs<ExtArgs>
+    paymentStatusHistory?: boolean | Order$paymentStatusHistoryArgs<ExtArgs>
     pointTransactions?: boolean | Order$pointTransactionsArgs<ExtArgs>
     promotionUsage?: boolean | Order$promotionUsageArgs<ExtArgs>
     membershipBenefitUsage?: boolean | Order$membershipBenefitUsageArgs<ExtArgs>
@@ -47855,6 +47985,7 @@ export namespace Prisma {
     payments?: boolean | Order$paymentsArgs<ExtArgs>
     refunds?: boolean | Order$refundsArgs<ExtArgs>
     statusHistory?: boolean | Order$statusHistoryArgs<ExtArgs>
+    paymentStatusHistory?: boolean | Order$paymentStatusHistoryArgs<ExtArgs>
     pointTransactions?: boolean | Order$pointTransactionsArgs<ExtArgs>
     promotionUsage?: boolean | Order$promotionUsageArgs<ExtArgs>
     membershipBenefitUsage?: boolean | Order$membershipBenefitUsageArgs<ExtArgs>
@@ -47876,6 +48007,7 @@ export namespace Prisma {
       payments: Prisma.$PaymentPayload<ExtArgs>[]
       refunds: Prisma.$RefundPayload<ExtArgs>[]
       statusHistory: Prisma.$OrderStatusHistoryPayload<ExtArgs>[]
+      paymentStatusHistory: Prisma.$PaymentStatusHistoryPayload<ExtArgs>[]
       pointTransactions: Prisma.$CustomerPointTransactionPayload<ExtArgs>[]
       promotionUsage: Prisma.$PromotionUsagePayload<ExtArgs> | null
       membershipBenefitUsage: Prisma.$MembershipBenefitUsagePayload<ExtArgs> | null
@@ -48260,6 +48392,7 @@ export namespace Prisma {
     payments<T extends Order$paymentsArgs<ExtArgs> = {}>(args?: Subset<T, Order$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     refunds<T extends Order$refundsArgs<ExtArgs> = {}>(args?: Subset<T, Order$refundsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RefundPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     statusHistory<T extends Order$statusHistoryArgs<ExtArgs> = {}>(args?: Subset<T, Order$statusHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderStatusHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    paymentStatusHistory<T extends Order$paymentStatusHistoryArgs<ExtArgs> = {}>(args?: Subset<T, Order$paymentStatusHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentStatusHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     pointTransactions<T extends Order$pointTransactionsArgs<ExtArgs> = {}>(args?: Subset<T, Order$pointTransactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerPointTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     promotionUsage<T extends Order$promotionUsageArgs<ExtArgs> = {}>(args?: Subset<T, Order$promotionUsageArgs<ExtArgs>>): Prisma__PromotionUsageClient<$Result.GetResult<Prisma.$PromotionUsagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     membershipBenefitUsage<T extends Order$membershipBenefitUsageArgs<ExtArgs> = {}>(args?: Subset<T, Order$membershipBenefitUsageArgs<ExtArgs>>): Prisma__MembershipBenefitUsageClient<$Result.GetResult<Prisma.$MembershipBenefitUsagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -48833,6 +48966,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: OrderStatusHistoryScalarFieldEnum | OrderStatusHistoryScalarFieldEnum[]
+  }
+
+  /**
+   * Order.paymentStatusHistory
+   */
+  export type Order$paymentStatusHistoryArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentStatusHistory
+     */
+    select?: PaymentStatusHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentStatusHistory
+     */
+    omit?: PaymentStatusHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentStatusHistoryInclude<ExtArgs> | null
+    where?: PaymentStatusHistoryWhereInput
+    orderBy?: PaymentStatusHistoryOrderByWithRelationInput | PaymentStatusHistoryOrderByWithRelationInput[]
+    cursor?: PaymentStatusHistoryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PaymentStatusHistoryScalarFieldEnum | PaymentStatusHistoryScalarFieldEnum[]
   }
 
   /**
@@ -57319,6 +57476,1017 @@ export namespace Prisma {
 
 
   /**
+   * Model PaymentStatusHistory
+   */
+
+  export type AggregatePaymentStatusHistory = {
+    _count: PaymentStatusHistoryCountAggregateOutputType | null
+    _avg: PaymentStatusHistoryAvgAggregateOutputType | null
+    _sum: PaymentStatusHistorySumAggregateOutputType | null
+    _min: PaymentStatusHistoryMinAggregateOutputType | null
+    _max: PaymentStatusHistoryMaxAggregateOutputType | null
+  }
+
+  export type PaymentStatusHistoryAvgAggregateOutputType = {
+    amount: number | null
+  }
+
+  export type PaymentStatusHistorySumAggregateOutputType = {
+    amount: number | null
+  }
+
+  export type PaymentStatusHistoryMinAggregateOutputType = {
+    id: string | null
+    orderId: string | null
+    fromStatus: $Enums.PaymentStatus | null
+    status: $Enums.PaymentStatus | null
+    changedById: string | null
+    amount: number | null
+    method: $Enums.PaymentMethod | null
+    note: string | null
+    createdAt: Date | null
+  }
+
+  export type PaymentStatusHistoryMaxAggregateOutputType = {
+    id: string | null
+    orderId: string | null
+    fromStatus: $Enums.PaymentStatus | null
+    status: $Enums.PaymentStatus | null
+    changedById: string | null
+    amount: number | null
+    method: $Enums.PaymentMethod | null
+    note: string | null
+    createdAt: Date | null
+  }
+
+  export type PaymentStatusHistoryCountAggregateOutputType = {
+    id: number
+    orderId: number
+    fromStatus: number
+    status: number
+    changedById: number
+    amount: number
+    method: number
+    note: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type PaymentStatusHistoryAvgAggregateInputType = {
+    amount?: true
+  }
+
+  export type PaymentStatusHistorySumAggregateInputType = {
+    amount?: true
+  }
+
+  export type PaymentStatusHistoryMinAggregateInputType = {
+    id?: true
+    orderId?: true
+    fromStatus?: true
+    status?: true
+    changedById?: true
+    amount?: true
+    method?: true
+    note?: true
+    createdAt?: true
+  }
+
+  export type PaymentStatusHistoryMaxAggregateInputType = {
+    id?: true
+    orderId?: true
+    fromStatus?: true
+    status?: true
+    changedById?: true
+    amount?: true
+    method?: true
+    note?: true
+    createdAt?: true
+  }
+
+  export type PaymentStatusHistoryCountAggregateInputType = {
+    id?: true
+    orderId?: true
+    fromStatus?: true
+    status?: true
+    changedById?: true
+    amount?: true
+    method?: true
+    note?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type PaymentStatusHistoryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaymentStatusHistory to aggregate.
+     */
+    where?: PaymentStatusHistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentStatusHistories to fetch.
+     */
+    orderBy?: PaymentStatusHistoryOrderByWithRelationInput | PaymentStatusHistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PaymentStatusHistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentStatusHistories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentStatusHistories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PaymentStatusHistories
+    **/
+    _count?: true | PaymentStatusHistoryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PaymentStatusHistoryAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PaymentStatusHistorySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PaymentStatusHistoryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PaymentStatusHistoryMaxAggregateInputType
+  }
+
+  export type GetPaymentStatusHistoryAggregateType<T extends PaymentStatusHistoryAggregateArgs> = {
+        [P in keyof T & keyof AggregatePaymentStatusHistory]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePaymentStatusHistory[P]>
+      : GetScalarType<T[P], AggregatePaymentStatusHistory[P]>
+  }
+
+
+
+
+  export type PaymentStatusHistoryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaymentStatusHistoryWhereInput
+    orderBy?: PaymentStatusHistoryOrderByWithAggregationInput | PaymentStatusHistoryOrderByWithAggregationInput[]
+    by: PaymentStatusHistoryScalarFieldEnum[] | PaymentStatusHistoryScalarFieldEnum
+    having?: PaymentStatusHistoryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PaymentStatusHistoryCountAggregateInputType | true
+    _avg?: PaymentStatusHistoryAvgAggregateInputType
+    _sum?: PaymentStatusHistorySumAggregateInputType
+    _min?: PaymentStatusHistoryMinAggregateInputType
+    _max?: PaymentStatusHistoryMaxAggregateInputType
+  }
+
+  export type PaymentStatusHistoryGroupByOutputType = {
+    id: string
+    orderId: string
+    fromStatus: $Enums.PaymentStatus | null
+    status: $Enums.PaymentStatus
+    changedById: string
+    amount: number | null
+    method: $Enums.PaymentMethod | null
+    note: string | null
+    createdAt: Date
+    _count: PaymentStatusHistoryCountAggregateOutputType | null
+    _avg: PaymentStatusHistoryAvgAggregateOutputType | null
+    _sum: PaymentStatusHistorySumAggregateOutputType | null
+    _min: PaymentStatusHistoryMinAggregateOutputType | null
+    _max: PaymentStatusHistoryMaxAggregateOutputType | null
+  }
+
+  type GetPaymentStatusHistoryGroupByPayload<T extends PaymentStatusHistoryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PaymentStatusHistoryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PaymentStatusHistoryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PaymentStatusHistoryGroupByOutputType[P]>
+            : GetScalarType<T[P], PaymentStatusHistoryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PaymentStatusHistorySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    orderId?: boolean
+    fromStatus?: boolean
+    status?: boolean
+    changedById?: boolean
+    amount?: boolean
+    method?: boolean
+    note?: boolean
+    createdAt?: boolean
+    order?: boolean | OrderDefaultArgs<ExtArgs>
+    changedBy?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paymentStatusHistory"]>
+
+
+
+  export type PaymentStatusHistorySelectScalar = {
+    id?: boolean
+    orderId?: boolean
+    fromStatus?: boolean
+    status?: boolean
+    changedById?: boolean
+    amount?: boolean
+    method?: boolean
+    note?: boolean
+    createdAt?: boolean
+  }
+
+  export type PaymentStatusHistoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orderId" | "fromStatus" | "status" | "changedById" | "amount" | "method" | "note" | "createdAt", ExtArgs["result"]["paymentStatusHistory"]>
+  export type PaymentStatusHistoryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    order?: boolean | OrderDefaultArgs<ExtArgs>
+    changedBy?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $PaymentStatusHistoryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PaymentStatusHistory"
+    objects: {
+      order: Prisma.$OrderPayload<ExtArgs>
+      changedBy: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      orderId: string
+      fromStatus: $Enums.PaymentStatus | null
+      status: $Enums.PaymentStatus
+      changedById: string
+      amount: number | null
+      method: $Enums.PaymentMethod | null
+      note: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["paymentStatusHistory"]>
+    composites: {}
+  }
+
+  type PaymentStatusHistoryGetPayload<S extends boolean | null | undefined | PaymentStatusHistoryDefaultArgs> = $Result.GetResult<Prisma.$PaymentStatusHistoryPayload, S>
+
+  type PaymentStatusHistoryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PaymentStatusHistoryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PaymentStatusHistoryCountAggregateInputType | true
+    }
+
+  export interface PaymentStatusHistoryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PaymentStatusHistory'], meta: { name: 'PaymentStatusHistory' } }
+    /**
+     * Find zero or one PaymentStatusHistory that matches the filter.
+     * @param {PaymentStatusHistoryFindUniqueArgs} args - Arguments to find a PaymentStatusHistory
+     * @example
+     * // Get one PaymentStatusHistory
+     * const paymentStatusHistory = await prisma.paymentStatusHistory.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PaymentStatusHistoryFindUniqueArgs>(args: SelectSubset<T, PaymentStatusHistoryFindUniqueArgs<ExtArgs>>): Prisma__PaymentStatusHistoryClient<$Result.GetResult<Prisma.$PaymentStatusHistoryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PaymentStatusHistory that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PaymentStatusHistoryFindUniqueOrThrowArgs} args - Arguments to find a PaymentStatusHistory
+     * @example
+     * // Get one PaymentStatusHistory
+     * const paymentStatusHistory = await prisma.paymentStatusHistory.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PaymentStatusHistoryFindUniqueOrThrowArgs>(args: SelectSubset<T, PaymentStatusHistoryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PaymentStatusHistoryClient<$Result.GetResult<Prisma.$PaymentStatusHistoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaymentStatusHistory that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentStatusHistoryFindFirstArgs} args - Arguments to find a PaymentStatusHistory
+     * @example
+     * // Get one PaymentStatusHistory
+     * const paymentStatusHistory = await prisma.paymentStatusHistory.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PaymentStatusHistoryFindFirstArgs>(args?: SelectSubset<T, PaymentStatusHistoryFindFirstArgs<ExtArgs>>): Prisma__PaymentStatusHistoryClient<$Result.GetResult<Prisma.$PaymentStatusHistoryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaymentStatusHistory that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentStatusHistoryFindFirstOrThrowArgs} args - Arguments to find a PaymentStatusHistory
+     * @example
+     * // Get one PaymentStatusHistory
+     * const paymentStatusHistory = await prisma.paymentStatusHistory.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PaymentStatusHistoryFindFirstOrThrowArgs>(args?: SelectSubset<T, PaymentStatusHistoryFindFirstOrThrowArgs<ExtArgs>>): Prisma__PaymentStatusHistoryClient<$Result.GetResult<Prisma.$PaymentStatusHistoryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PaymentStatusHistories that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentStatusHistoryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PaymentStatusHistories
+     * const paymentStatusHistories = await prisma.paymentStatusHistory.findMany()
+     * 
+     * // Get first 10 PaymentStatusHistories
+     * const paymentStatusHistories = await prisma.paymentStatusHistory.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const paymentStatusHistoryWithIdOnly = await prisma.paymentStatusHistory.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PaymentStatusHistoryFindManyArgs>(args?: SelectSubset<T, PaymentStatusHistoryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentStatusHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PaymentStatusHistory.
+     * @param {PaymentStatusHistoryCreateArgs} args - Arguments to create a PaymentStatusHistory.
+     * @example
+     * // Create one PaymentStatusHistory
+     * const PaymentStatusHistory = await prisma.paymentStatusHistory.create({
+     *   data: {
+     *     // ... data to create a PaymentStatusHistory
+     *   }
+     * })
+     * 
+     */
+    create<T extends PaymentStatusHistoryCreateArgs>(args: SelectSubset<T, PaymentStatusHistoryCreateArgs<ExtArgs>>): Prisma__PaymentStatusHistoryClient<$Result.GetResult<Prisma.$PaymentStatusHistoryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PaymentStatusHistories.
+     * @param {PaymentStatusHistoryCreateManyArgs} args - Arguments to create many PaymentStatusHistories.
+     * @example
+     * // Create many PaymentStatusHistories
+     * const paymentStatusHistory = await prisma.paymentStatusHistory.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PaymentStatusHistoryCreateManyArgs>(args?: SelectSubset<T, PaymentStatusHistoryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a PaymentStatusHistory.
+     * @param {PaymentStatusHistoryDeleteArgs} args - Arguments to delete one PaymentStatusHistory.
+     * @example
+     * // Delete one PaymentStatusHistory
+     * const PaymentStatusHistory = await prisma.paymentStatusHistory.delete({
+     *   where: {
+     *     // ... filter to delete one PaymentStatusHistory
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PaymentStatusHistoryDeleteArgs>(args: SelectSubset<T, PaymentStatusHistoryDeleteArgs<ExtArgs>>): Prisma__PaymentStatusHistoryClient<$Result.GetResult<Prisma.$PaymentStatusHistoryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PaymentStatusHistory.
+     * @param {PaymentStatusHistoryUpdateArgs} args - Arguments to update one PaymentStatusHistory.
+     * @example
+     * // Update one PaymentStatusHistory
+     * const paymentStatusHistory = await prisma.paymentStatusHistory.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PaymentStatusHistoryUpdateArgs>(args: SelectSubset<T, PaymentStatusHistoryUpdateArgs<ExtArgs>>): Prisma__PaymentStatusHistoryClient<$Result.GetResult<Prisma.$PaymentStatusHistoryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PaymentStatusHistories.
+     * @param {PaymentStatusHistoryDeleteManyArgs} args - Arguments to filter PaymentStatusHistories to delete.
+     * @example
+     * // Delete a few PaymentStatusHistories
+     * const { count } = await prisma.paymentStatusHistory.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PaymentStatusHistoryDeleteManyArgs>(args?: SelectSubset<T, PaymentStatusHistoryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PaymentStatusHistories.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentStatusHistoryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PaymentStatusHistories
+     * const paymentStatusHistory = await prisma.paymentStatusHistory.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PaymentStatusHistoryUpdateManyArgs>(args: SelectSubset<T, PaymentStatusHistoryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one PaymentStatusHistory.
+     * @param {PaymentStatusHistoryUpsertArgs} args - Arguments to update or create a PaymentStatusHistory.
+     * @example
+     * // Update or create a PaymentStatusHistory
+     * const paymentStatusHistory = await prisma.paymentStatusHistory.upsert({
+     *   create: {
+     *     // ... data to create a PaymentStatusHistory
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PaymentStatusHistory we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PaymentStatusHistoryUpsertArgs>(args: SelectSubset<T, PaymentStatusHistoryUpsertArgs<ExtArgs>>): Prisma__PaymentStatusHistoryClient<$Result.GetResult<Prisma.$PaymentStatusHistoryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PaymentStatusHistories.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentStatusHistoryCountArgs} args - Arguments to filter PaymentStatusHistories to count.
+     * @example
+     * // Count the number of PaymentStatusHistories
+     * const count = await prisma.paymentStatusHistory.count({
+     *   where: {
+     *     // ... the filter for the PaymentStatusHistories we want to count
+     *   }
+     * })
+    **/
+    count<T extends PaymentStatusHistoryCountArgs>(
+      args?: Subset<T, PaymentStatusHistoryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PaymentStatusHistoryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PaymentStatusHistory.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentStatusHistoryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PaymentStatusHistoryAggregateArgs>(args: Subset<T, PaymentStatusHistoryAggregateArgs>): Prisma.PrismaPromise<GetPaymentStatusHistoryAggregateType<T>>
+
+    /**
+     * Group by PaymentStatusHistory.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentStatusHistoryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PaymentStatusHistoryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PaymentStatusHistoryGroupByArgs['orderBy'] }
+        : { orderBy?: PaymentStatusHistoryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PaymentStatusHistoryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPaymentStatusHistoryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PaymentStatusHistory model
+   */
+  readonly fields: PaymentStatusHistoryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PaymentStatusHistory.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PaymentStatusHistoryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    order<T extends OrderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrderDefaultArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    changedBy<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PaymentStatusHistory model
+   */
+  interface PaymentStatusHistoryFieldRefs {
+    readonly id: FieldRef<"PaymentStatusHistory", 'String'>
+    readonly orderId: FieldRef<"PaymentStatusHistory", 'String'>
+    readonly fromStatus: FieldRef<"PaymentStatusHistory", 'PaymentStatus'>
+    readonly status: FieldRef<"PaymentStatusHistory", 'PaymentStatus'>
+    readonly changedById: FieldRef<"PaymentStatusHistory", 'String'>
+    readonly amount: FieldRef<"PaymentStatusHistory", 'Int'>
+    readonly method: FieldRef<"PaymentStatusHistory", 'PaymentMethod'>
+    readonly note: FieldRef<"PaymentStatusHistory", 'String'>
+    readonly createdAt: FieldRef<"PaymentStatusHistory", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PaymentStatusHistory findUnique
+   */
+  export type PaymentStatusHistoryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentStatusHistory
+     */
+    select?: PaymentStatusHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentStatusHistory
+     */
+    omit?: PaymentStatusHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentStatusHistoryInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentStatusHistory to fetch.
+     */
+    where: PaymentStatusHistoryWhereUniqueInput
+  }
+
+  /**
+   * PaymentStatusHistory findUniqueOrThrow
+   */
+  export type PaymentStatusHistoryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentStatusHistory
+     */
+    select?: PaymentStatusHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentStatusHistory
+     */
+    omit?: PaymentStatusHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentStatusHistoryInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentStatusHistory to fetch.
+     */
+    where: PaymentStatusHistoryWhereUniqueInput
+  }
+
+  /**
+   * PaymentStatusHistory findFirst
+   */
+  export type PaymentStatusHistoryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentStatusHistory
+     */
+    select?: PaymentStatusHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentStatusHistory
+     */
+    omit?: PaymentStatusHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentStatusHistoryInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentStatusHistory to fetch.
+     */
+    where?: PaymentStatusHistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentStatusHistories to fetch.
+     */
+    orderBy?: PaymentStatusHistoryOrderByWithRelationInput | PaymentStatusHistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaymentStatusHistories.
+     */
+    cursor?: PaymentStatusHistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentStatusHistories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentStatusHistories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaymentStatusHistories.
+     */
+    distinct?: PaymentStatusHistoryScalarFieldEnum | PaymentStatusHistoryScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentStatusHistory findFirstOrThrow
+   */
+  export type PaymentStatusHistoryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentStatusHistory
+     */
+    select?: PaymentStatusHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentStatusHistory
+     */
+    omit?: PaymentStatusHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentStatusHistoryInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentStatusHistory to fetch.
+     */
+    where?: PaymentStatusHistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentStatusHistories to fetch.
+     */
+    orderBy?: PaymentStatusHistoryOrderByWithRelationInput | PaymentStatusHistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaymentStatusHistories.
+     */
+    cursor?: PaymentStatusHistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentStatusHistories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentStatusHistories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaymentStatusHistories.
+     */
+    distinct?: PaymentStatusHistoryScalarFieldEnum | PaymentStatusHistoryScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentStatusHistory findMany
+   */
+  export type PaymentStatusHistoryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentStatusHistory
+     */
+    select?: PaymentStatusHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentStatusHistory
+     */
+    omit?: PaymentStatusHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentStatusHistoryInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentStatusHistories to fetch.
+     */
+    where?: PaymentStatusHistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentStatusHistories to fetch.
+     */
+    orderBy?: PaymentStatusHistoryOrderByWithRelationInput | PaymentStatusHistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PaymentStatusHistories.
+     */
+    cursor?: PaymentStatusHistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentStatusHistories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentStatusHistories.
+     */
+    skip?: number
+    distinct?: PaymentStatusHistoryScalarFieldEnum | PaymentStatusHistoryScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentStatusHistory create
+   */
+  export type PaymentStatusHistoryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentStatusHistory
+     */
+    select?: PaymentStatusHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentStatusHistory
+     */
+    omit?: PaymentStatusHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentStatusHistoryInclude<ExtArgs> | null
+    /**
+     * The data needed to create a PaymentStatusHistory.
+     */
+    data: XOR<PaymentStatusHistoryCreateInput, PaymentStatusHistoryUncheckedCreateInput>
+  }
+
+  /**
+   * PaymentStatusHistory createMany
+   */
+  export type PaymentStatusHistoryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PaymentStatusHistories.
+     */
+    data: PaymentStatusHistoryCreateManyInput | PaymentStatusHistoryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PaymentStatusHistory update
+   */
+  export type PaymentStatusHistoryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentStatusHistory
+     */
+    select?: PaymentStatusHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentStatusHistory
+     */
+    omit?: PaymentStatusHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentStatusHistoryInclude<ExtArgs> | null
+    /**
+     * The data needed to update a PaymentStatusHistory.
+     */
+    data: XOR<PaymentStatusHistoryUpdateInput, PaymentStatusHistoryUncheckedUpdateInput>
+    /**
+     * Choose, which PaymentStatusHistory to update.
+     */
+    where: PaymentStatusHistoryWhereUniqueInput
+  }
+
+  /**
+   * PaymentStatusHistory updateMany
+   */
+  export type PaymentStatusHistoryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PaymentStatusHistories.
+     */
+    data: XOR<PaymentStatusHistoryUpdateManyMutationInput, PaymentStatusHistoryUncheckedUpdateManyInput>
+    /**
+     * Filter which PaymentStatusHistories to update
+     */
+    where?: PaymentStatusHistoryWhereInput
+    /**
+     * Limit how many PaymentStatusHistories to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaymentStatusHistory upsert
+   */
+  export type PaymentStatusHistoryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentStatusHistory
+     */
+    select?: PaymentStatusHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentStatusHistory
+     */
+    omit?: PaymentStatusHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentStatusHistoryInclude<ExtArgs> | null
+    /**
+     * The filter to search for the PaymentStatusHistory to update in case it exists.
+     */
+    where: PaymentStatusHistoryWhereUniqueInput
+    /**
+     * In case the PaymentStatusHistory found by the `where` argument doesn't exist, create a new PaymentStatusHistory with this data.
+     */
+    create: XOR<PaymentStatusHistoryCreateInput, PaymentStatusHistoryUncheckedCreateInput>
+    /**
+     * In case the PaymentStatusHistory was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PaymentStatusHistoryUpdateInput, PaymentStatusHistoryUncheckedUpdateInput>
+  }
+
+  /**
+   * PaymentStatusHistory delete
+   */
+  export type PaymentStatusHistoryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentStatusHistory
+     */
+    select?: PaymentStatusHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentStatusHistory
+     */
+    omit?: PaymentStatusHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentStatusHistoryInclude<ExtArgs> | null
+    /**
+     * Filter which PaymentStatusHistory to delete.
+     */
+    where: PaymentStatusHistoryWhereUniqueInput
+  }
+
+  /**
+   * PaymentStatusHistory deleteMany
+   */
+  export type PaymentStatusHistoryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaymentStatusHistories to delete
+     */
+    where?: PaymentStatusHistoryWhereInput
+    /**
+     * Limit how many PaymentStatusHistories to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaymentStatusHistory without action
+   */
+  export type PaymentStatusHistoryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentStatusHistory
+     */
+    select?: PaymentStatusHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentStatusHistory
+     */
+    omit?: PaymentStatusHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentStatusHistoryInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model AuditLog
    */
 
@@ -59096,6 +60264,21 @@ export namespace Prisma {
   export type OrderStatusHistoryScalarFieldEnum = (typeof OrderStatusHistoryScalarFieldEnum)[keyof typeof OrderStatusHistoryScalarFieldEnum]
 
 
+  export const PaymentStatusHistoryScalarFieldEnum: {
+    id: 'id',
+    orderId: 'orderId',
+    fromStatus: 'fromStatus',
+    status: 'status',
+    changedById: 'changedById',
+    amount: 'amount',
+    method: 'method',
+    note: 'note',
+    createdAt: 'createdAt'
+  };
+
+  export type PaymentStatusHistoryScalarFieldEnum = (typeof PaymentStatusHistoryScalarFieldEnum)[keyof typeof PaymentStatusHistoryScalarFieldEnum]
+
+
   export const AuditLogScalarFieldEnum: {
     id: 'id',
     userId: 'userId',
@@ -59651,6 +60834,16 @@ export namespace Prisma {
   export type OrderStatusHistoryOrderByRelevanceFieldEnum = (typeof OrderStatusHistoryOrderByRelevanceFieldEnum)[keyof typeof OrderStatusHistoryOrderByRelevanceFieldEnum]
 
 
+  export const PaymentStatusHistoryOrderByRelevanceFieldEnum: {
+    id: 'id',
+    orderId: 'orderId',
+    changedById: 'changedById',
+    note: 'note'
+  };
+
+  export type PaymentStatusHistoryOrderByRelevanceFieldEnum = (typeof PaymentStatusHistoryOrderByRelevanceFieldEnum)[keyof typeof PaymentStatusHistoryOrderByRelevanceFieldEnum]
+
+
   export const JsonNullValueFilter: {
     DbNull: typeof DbNull,
     JsonNull: typeof JsonNull,
@@ -60185,6 +61378,7 @@ export namespace Prisma {
     createdOrders?: OrderListRelationFilter
     assignedOrders?: OrderListRelationFilter
     orderStatusChanges?: OrderStatusHistoryListRelationFilter
+    paymentStatusChanges?: PaymentStatusHistoryListRelationFilter
     inventoryTransactions?: InventoryTransactionListRelationFilter
     purchaseOrders?: PurchaseOrderListRelationFilter
     shifts?: WorkShiftListRelationFilter
@@ -60222,6 +61416,7 @@ export namespace Prisma {
     createdOrders?: OrderOrderByRelationAggregateInput
     assignedOrders?: OrderOrderByRelationAggregateInput
     orderStatusChanges?: OrderStatusHistoryOrderByRelationAggregateInput
+    paymentStatusChanges?: PaymentStatusHistoryOrderByRelationAggregateInput
     inventoryTransactions?: InventoryTransactionOrderByRelationAggregateInput
     purchaseOrders?: PurchaseOrderOrderByRelationAggregateInput
     shifts?: WorkShiftOrderByRelationAggregateInput
@@ -60263,6 +61458,7 @@ export namespace Prisma {
     createdOrders?: OrderListRelationFilter
     assignedOrders?: OrderListRelationFilter
     orderStatusChanges?: OrderStatusHistoryListRelationFilter
+    paymentStatusChanges?: PaymentStatusHistoryListRelationFilter
     inventoryTransactions?: InventoryTransactionListRelationFilter
     purchaseOrders?: PurchaseOrderListRelationFilter
     shifts?: WorkShiftListRelationFilter
@@ -63344,6 +64540,7 @@ export namespace Prisma {
     payments?: PaymentListRelationFilter
     refunds?: RefundListRelationFilter
     statusHistory?: OrderStatusHistoryListRelationFilter
+    paymentStatusHistory?: PaymentStatusHistoryListRelationFilter
     pointTransactions?: CustomerPointTransactionListRelationFilter
     promotionUsage?: XOR<PromotionUsageNullableScalarRelationFilter, PromotionUsageWhereInput> | null
     membershipBenefitUsage?: XOR<MembershipBenefitUsageNullableScalarRelationFilter, MembershipBenefitUsageWhereInput> | null
@@ -63389,6 +64586,7 @@ export namespace Prisma {
     payments?: PaymentOrderByRelationAggregateInput
     refunds?: RefundOrderByRelationAggregateInput
     statusHistory?: OrderStatusHistoryOrderByRelationAggregateInput
+    paymentStatusHistory?: PaymentStatusHistoryOrderByRelationAggregateInput
     pointTransactions?: CustomerPointTransactionOrderByRelationAggregateInput
     promotionUsage?: PromotionUsageOrderByWithRelationInput
     membershipBenefitUsage?: MembershipBenefitUsageOrderByWithRelationInput
@@ -63438,6 +64636,7 @@ export namespace Prisma {
     payments?: PaymentListRelationFilter
     refunds?: RefundListRelationFilter
     statusHistory?: OrderStatusHistoryListRelationFilter
+    paymentStatusHistory?: PaymentStatusHistoryListRelationFilter
     pointTransactions?: CustomerPointTransactionListRelationFilter
     promotionUsage?: XOR<PromotionUsageNullableScalarRelationFilter, PromotionUsageWhereInput> | null
     membershipBenefitUsage?: XOR<MembershipBenefitUsageNullableScalarRelationFilter, MembershipBenefitUsageWhereInput> | null
@@ -64223,6 +65422,87 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"OrderStatusHistory"> | Date | string
   }
 
+  export type PaymentStatusHistoryWhereInput = {
+    AND?: PaymentStatusHistoryWhereInput | PaymentStatusHistoryWhereInput[]
+    OR?: PaymentStatusHistoryWhereInput[]
+    NOT?: PaymentStatusHistoryWhereInput | PaymentStatusHistoryWhereInput[]
+    id?: StringFilter<"PaymentStatusHistory"> | string
+    orderId?: StringFilter<"PaymentStatusHistory"> | string
+    fromStatus?: EnumPaymentStatusNullableFilter<"PaymentStatusHistory"> | $Enums.PaymentStatus | null
+    status?: EnumPaymentStatusFilter<"PaymentStatusHistory"> | $Enums.PaymentStatus
+    changedById?: StringFilter<"PaymentStatusHistory"> | string
+    amount?: IntNullableFilter<"PaymentStatusHistory"> | number | null
+    method?: EnumPaymentMethodNullableFilter<"PaymentStatusHistory"> | $Enums.PaymentMethod | null
+    note?: StringNullableFilter<"PaymentStatusHistory"> | string | null
+    createdAt?: DateTimeFilter<"PaymentStatusHistory"> | Date | string
+    order?: XOR<OrderScalarRelationFilter, OrderWhereInput>
+    changedBy?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type PaymentStatusHistoryOrderByWithRelationInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+    fromStatus?: SortOrderInput | SortOrder
+    status?: SortOrder
+    changedById?: SortOrder
+    amount?: SortOrderInput | SortOrder
+    method?: SortOrderInput | SortOrder
+    note?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    order?: OrderOrderByWithRelationInput
+    changedBy?: UserOrderByWithRelationInput
+    _relevance?: PaymentStatusHistoryOrderByRelevanceInput
+  }
+
+  export type PaymentStatusHistoryWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: PaymentStatusHistoryWhereInput | PaymentStatusHistoryWhereInput[]
+    OR?: PaymentStatusHistoryWhereInput[]
+    NOT?: PaymentStatusHistoryWhereInput | PaymentStatusHistoryWhereInput[]
+    orderId?: StringFilter<"PaymentStatusHistory"> | string
+    fromStatus?: EnumPaymentStatusNullableFilter<"PaymentStatusHistory"> | $Enums.PaymentStatus | null
+    status?: EnumPaymentStatusFilter<"PaymentStatusHistory"> | $Enums.PaymentStatus
+    changedById?: StringFilter<"PaymentStatusHistory"> | string
+    amount?: IntNullableFilter<"PaymentStatusHistory"> | number | null
+    method?: EnumPaymentMethodNullableFilter<"PaymentStatusHistory"> | $Enums.PaymentMethod | null
+    note?: StringNullableFilter<"PaymentStatusHistory"> | string | null
+    createdAt?: DateTimeFilter<"PaymentStatusHistory"> | Date | string
+    order?: XOR<OrderScalarRelationFilter, OrderWhereInput>
+    changedBy?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type PaymentStatusHistoryOrderByWithAggregationInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+    fromStatus?: SortOrderInput | SortOrder
+    status?: SortOrder
+    changedById?: SortOrder
+    amount?: SortOrderInput | SortOrder
+    method?: SortOrderInput | SortOrder
+    note?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: PaymentStatusHistoryCountOrderByAggregateInput
+    _avg?: PaymentStatusHistoryAvgOrderByAggregateInput
+    _max?: PaymentStatusHistoryMaxOrderByAggregateInput
+    _min?: PaymentStatusHistoryMinOrderByAggregateInput
+    _sum?: PaymentStatusHistorySumOrderByAggregateInput
+  }
+
+  export type PaymentStatusHistoryScalarWhereWithAggregatesInput = {
+    AND?: PaymentStatusHistoryScalarWhereWithAggregatesInput | PaymentStatusHistoryScalarWhereWithAggregatesInput[]
+    OR?: PaymentStatusHistoryScalarWhereWithAggregatesInput[]
+    NOT?: PaymentStatusHistoryScalarWhereWithAggregatesInput | PaymentStatusHistoryScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"PaymentStatusHistory"> | string
+    orderId?: StringWithAggregatesFilter<"PaymentStatusHistory"> | string
+    fromStatus?: EnumPaymentStatusNullableWithAggregatesFilter<"PaymentStatusHistory"> | $Enums.PaymentStatus | null
+    status?: EnumPaymentStatusWithAggregatesFilter<"PaymentStatusHistory"> | $Enums.PaymentStatus
+    changedById?: StringWithAggregatesFilter<"PaymentStatusHistory"> | string
+    amount?: IntNullableWithAggregatesFilter<"PaymentStatusHistory"> | number | null
+    method?: EnumPaymentMethodNullableWithAggregatesFilter<"PaymentStatusHistory"> | $Enums.PaymentMethod | null
+    note?: StringNullableWithAggregatesFilter<"PaymentStatusHistory"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"PaymentStatusHistory"> | Date | string
+  }
+
   export type AuditLogWhereInput = {
     AND?: AuditLogWhereInput | AuditLogWhereInput[]
     OR?: AuditLogWhereInput[]
@@ -64655,6 +65935,7 @@ export namespace Prisma {
     createdOrders?: OrderCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftCreateNestedManyWithoutUserInput
@@ -64690,6 +65971,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderUncheckedCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionUncheckedCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftUncheckedCreateNestedManyWithoutUserInput
@@ -64725,6 +66007,7 @@ export namespace Prisma {
     createdOrders?: OrderUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUpdateManyWithoutUserNestedInput
@@ -64760,6 +66043,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUncheckedUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUncheckedUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -68022,6 +69306,7 @@ export namespace Prisma {
     payments?: PaymentCreateNestedManyWithoutOrderInput
     refunds?: RefundCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageCreateNestedOneWithoutOrderInput
@@ -68061,6 +69346,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedCreateNestedManyWithoutOrderInput
     refunds?: RefundUncheckedCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionUncheckedCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageUncheckedCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedCreateNestedOneWithoutOrderInput
@@ -68100,6 +69386,7 @@ export namespace Prisma {
     payments?: PaymentUpdateManyWithoutOrderNestedInput
     refunds?: RefundUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUpdateOneWithoutOrderNestedInput
@@ -68139,6 +69426,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedUpdateManyWithoutOrderNestedInput
     refunds?: RefundUncheckedUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUncheckedUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUncheckedUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedUpdateOneWithoutOrderNestedInput
@@ -68972,6 +70260,88 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type PaymentStatusHistoryCreateInput = {
+    id?: string
+    fromStatus?: $Enums.PaymentStatus | null
+    status: $Enums.PaymentStatus
+    amount?: number | null
+    method?: $Enums.PaymentMethod | null
+    note?: string | null
+    createdAt?: Date | string
+    order: OrderCreateNestedOneWithoutPaymentStatusHistoryInput
+    changedBy: UserCreateNestedOneWithoutPaymentStatusChangesInput
+  }
+
+  export type PaymentStatusHistoryUncheckedCreateInput = {
+    id?: string
+    orderId: string
+    fromStatus?: $Enums.PaymentStatus | null
+    status: $Enums.PaymentStatus
+    changedById: string
+    amount?: number | null
+    method?: $Enums.PaymentMethod | null
+    note?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PaymentStatusHistoryUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fromStatus?: NullableEnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus | null
+    status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
+    method?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    order?: OrderUpdateOneRequiredWithoutPaymentStatusHistoryNestedInput
+    changedBy?: UserUpdateOneRequiredWithoutPaymentStatusChangesNestedInput
+  }
+
+  export type PaymentStatusHistoryUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderId?: StringFieldUpdateOperationsInput | string
+    fromStatus?: NullableEnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus | null
+    status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+    changedById?: StringFieldUpdateOperationsInput | string
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
+    method?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentStatusHistoryCreateManyInput = {
+    id?: string
+    orderId: string
+    fromStatus?: $Enums.PaymentStatus | null
+    status: $Enums.PaymentStatus
+    changedById: string
+    amount?: number | null
+    method?: $Enums.PaymentMethod | null
+    note?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PaymentStatusHistoryUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fromStatus?: NullableEnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus | null
+    status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
+    method?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentStatusHistoryUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderId?: StringFieldUpdateOperationsInput | string
+    fromStatus?: NullableEnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus | null
+    status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+    changedById?: StringFieldUpdateOperationsInput | string
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
+    method?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type AuditLogCreateInput = {
     id?: string
     action: string
@@ -69510,6 +70880,12 @@ export namespace Prisma {
     none?: OrderStatusHistoryWhereInput
   }
 
+  export type PaymentStatusHistoryListRelationFilter = {
+    every?: PaymentStatusHistoryWhereInput
+    some?: PaymentStatusHistoryWhereInput
+    none?: PaymentStatusHistoryWhereInput
+  }
+
   export type ShiftExpenseListRelationFilter = {
     every?: ShiftExpenseWhereInput
     some?: ShiftExpenseWhereInput
@@ -69541,6 +70917,10 @@ export namespace Prisma {
   }
 
   export type OrderStatusHistoryOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type PaymentStatusHistoryOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -72806,6 +74186,90 @@ export namespace Prisma {
     note?: SortOrder
     createdAt?: SortOrder
   }
+
+  export type EnumPaymentStatusNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentStatus | EnumPaymentStatusFieldRefInput<$PrismaModel> | null
+    in?: $Enums.PaymentStatus[] | null
+    notIn?: $Enums.PaymentStatus[] | null
+    not?: NestedEnumPaymentStatusNullableFilter<$PrismaModel> | $Enums.PaymentStatus | null
+  }
+
+  export type EnumPaymentMethodNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentMethod | EnumPaymentMethodFieldRefInput<$PrismaModel> | null
+    in?: $Enums.PaymentMethod[] | null
+    notIn?: $Enums.PaymentMethod[] | null
+    not?: NestedEnumPaymentMethodNullableFilter<$PrismaModel> | $Enums.PaymentMethod | null
+  }
+
+  export type PaymentStatusHistoryOrderByRelevanceInput = {
+    fields: PaymentStatusHistoryOrderByRelevanceFieldEnum | PaymentStatusHistoryOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type PaymentStatusHistoryCountOrderByAggregateInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+    fromStatus?: SortOrder
+    status?: SortOrder
+    changedById?: SortOrder
+    amount?: SortOrder
+    method?: SortOrder
+    note?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type PaymentStatusHistoryAvgOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
+  export type PaymentStatusHistoryMaxOrderByAggregateInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+    fromStatus?: SortOrder
+    status?: SortOrder
+    changedById?: SortOrder
+    amount?: SortOrder
+    method?: SortOrder
+    note?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type PaymentStatusHistoryMinOrderByAggregateInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+    fromStatus?: SortOrder
+    status?: SortOrder
+    changedById?: SortOrder
+    amount?: SortOrder
+    method?: SortOrder
+    note?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type PaymentStatusHistorySumOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
+  export type EnumPaymentStatusNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentStatus | EnumPaymentStatusFieldRefInput<$PrismaModel> | null
+    in?: $Enums.PaymentStatus[] | null
+    notIn?: $Enums.PaymentStatus[] | null
+    not?: NestedEnumPaymentStatusNullableWithAggregatesFilter<$PrismaModel> | $Enums.PaymentStatus | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumPaymentStatusNullableFilter<$PrismaModel>
+    _max?: NestedEnumPaymentStatusNullableFilter<$PrismaModel>
+  }
+
+  export type EnumPaymentMethodNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentMethod | EnumPaymentMethodFieldRefInput<$PrismaModel> | null
+    in?: $Enums.PaymentMethod[] | null
+    notIn?: $Enums.PaymentMethod[] | null
+    not?: NestedEnumPaymentMethodNullableWithAggregatesFilter<$PrismaModel> | $Enums.PaymentMethod | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumPaymentMethodNullableFilter<$PrismaModel>
+    _max?: NestedEnumPaymentMethodNullableFilter<$PrismaModel>
+  }
   export type JsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
@@ -73687,6 +75151,13 @@ export namespace Prisma {
     connect?: OrderStatusHistoryWhereUniqueInput | OrderStatusHistoryWhereUniqueInput[]
   }
 
+  export type PaymentStatusHistoryCreateNestedManyWithoutChangedByInput = {
+    create?: XOR<PaymentStatusHistoryCreateWithoutChangedByInput, PaymentStatusHistoryUncheckedCreateWithoutChangedByInput> | PaymentStatusHistoryCreateWithoutChangedByInput[] | PaymentStatusHistoryUncheckedCreateWithoutChangedByInput[]
+    connectOrCreate?: PaymentStatusHistoryCreateOrConnectWithoutChangedByInput | PaymentStatusHistoryCreateOrConnectWithoutChangedByInput[]
+    createMany?: PaymentStatusHistoryCreateManyChangedByInputEnvelope
+    connect?: PaymentStatusHistoryWhereUniqueInput | PaymentStatusHistoryWhereUniqueInput[]
+  }
+
   export type InventoryTransactionCreateNestedManyWithoutCreatedByInput = {
     create?: XOR<InventoryTransactionCreateWithoutCreatedByInput, InventoryTransactionUncheckedCreateWithoutCreatedByInput> | InventoryTransactionCreateWithoutCreatedByInput[] | InventoryTransactionUncheckedCreateWithoutCreatedByInput[]
     connectOrCreate?: InventoryTransactionCreateOrConnectWithoutCreatedByInput | InventoryTransactionCreateOrConnectWithoutCreatedByInput[]
@@ -73797,6 +75268,13 @@ export namespace Prisma {
     connectOrCreate?: OrderStatusHistoryCreateOrConnectWithoutChangedByInput | OrderStatusHistoryCreateOrConnectWithoutChangedByInput[]
     createMany?: OrderStatusHistoryCreateManyChangedByInputEnvelope
     connect?: OrderStatusHistoryWhereUniqueInput | OrderStatusHistoryWhereUniqueInput[]
+  }
+
+  export type PaymentStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput = {
+    create?: XOR<PaymentStatusHistoryCreateWithoutChangedByInput, PaymentStatusHistoryUncheckedCreateWithoutChangedByInput> | PaymentStatusHistoryCreateWithoutChangedByInput[] | PaymentStatusHistoryUncheckedCreateWithoutChangedByInput[]
+    connectOrCreate?: PaymentStatusHistoryCreateOrConnectWithoutChangedByInput | PaymentStatusHistoryCreateOrConnectWithoutChangedByInput[]
+    createMany?: PaymentStatusHistoryCreateManyChangedByInputEnvelope
+    connect?: PaymentStatusHistoryWhereUniqueInput | PaymentStatusHistoryWhereUniqueInput[]
   }
 
   export type InventoryTransactionUncheckedCreateNestedManyWithoutCreatedByInput = {
@@ -73973,6 +75451,20 @@ export namespace Prisma {
     update?: OrderStatusHistoryUpdateWithWhereUniqueWithoutChangedByInput | OrderStatusHistoryUpdateWithWhereUniqueWithoutChangedByInput[]
     updateMany?: OrderStatusHistoryUpdateManyWithWhereWithoutChangedByInput | OrderStatusHistoryUpdateManyWithWhereWithoutChangedByInput[]
     deleteMany?: OrderStatusHistoryScalarWhereInput | OrderStatusHistoryScalarWhereInput[]
+  }
+
+  export type PaymentStatusHistoryUpdateManyWithoutChangedByNestedInput = {
+    create?: XOR<PaymentStatusHistoryCreateWithoutChangedByInput, PaymentStatusHistoryUncheckedCreateWithoutChangedByInput> | PaymentStatusHistoryCreateWithoutChangedByInput[] | PaymentStatusHistoryUncheckedCreateWithoutChangedByInput[]
+    connectOrCreate?: PaymentStatusHistoryCreateOrConnectWithoutChangedByInput | PaymentStatusHistoryCreateOrConnectWithoutChangedByInput[]
+    upsert?: PaymentStatusHistoryUpsertWithWhereUniqueWithoutChangedByInput | PaymentStatusHistoryUpsertWithWhereUniqueWithoutChangedByInput[]
+    createMany?: PaymentStatusHistoryCreateManyChangedByInputEnvelope
+    set?: PaymentStatusHistoryWhereUniqueInput | PaymentStatusHistoryWhereUniqueInput[]
+    disconnect?: PaymentStatusHistoryWhereUniqueInput | PaymentStatusHistoryWhereUniqueInput[]
+    delete?: PaymentStatusHistoryWhereUniqueInput | PaymentStatusHistoryWhereUniqueInput[]
+    connect?: PaymentStatusHistoryWhereUniqueInput | PaymentStatusHistoryWhereUniqueInput[]
+    update?: PaymentStatusHistoryUpdateWithWhereUniqueWithoutChangedByInput | PaymentStatusHistoryUpdateWithWhereUniqueWithoutChangedByInput[]
+    updateMany?: PaymentStatusHistoryUpdateManyWithWhereWithoutChangedByInput | PaymentStatusHistoryUpdateManyWithWhereWithoutChangedByInput[]
+    deleteMany?: PaymentStatusHistoryScalarWhereInput | PaymentStatusHistoryScalarWhereInput[]
   }
 
   export type InventoryTransactionUpdateManyWithoutCreatedByNestedInput = {
@@ -74197,6 +75689,20 @@ export namespace Prisma {
     update?: OrderStatusHistoryUpdateWithWhereUniqueWithoutChangedByInput | OrderStatusHistoryUpdateWithWhereUniqueWithoutChangedByInput[]
     updateMany?: OrderStatusHistoryUpdateManyWithWhereWithoutChangedByInput | OrderStatusHistoryUpdateManyWithWhereWithoutChangedByInput[]
     deleteMany?: OrderStatusHistoryScalarWhereInput | OrderStatusHistoryScalarWhereInput[]
+  }
+
+  export type PaymentStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput = {
+    create?: XOR<PaymentStatusHistoryCreateWithoutChangedByInput, PaymentStatusHistoryUncheckedCreateWithoutChangedByInput> | PaymentStatusHistoryCreateWithoutChangedByInput[] | PaymentStatusHistoryUncheckedCreateWithoutChangedByInput[]
+    connectOrCreate?: PaymentStatusHistoryCreateOrConnectWithoutChangedByInput | PaymentStatusHistoryCreateOrConnectWithoutChangedByInput[]
+    upsert?: PaymentStatusHistoryUpsertWithWhereUniqueWithoutChangedByInput | PaymentStatusHistoryUpsertWithWhereUniqueWithoutChangedByInput[]
+    createMany?: PaymentStatusHistoryCreateManyChangedByInputEnvelope
+    set?: PaymentStatusHistoryWhereUniqueInput | PaymentStatusHistoryWhereUniqueInput[]
+    disconnect?: PaymentStatusHistoryWhereUniqueInput | PaymentStatusHistoryWhereUniqueInput[]
+    delete?: PaymentStatusHistoryWhereUniqueInput | PaymentStatusHistoryWhereUniqueInput[]
+    connect?: PaymentStatusHistoryWhereUniqueInput | PaymentStatusHistoryWhereUniqueInput[]
+    update?: PaymentStatusHistoryUpdateWithWhereUniqueWithoutChangedByInput | PaymentStatusHistoryUpdateWithWhereUniqueWithoutChangedByInput[]
+    updateMany?: PaymentStatusHistoryUpdateManyWithWhereWithoutChangedByInput | PaymentStatusHistoryUpdateManyWithWhereWithoutChangedByInput[]
+    deleteMany?: PaymentStatusHistoryScalarWhereInput | PaymentStatusHistoryScalarWhereInput[]
   }
 
   export type InventoryTransactionUncheckedUpdateManyWithoutCreatedByNestedInput = {
@@ -77205,6 +78711,13 @@ export namespace Prisma {
     connect?: OrderStatusHistoryWhereUniqueInput | OrderStatusHistoryWhereUniqueInput[]
   }
 
+  export type PaymentStatusHistoryCreateNestedManyWithoutOrderInput = {
+    create?: XOR<PaymentStatusHistoryCreateWithoutOrderInput, PaymentStatusHistoryUncheckedCreateWithoutOrderInput> | PaymentStatusHistoryCreateWithoutOrderInput[] | PaymentStatusHistoryUncheckedCreateWithoutOrderInput[]
+    connectOrCreate?: PaymentStatusHistoryCreateOrConnectWithoutOrderInput | PaymentStatusHistoryCreateOrConnectWithoutOrderInput[]
+    createMany?: PaymentStatusHistoryCreateManyOrderInputEnvelope
+    connect?: PaymentStatusHistoryWhereUniqueInput | PaymentStatusHistoryWhereUniqueInput[]
+  }
+
   export type CustomerPointTransactionCreateNestedManyWithoutOrderInput = {
     create?: XOR<CustomerPointTransactionCreateWithoutOrderInput, CustomerPointTransactionUncheckedCreateWithoutOrderInput> | CustomerPointTransactionCreateWithoutOrderInput[] | CustomerPointTransactionUncheckedCreateWithoutOrderInput[]
     connectOrCreate?: CustomerPointTransactionCreateOrConnectWithoutOrderInput | CustomerPointTransactionCreateOrConnectWithoutOrderInput[]
@@ -77263,6 +78776,13 @@ export namespace Prisma {
     connectOrCreate?: OrderStatusHistoryCreateOrConnectWithoutOrderInput | OrderStatusHistoryCreateOrConnectWithoutOrderInput[]
     createMany?: OrderStatusHistoryCreateManyOrderInputEnvelope
     connect?: OrderStatusHistoryWhereUniqueInput | OrderStatusHistoryWhereUniqueInput[]
+  }
+
+  export type PaymentStatusHistoryUncheckedCreateNestedManyWithoutOrderInput = {
+    create?: XOR<PaymentStatusHistoryCreateWithoutOrderInput, PaymentStatusHistoryUncheckedCreateWithoutOrderInput> | PaymentStatusHistoryCreateWithoutOrderInput[] | PaymentStatusHistoryUncheckedCreateWithoutOrderInput[]
+    connectOrCreate?: PaymentStatusHistoryCreateOrConnectWithoutOrderInput | PaymentStatusHistoryCreateOrConnectWithoutOrderInput[]
+    createMany?: PaymentStatusHistoryCreateManyOrderInputEnvelope
+    connect?: PaymentStatusHistoryWhereUniqueInput | PaymentStatusHistoryWhereUniqueInput[]
   }
 
   export type CustomerPointTransactionUncheckedCreateNestedManyWithoutOrderInput = {
@@ -77417,6 +78937,20 @@ export namespace Prisma {
     deleteMany?: OrderStatusHistoryScalarWhereInput | OrderStatusHistoryScalarWhereInput[]
   }
 
+  export type PaymentStatusHistoryUpdateManyWithoutOrderNestedInput = {
+    create?: XOR<PaymentStatusHistoryCreateWithoutOrderInput, PaymentStatusHistoryUncheckedCreateWithoutOrderInput> | PaymentStatusHistoryCreateWithoutOrderInput[] | PaymentStatusHistoryUncheckedCreateWithoutOrderInput[]
+    connectOrCreate?: PaymentStatusHistoryCreateOrConnectWithoutOrderInput | PaymentStatusHistoryCreateOrConnectWithoutOrderInput[]
+    upsert?: PaymentStatusHistoryUpsertWithWhereUniqueWithoutOrderInput | PaymentStatusHistoryUpsertWithWhereUniqueWithoutOrderInput[]
+    createMany?: PaymentStatusHistoryCreateManyOrderInputEnvelope
+    set?: PaymentStatusHistoryWhereUniqueInput | PaymentStatusHistoryWhereUniqueInput[]
+    disconnect?: PaymentStatusHistoryWhereUniqueInput | PaymentStatusHistoryWhereUniqueInput[]
+    delete?: PaymentStatusHistoryWhereUniqueInput | PaymentStatusHistoryWhereUniqueInput[]
+    connect?: PaymentStatusHistoryWhereUniqueInput | PaymentStatusHistoryWhereUniqueInput[]
+    update?: PaymentStatusHistoryUpdateWithWhereUniqueWithoutOrderInput | PaymentStatusHistoryUpdateWithWhereUniqueWithoutOrderInput[]
+    updateMany?: PaymentStatusHistoryUpdateManyWithWhereWithoutOrderInput | PaymentStatusHistoryUpdateManyWithWhereWithoutOrderInput[]
+    deleteMany?: PaymentStatusHistoryScalarWhereInput | PaymentStatusHistoryScalarWhereInput[]
+  }
+
   export type CustomerPointTransactionUpdateManyWithoutOrderNestedInput = {
     create?: XOR<CustomerPointTransactionCreateWithoutOrderInput, CustomerPointTransactionUncheckedCreateWithoutOrderInput> | CustomerPointTransactionCreateWithoutOrderInput[] | CustomerPointTransactionUncheckedCreateWithoutOrderInput[]
     connectOrCreate?: CustomerPointTransactionCreateOrConnectWithoutOrderInput | CustomerPointTransactionCreateOrConnectWithoutOrderInput[]
@@ -77529,6 +79063,20 @@ export namespace Prisma {
     update?: OrderStatusHistoryUpdateWithWhereUniqueWithoutOrderInput | OrderStatusHistoryUpdateWithWhereUniqueWithoutOrderInput[]
     updateMany?: OrderStatusHistoryUpdateManyWithWhereWithoutOrderInput | OrderStatusHistoryUpdateManyWithWhereWithoutOrderInput[]
     deleteMany?: OrderStatusHistoryScalarWhereInput | OrderStatusHistoryScalarWhereInput[]
+  }
+
+  export type PaymentStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput = {
+    create?: XOR<PaymentStatusHistoryCreateWithoutOrderInput, PaymentStatusHistoryUncheckedCreateWithoutOrderInput> | PaymentStatusHistoryCreateWithoutOrderInput[] | PaymentStatusHistoryUncheckedCreateWithoutOrderInput[]
+    connectOrCreate?: PaymentStatusHistoryCreateOrConnectWithoutOrderInput | PaymentStatusHistoryCreateOrConnectWithoutOrderInput[]
+    upsert?: PaymentStatusHistoryUpsertWithWhereUniqueWithoutOrderInput | PaymentStatusHistoryUpsertWithWhereUniqueWithoutOrderInput[]
+    createMany?: PaymentStatusHistoryCreateManyOrderInputEnvelope
+    set?: PaymentStatusHistoryWhereUniqueInput | PaymentStatusHistoryWhereUniqueInput[]
+    disconnect?: PaymentStatusHistoryWhereUniqueInput | PaymentStatusHistoryWhereUniqueInput[]
+    delete?: PaymentStatusHistoryWhereUniqueInput | PaymentStatusHistoryWhereUniqueInput[]
+    connect?: PaymentStatusHistoryWhereUniqueInput | PaymentStatusHistoryWhereUniqueInput[]
+    update?: PaymentStatusHistoryUpdateWithWhereUniqueWithoutOrderInput | PaymentStatusHistoryUpdateWithWhereUniqueWithoutOrderInput[]
+    updateMany?: PaymentStatusHistoryUpdateManyWithWhereWithoutOrderInput | PaymentStatusHistoryUpdateManyWithWhereWithoutOrderInput[]
+    deleteMany?: PaymentStatusHistoryScalarWhereInput | PaymentStatusHistoryScalarWhereInput[]
   }
 
   export type CustomerPointTransactionUncheckedUpdateManyWithoutOrderNestedInput = {
@@ -77989,6 +79537,42 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutOrderStatusChangesInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutOrderStatusChangesInput, UserUpdateWithoutOrderStatusChangesInput>, UserUncheckedUpdateWithoutOrderStatusChangesInput>
+  }
+
+  export type OrderCreateNestedOneWithoutPaymentStatusHistoryInput = {
+    create?: XOR<OrderCreateWithoutPaymentStatusHistoryInput, OrderUncheckedCreateWithoutPaymentStatusHistoryInput>
+    connectOrCreate?: OrderCreateOrConnectWithoutPaymentStatusHistoryInput
+    connect?: OrderWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutPaymentStatusChangesInput = {
+    create?: XOR<UserCreateWithoutPaymentStatusChangesInput, UserUncheckedCreateWithoutPaymentStatusChangesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutPaymentStatusChangesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type NullableEnumPaymentStatusFieldUpdateOperationsInput = {
+    set?: $Enums.PaymentStatus | null
+  }
+
+  export type NullableEnumPaymentMethodFieldUpdateOperationsInput = {
+    set?: $Enums.PaymentMethod | null
+  }
+
+  export type OrderUpdateOneRequiredWithoutPaymentStatusHistoryNestedInput = {
+    create?: XOR<OrderCreateWithoutPaymentStatusHistoryInput, OrderUncheckedCreateWithoutPaymentStatusHistoryInput>
+    connectOrCreate?: OrderCreateOrConnectWithoutPaymentStatusHistoryInput
+    upsert?: OrderUpsertWithoutPaymentStatusHistoryInput
+    connect?: OrderWhereUniqueInput
+    update?: XOR<XOR<OrderUpdateToOneWithWhereWithoutPaymentStatusHistoryInput, OrderUpdateWithoutPaymentStatusHistoryInput>, OrderUncheckedUpdateWithoutPaymentStatusHistoryInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutPaymentStatusChangesNestedInput = {
+    create?: XOR<UserCreateWithoutPaymentStatusChangesInput, UserUncheckedCreateWithoutPaymentStatusChangesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutPaymentStatusChangesInput
+    upsert?: UserUpsertWithoutPaymentStatusChangesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutPaymentStatusChangesInput, UserUpdateWithoutPaymentStatusChangesInput>, UserUncheckedUpdateWithoutPaymentStatusChangesInput>
   }
 
   export type UserCreateNestedOneWithoutAuditLogsInput = {
@@ -78516,6 +80100,40 @@ export namespace Prisma {
     _min?: NestedEnumShiftStatusFilter<$PrismaModel>
     _max?: NestedEnumShiftStatusFilter<$PrismaModel>
   }
+
+  export type NestedEnumPaymentStatusNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentStatus | EnumPaymentStatusFieldRefInput<$PrismaModel> | null
+    in?: $Enums.PaymentStatus[] | null
+    notIn?: $Enums.PaymentStatus[] | null
+    not?: NestedEnumPaymentStatusNullableFilter<$PrismaModel> | $Enums.PaymentStatus | null
+  }
+
+  export type NestedEnumPaymentMethodNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentMethod | EnumPaymentMethodFieldRefInput<$PrismaModel> | null
+    in?: $Enums.PaymentMethod[] | null
+    notIn?: $Enums.PaymentMethod[] | null
+    not?: NestedEnumPaymentMethodNullableFilter<$PrismaModel> | $Enums.PaymentMethod | null
+  }
+
+  export type NestedEnumPaymentStatusNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentStatus | EnumPaymentStatusFieldRefInput<$PrismaModel> | null
+    in?: $Enums.PaymentStatus[] | null
+    notIn?: $Enums.PaymentStatus[] | null
+    not?: NestedEnumPaymentStatusNullableWithAggregatesFilter<$PrismaModel> | $Enums.PaymentStatus | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumPaymentStatusNullableFilter<$PrismaModel>
+    _max?: NestedEnumPaymentStatusNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumPaymentMethodNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentMethod | EnumPaymentMethodFieldRefInput<$PrismaModel> | null
+    in?: $Enums.PaymentMethod[] | null
+    notIn?: $Enums.PaymentMethod[] | null
+    not?: NestedEnumPaymentMethodNullableWithAggregatesFilter<$PrismaModel> | $Enums.PaymentMethod | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumPaymentMethodNullableFilter<$PrismaModel>
+    _max?: NestedEnumPaymentMethodNullableFilter<$PrismaModel>
+  }
   export type NestedJsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
@@ -78562,6 +80180,7 @@ export namespace Prisma {
     createdOrders?: OrderCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftCreateNestedManyWithoutUserInput
@@ -78596,6 +80215,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderUncheckedCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionUncheckedCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftUncheckedCreateNestedManyWithoutUserInput
@@ -78866,6 +80486,7 @@ export namespace Prisma {
     createdOrders?: OrderCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftCreateNestedManyWithoutUserInput
@@ -78900,6 +80521,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderUncheckedCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionUncheckedCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftUncheckedCreateNestedManyWithoutUserInput
@@ -78939,6 +80561,7 @@ export namespace Prisma {
     createdOrders?: OrderCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftCreateNestedManyWithoutUserInput
@@ -78973,6 +80596,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderUncheckedCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionUncheckedCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftUncheckedCreateNestedManyWithoutUserInput
@@ -79230,6 +80854,7 @@ export namespace Prisma {
     payments?: PaymentCreateNestedManyWithoutOrderInput
     refunds?: RefundCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageCreateNestedOneWithoutOrderInput
@@ -79268,6 +80893,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedCreateNestedManyWithoutOrderInput
     refunds?: RefundUncheckedCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionUncheckedCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageUncheckedCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedCreateNestedOneWithoutOrderInput
@@ -79580,6 +81206,7 @@ export namespace Prisma {
     createdOrders?: OrderUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUpdateManyWithoutUserNestedInput
@@ -79614,6 +81241,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUncheckedUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUncheckedUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -80274,6 +81902,7 @@ export namespace Prisma {
     payments?: PaymentCreateNestedManyWithoutOrderInput
     refunds?: RefundCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageCreateNestedOneWithoutOrderInput
@@ -80312,6 +81941,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedCreateNestedManyWithoutOrderInput
     refunds?: RefundUncheckedCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionUncheckedCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageUncheckedCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedCreateNestedOneWithoutOrderInput
@@ -80360,6 +81990,7 @@ export namespace Prisma {
     payments?: PaymentCreateNestedManyWithoutOrderInput
     refunds?: RefundCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageCreateNestedOneWithoutOrderInput
@@ -80398,6 +82029,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedCreateNestedManyWithoutOrderInput
     refunds?: RefundUncheckedCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionUncheckedCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageUncheckedCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedCreateNestedOneWithoutOrderInput
@@ -80438,6 +82070,38 @@ export namespace Prisma {
 
   export type OrderStatusHistoryCreateManyChangedByInputEnvelope = {
     data: OrderStatusHistoryCreateManyChangedByInput | OrderStatusHistoryCreateManyChangedByInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type PaymentStatusHistoryCreateWithoutChangedByInput = {
+    id?: string
+    fromStatus?: $Enums.PaymentStatus | null
+    status: $Enums.PaymentStatus
+    amount?: number | null
+    method?: $Enums.PaymentMethod | null
+    note?: string | null
+    createdAt?: Date | string
+    order: OrderCreateNestedOneWithoutPaymentStatusHistoryInput
+  }
+
+  export type PaymentStatusHistoryUncheckedCreateWithoutChangedByInput = {
+    id?: string
+    orderId: string
+    fromStatus?: $Enums.PaymentStatus | null
+    status: $Enums.PaymentStatus
+    amount?: number | null
+    method?: $Enums.PaymentMethod | null
+    note?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PaymentStatusHistoryCreateOrConnectWithoutChangedByInput = {
+    where: PaymentStatusHistoryWhereUniqueInput
+    create: XOR<PaymentStatusHistoryCreateWithoutChangedByInput, PaymentStatusHistoryUncheckedCreateWithoutChangedByInput>
+  }
+
+  export type PaymentStatusHistoryCreateManyChangedByInputEnvelope = {
+    data: PaymentStatusHistoryCreateManyChangedByInput | PaymentStatusHistoryCreateManyChangedByInput[]
     skipDuplicates?: boolean
   }
 
@@ -81096,6 +82760,37 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"OrderStatusHistory"> | Date | string
   }
 
+  export type PaymentStatusHistoryUpsertWithWhereUniqueWithoutChangedByInput = {
+    where: PaymentStatusHistoryWhereUniqueInput
+    update: XOR<PaymentStatusHistoryUpdateWithoutChangedByInput, PaymentStatusHistoryUncheckedUpdateWithoutChangedByInput>
+    create: XOR<PaymentStatusHistoryCreateWithoutChangedByInput, PaymentStatusHistoryUncheckedCreateWithoutChangedByInput>
+  }
+
+  export type PaymentStatusHistoryUpdateWithWhereUniqueWithoutChangedByInput = {
+    where: PaymentStatusHistoryWhereUniqueInput
+    data: XOR<PaymentStatusHistoryUpdateWithoutChangedByInput, PaymentStatusHistoryUncheckedUpdateWithoutChangedByInput>
+  }
+
+  export type PaymentStatusHistoryUpdateManyWithWhereWithoutChangedByInput = {
+    where: PaymentStatusHistoryScalarWhereInput
+    data: XOR<PaymentStatusHistoryUpdateManyMutationInput, PaymentStatusHistoryUncheckedUpdateManyWithoutChangedByInput>
+  }
+
+  export type PaymentStatusHistoryScalarWhereInput = {
+    AND?: PaymentStatusHistoryScalarWhereInput | PaymentStatusHistoryScalarWhereInput[]
+    OR?: PaymentStatusHistoryScalarWhereInput[]
+    NOT?: PaymentStatusHistoryScalarWhereInput | PaymentStatusHistoryScalarWhereInput[]
+    id?: StringFilter<"PaymentStatusHistory"> | string
+    orderId?: StringFilter<"PaymentStatusHistory"> | string
+    fromStatus?: EnumPaymentStatusNullableFilter<"PaymentStatusHistory"> | $Enums.PaymentStatus | null
+    status?: EnumPaymentStatusFilter<"PaymentStatusHistory"> | $Enums.PaymentStatus
+    changedById?: StringFilter<"PaymentStatusHistory"> | string
+    amount?: IntNullableFilter<"PaymentStatusHistory"> | number | null
+    method?: EnumPaymentMethodNullableFilter<"PaymentStatusHistory"> | $Enums.PaymentMethod | null
+    note?: StringNullableFilter<"PaymentStatusHistory"> | string | null
+    createdAt?: DateTimeFilter<"PaymentStatusHistory"> | Date | string
+  }
+
   export type InventoryTransactionUpsertWithWhereUniqueWithoutCreatedByInput = {
     where: InventoryTransactionWhereUniqueInput
     update: XOR<InventoryTransactionUpdateWithoutCreatedByInput, InventoryTransactionUncheckedUpdateWithoutCreatedByInput>
@@ -81325,6 +83020,7 @@ export namespace Prisma {
     createdOrders?: OrderCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftCreateNestedManyWithoutUserInput
@@ -81359,6 +83055,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderUncheckedCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionUncheckedCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftUncheckedCreateNestedManyWithoutUserInput
@@ -81409,6 +83106,7 @@ export namespace Prisma {
     createdOrders?: OrderUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUpdateManyWithoutUserNestedInput
@@ -81443,6 +83141,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUncheckedUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUncheckedUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -81477,6 +83176,7 @@ export namespace Prisma {
     createdOrders?: OrderCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftCreateNestedManyWithoutUserInput
@@ -81511,6 +83211,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderUncheckedCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionUncheckedCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftUncheckedCreateNestedManyWithoutUserInput
@@ -81561,6 +83262,7 @@ export namespace Prisma {
     createdOrders?: OrderUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUpdateManyWithoutUserNestedInput
@@ -81595,6 +83297,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUncheckedUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUncheckedUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -84767,6 +86470,7 @@ export namespace Prisma {
     createdOrders?: OrderCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryCreateNestedManyWithoutChangedByInput
     purchaseOrders?: PurchaseOrderCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftCreateNestedManyWithoutUserInput
     shiftExpenses?: ShiftExpenseCreateNestedManyWithoutCreatedByInput
@@ -84801,6 +86505,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderUncheckedCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
     purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftUncheckedCreateNestedManyWithoutUserInput
     shiftExpenses?: ShiftExpenseUncheckedCreateNestedManyWithoutCreatedByInput
@@ -85099,6 +86804,7 @@ export namespace Prisma {
     createdOrders?: OrderUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUpdateManyWithoutChangedByNestedInput
     purchaseOrders?: PurchaseOrderUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUpdateManyWithoutUserNestedInput
     shiftExpenses?: ShiftExpenseUpdateManyWithoutCreatedByNestedInput
@@ -85133,6 +86839,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUncheckedUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUncheckedUpdateManyWithoutUserNestedInput
     shiftExpenses?: ShiftExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -85224,6 +86931,7 @@ export namespace Prisma {
     createdOrders?: OrderCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftCreateNestedManyWithoutUserInput
@@ -85258,6 +86966,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderUncheckedCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionUncheckedCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftUncheckedCreateNestedManyWithoutUserInput
@@ -85401,6 +87110,7 @@ export namespace Prisma {
     createdOrders?: OrderUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUpdateManyWithoutUserNestedInput
@@ -85435,6 +87145,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUncheckedUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUncheckedUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -85718,6 +87429,7 @@ export namespace Prisma {
     createdOrders?: OrderCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftCreateNestedManyWithoutUserInput
@@ -85752,6 +87464,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderUncheckedCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionUncheckedCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftUncheckedCreateNestedManyWithoutUserInput
@@ -85899,6 +87612,7 @@ export namespace Prisma {
     createdOrders?: OrderUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUpdateManyWithoutUserNestedInput
@@ -85933,6 +87647,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUncheckedUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUncheckedUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -86401,6 +88116,7 @@ export namespace Prisma {
     createdOrders?: OrderCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftCreateNestedManyWithoutUserInput
     shiftExpenses?: ShiftExpenseCreateNestedManyWithoutCreatedByInput
@@ -86435,6 +88151,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderUncheckedCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionUncheckedCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftUncheckedCreateNestedManyWithoutUserInput
     shiftExpenses?: ShiftExpenseUncheckedCreateNestedManyWithoutCreatedByInput
@@ -86629,6 +88346,7 @@ export namespace Prisma {
     createdOrders?: OrderUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUpdateManyWithoutUserNestedInput
     shiftExpenses?: ShiftExpenseUpdateManyWithoutCreatedByNestedInput
@@ -86663,6 +88381,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUncheckedUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUncheckedUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUncheckedUpdateManyWithoutUserNestedInput
     shiftExpenses?: ShiftExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -87204,6 +88923,7 @@ export namespace Prisma {
     payments?: PaymentCreateNestedManyWithoutOrderInput
     refunds?: RefundCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageCreateNestedOneWithoutOrderInput
@@ -87242,6 +88962,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedCreateNestedManyWithoutOrderInput
     refunds?: RefundUncheckedCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionUncheckedCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageUncheckedCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedCreateNestedOneWithoutOrderInput
@@ -88067,6 +89788,7 @@ export namespace Prisma {
     createdOrders?: OrderCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftCreateNestedManyWithoutUserInput
@@ -88101,6 +89823,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderUncheckedCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionUncheckedCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftUncheckedCreateNestedManyWithoutUserInput
@@ -88336,6 +90059,7 @@ export namespace Prisma {
     createdOrders?: OrderUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUpdateManyWithoutUserNestedInput
@@ -88370,6 +90094,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUncheckedUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUncheckedUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -88483,6 +90208,7 @@ export namespace Prisma {
     payments?: PaymentCreateNestedManyWithoutOrderInput
     refunds?: RefundCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageCreateNestedOneWithoutOrderInput
     issuedVouchers?: CustomerVoucherCreateNestedManyWithoutIssuedFromOrderInput
@@ -88521,6 +90247,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedCreateNestedManyWithoutOrderInput
     refunds?: RefundUncheckedCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionUncheckedCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageUncheckedCreateNestedOneWithoutOrderInput
     issuedVouchers?: CustomerVoucherUncheckedCreateNestedManyWithoutIssuedFromOrderInput
@@ -88622,6 +90349,7 @@ export namespace Prisma {
     payments?: PaymentUpdateManyWithoutOrderNestedInput
     refunds?: RefundUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUpdateOneWithoutOrderNestedInput
     issuedVouchers?: CustomerVoucherUpdateManyWithoutIssuedFromOrderNestedInput
@@ -88660,6 +90388,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedUpdateManyWithoutOrderNestedInput
     refunds?: RefundUncheckedUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUncheckedUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUncheckedUpdateOneWithoutOrderNestedInput
     issuedVouchers?: CustomerVoucherUncheckedUpdateManyWithoutIssuedFromOrderNestedInput
@@ -88745,6 +90474,7 @@ export namespace Prisma {
     payments?: PaymentCreateNestedManyWithoutOrderInput
     refunds?: RefundCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageCreateNestedOneWithoutOrderInput
     issuedVouchers?: CustomerVoucherCreateNestedManyWithoutIssuedFromOrderInput
@@ -88783,6 +90513,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedCreateNestedManyWithoutOrderInput
     refunds?: RefundUncheckedCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageUncheckedCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedCreateNestedOneWithoutOrderInput
     issuedVouchers?: CustomerVoucherUncheckedCreateNestedManyWithoutIssuedFromOrderInput
@@ -88890,6 +90621,7 @@ export namespace Prisma {
     payments?: PaymentUpdateManyWithoutOrderNestedInput
     refunds?: RefundUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUpdateOneWithoutOrderNestedInput
     issuedVouchers?: CustomerVoucherUpdateManyWithoutIssuedFromOrderNestedInput
@@ -88928,6 +90660,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedUpdateManyWithoutOrderNestedInput
     refunds?: RefundUncheckedUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUncheckedUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedUpdateOneWithoutOrderNestedInput
     issuedVouchers?: CustomerVoucherUncheckedUpdateManyWithoutIssuedFromOrderNestedInput
@@ -89027,6 +90760,7 @@ export namespace Prisma {
     payments?: PaymentCreateNestedManyWithoutOrderInput
     refunds?: RefundCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageCreateNestedOneWithoutOrderInput
@@ -89065,6 +90799,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedCreateNestedManyWithoutOrderInput
     refunds?: RefundUncheckedCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionUncheckedCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageUncheckedCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedCreateNestedOneWithoutOrderInput
@@ -89694,6 +91429,7 @@ export namespace Prisma {
     payments?: PaymentCreateNestedManyWithoutOrderInput
     refunds?: RefundCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionCreateNestedManyWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageCreateNestedOneWithoutOrderInput
     issuedVouchers?: CustomerVoucherCreateNestedManyWithoutIssuedFromOrderInput
@@ -89732,6 +91468,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedCreateNestedManyWithoutOrderInput
     refunds?: RefundUncheckedCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionUncheckedCreateNestedManyWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedCreateNestedOneWithoutOrderInput
     issuedVouchers?: CustomerVoucherUncheckedCreateNestedManyWithoutIssuedFromOrderInput
@@ -89902,6 +91639,7 @@ export namespace Prisma {
     payments?: PaymentUpdateManyWithoutOrderNestedInput
     refunds?: RefundUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUpdateManyWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUpdateOneWithoutOrderNestedInput
     issuedVouchers?: CustomerVoucherUpdateManyWithoutIssuedFromOrderNestedInput
@@ -89940,6 +91678,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedUpdateManyWithoutOrderNestedInput
     refunds?: RefundUncheckedUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUncheckedUpdateManyWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedUpdateOneWithoutOrderNestedInput
     issuedVouchers?: CustomerVoucherUncheckedUpdateManyWithoutIssuedFromOrderNestedInput
@@ -90124,6 +91863,7 @@ export namespace Prisma {
     createdOrders?: OrderCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftCreateNestedManyWithoutUserInput
@@ -90158,6 +91898,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderUncheckedCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionUncheckedCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftUncheckedCreateNestedManyWithoutUserInput
@@ -90206,6 +91947,7 @@ export namespace Prisma {
     payments?: PaymentCreateNestedManyWithoutOrderInput
     refunds?: RefundCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageCreateNestedOneWithoutOrderInput
@@ -90244,6 +91986,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedCreateNestedManyWithoutOrderInput
     refunds?: RefundUncheckedCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionUncheckedCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageUncheckedCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedCreateNestedOneWithoutOrderInput
@@ -90287,6 +92030,7 @@ export namespace Prisma {
     payments?: PaymentCreateNestedManyWithoutOrderInput
     refunds?: RefundCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageCreateNestedOneWithoutOrderInput
@@ -90325,6 +92069,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedCreateNestedManyWithoutOrderInput
     refunds?: RefundUncheckedCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionUncheckedCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageUncheckedCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedCreateNestedOneWithoutOrderInput
@@ -90543,6 +92288,7 @@ export namespace Prisma {
     createdOrders?: OrderUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUpdateManyWithoutUserNestedInput
@@ -90577,6 +92323,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUncheckedUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUncheckedUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -90631,6 +92378,7 @@ export namespace Prisma {
     payments?: PaymentUpdateManyWithoutOrderNestedInput
     refunds?: RefundUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUpdateOneWithoutOrderNestedInput
@@ -90669,6 +92417,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedUpdateManyWithoutOrderNestedInput
     refunds?: RefundUncheckedUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUncheckedUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUncheckedUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedUpdateOneWithoutOrderNestedInput
@@ -90718,6 +92467,7 @@ export namespace Prisma {
     payments?: PaymentUpdateManyWithoutOrderNestedInput
     refunds?: RefundUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUpdateOneWithoutOrderNestedInput
@@ -90756,6 +92506,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedUpdateManyWithoutOrderNestedInput
     refunds?: RefundUncheckedUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUncheckedUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUncheckedUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedUpdateOneWithoutOrderNestedInput
@@ -90888,6 +92639,7 @@ export namespace Prisma {
     loginHistories?: LoginHistoryCreateNestedManyWithoutUserInput
     assignedOrders?: OrderCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftCreateNestedManyWithoutUserInput
@@ -90922,6 +92674,7 @@ export namespace Prisma {
     loginHistories?: LoginHistoryUncheckedCreateNestedManyWithoutUserInput
     assignedOrders?: OrderUncheckedCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionUncheckedCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftUncheckedCreateNestedManyWithoutUserInput
@@ -90961,6 +92714,7 @@ export namespace Prisma {
     loginHistories?: LoginHistoryCreateNestedManyWithoutUserInput
     createdOrders?: OrderCreateNestedManyWithoutCreatedByInput
     orderStatusChanges?: OrderStatusHistoryCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftCreateNestedManyWithoutUserInput
@@ -90995,6 +92749,7 @@ export namespace Prisma {
     loginHistories?: LoginHistoryUncheckedCreateNestedManyWithoutUserInput
     createdOrders?: OrderUncheckedCreateNestedManyWithoutCreatedByInput
     orderStatusChanges?: OrderStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionUncheckedCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftUncheckedCreateNestedManyWithoutUserInput
@@ -91263,6 +93018,38 @@ export namespace Prisma {
 
   export type OrderStatusHistoryCreateManyOrderInputEnvelope = {
     data: OrderStatusHistoryCreateManyOrderInput | OrderStatusHistoryCreateManyOrderInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type PaymentStatusHistoryCreateWithoutOrderInput = {
+    id?: string
+    fromStatus?: $Enums.PaymentStatus | null
+    status: $Enums.PaymentStatus
+    amount?: number | null
+    method?: $Enums.PaymentMethod | null
+    note?: string | null
+    createdAt?: Date | string
+    changedBy: UserCreateNestedOneWithoutPaymentStatusChangesInput
+  }
+
+  export type PaymentStatusHistoryUncheckedCreateWithoutOrderInput = {
+    id?: string
+    fromStatus?: $Enums.PaymentStatus | null
+    status: $Enums.PaymentStatus
+    changedById: string
+    amount?: number | null
+    method?: $Enums.PaymentMethod | null
+    note?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PaymentStatusHistoryCreateOrConnectWithoutOrderInput = {
+    where: PaymentStatusHistoryWhereUniqueInput
+    create: XOR<PaymentStatusHistoryCreateWithoutOrderInput, PaymentStatusHistoryUncheckedCreateWithoutOrderInput>
+  }
+
+  export type PaymentStatusHistoryCreateManyOrderInputEnvelope = {
+    data: PaymentStatusHistoryCreateManyOrderInput | PaymentStatusHistoryCreateManyOrderInput[]
     skipDuplicates?: boolean
   }
 
@@ -91586,6 +93373,7 @@ export namespace Prisma {
     loginHistories?: LoginHistoryUpdateManyWithoutUserNestedInput
     assignedOrders?: OrderUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUpdateManyWithoutUserNestedInput
@@ -91620,6 +93408,7 @@ export namespace Prisma {
     loginHistories?: LoginHistoryUncheckedUpdateManyWithoutUserNestedInput
     assignedOrders?: OrderUncheckedUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUncheckedUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -91665,6 +93454,7 @@ export namespace Prisma {
     loginHistories?: LoginHistoryUpdateManyWithoutUserNestedInput
     createdOrders?: OrderUpdateManyWithoutCreatedByNestedInput
     orderStatusChanges?: OrderStatusHistoryUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUpdateManyWithoutUserNestedInput
@@ -91699,6 +93489,7 @@ export namespace Prisma {
     loginHistories?: LoginHistoryUncheckedUpdateManyWithoutUserNestedInput
     createdOrders?: OrderUncheckedUpdateManyWithoutCreatedByNestedInput
     orderStatusChanges?: OrderStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUncheckedUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -91913,6 +93704,22 @@ export namespace Prisma {
     data: XOR<OrderStatusHistoryUpdateManyMutationInput, OrderStatusHistoryUncheckedUpdateManyWithoutOrderInput>
   }
 
+  export type PaymentStatusHistoryUpsertWithWhereUniqueWithoutOrderInput = {
+    where: PaymentStatusHistoryWhereUniqueInput
+    update: XOR<PaymentStatusHistoryUpdateWithoutOrderInput, PaymentStatusHistoryUncheckedUpdateWithoutOrderInput>
+    create: XOR<PaymentStatusHistoryCreateWithoutOrderInput, PaymentStatusHistoryUncheckedCreateWithoutOrderInput>
+  }
+
+  export type PaymentStatusHistoryUpdateWithWhereUniqueWithoutOrderInput = {
+    where: PaymentStatusHistoryWhereUniqueInput
+    data: XOR<PaymentStatusHistoryUpdateWithoutOrderInput, PaymentStatusHistoryUncheckedUpdateWithoutOrderInput>
+  }
+
+  export type PaymentStatusHistoryUpdateManyWithWhereWithoutOrderInput = {
+    where: PaymentStatusHistoryScalarWhereInput
+    data: XOR<PaymentStatusHistoryUpdateManyMutationInput, PaymentStatusHistoryUncheckedUpdateManyWithoutOrderInput>
+  }
+
   export type CustomerPointTransactionUpsertWithWhereUniqueWithoutOrderInput = {
     where: CustomerPointTransactionWhereUniqueInput
     update: XOR<CustomerPointTransactionUpdateWithoutOrderInput, CustomerPointTransactionUncheckedUpdateWithoutOrderInput>
@@ -92083,6 +93890,7 @@ export namespace Prisma {
     payments?: PaymentCreateNestedManyWithoutOrderInput
     refunds?: RefundCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageCreateNestedOneWithoutOrderInput
@@ -92121,6 +93929,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedCreateNestedManyWithoutOrderInput
     refunds?: RefundUncheckedCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionUncheckedCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageUncheckedCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedCreateNestedOneWithoutOrderInput
@@ -92315,6 +94124,7 @@ export namespace Prisma {
     payments?: PaymentUpdateManyWithoutOrderNestedInput
     refunds?: RefundUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUpdateOneWithoutOrderNestedInput
@@ -92353,6 +94163,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedUpdateManyWithoutOrderNestedInput
     refunds?: RefundUncheckedUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUncheckedUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUncheckedUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedUpdateOneWithoutOrderNestedInput
@@ -92855,6 +94666,7 @@ export namespace Prisma {
     items?: OrderItemCreateNestedManyWithoutOrderInput
     refunds?: RefundCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageCreateNestedOneWithoutOrderInput
@@ -92893,6 +94705,7 @@ export namespace Prisma {
     items?: OrderItemUncheckedCreateNestedManyWithoutOrderInput
     refunds?: RefundUncheckedCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionUncheckedCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageUncheckedCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedCreateNestedOneWithoutOrderInput
@@ -92947,6 +94760,7 @@ export namespace Prisma {
     items?: OrderItemUpdateManyWithoutOrderNestedInput
     refunds?: RefundUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUpdateOneWithoutOrderNestedInput
@@ -92985,6 +94799,7 @@ export namespace Prisma {
     items?: OrderItemUncheckedUpdateManyWithoutOrderNestedInput
     refunds?: RefundUncheckedUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUncheckedUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUncheckedUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedUpdateOneWithoutOrderNestedInput
@@ -93023,6 +94838,7 @@ export namespace Prisma {
     items?: OrderItemCreateNestedManyWithoutOrderInput
     payments?: PaymentCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageCreateNestedOneWithoutOrderInput
@@ -93061,6 +94877,7 @@ export namespace Prisma {
     items?: OrderItemUncheckedCreateNestedManyWithoutOrderInput
     payments?: PaymentUncheckedCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionUncheckedCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageUncheckedCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedCreateNestedOneWithoutOrderInput
@@ -93096,6 +94913,7 @@ export namespace Prisma {
     createdOrders?: OrderCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftCreateNestedManyWithoutUserInput
@@ -93130,6 +94948,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderUncheckedCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionUncheckedCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftUncheckedCreateNestedManyWithoutUserInput
@@ -93188,6 +95007,7 @@ export namespace Prisma {
     items?: OrderItemUpdateManyWithoutOrderNestedInput
     payments?: PaymentUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUpdateOneWithoutOrderNestedInput
@@ -93226,6 +95046,7 @@ export namespace Prisma {
     items?: OrderItemUncheckedUpdateManyWithoutOrderNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUncheckedUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUncheckedUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedUpdateOneWithoutOrderNestedInput
@@ -93267,6 +95088,7 @@ export namespace Prisma {
     createdOrders?: OrderUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUpdateManyWithoutUserNestedInput
@@ -93301,6 +95123,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUncheckedUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUncheckedUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -93392,6 +95215,7 @@ export namespace Prisma {
     createdOrders?: OrderCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderCreateNestedManyWithoutCreatedByInput
     shiftExpenses?: ShiftExpenseCreateNestedManyWithoutCreatedByInput
@@ -93426,6 +95250,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderUncheckedCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionUncheckedCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutCreatedByInput
     shiftExpenses?: ShiftExpenseUncheckedCreateNestedManyWithoutCreatedByInput
@@ -93473,6 +95298,7 @@ export namespace Prisma {
     payments?: PaymentCreateNestedManyWithoutOrderInput
     refunds?: RefundCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageCreateNestedOneWithoutOrderInput
@@ -93511,6 +95337,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedCreateNestedManyWithoutOrderInput
     refunds?: RefundUncheckedCreateNestedManyWithoutOrderInput
     statusHistory?: OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionUncheckedCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageUncheckedCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedCreateNestedOneWithoutOrderInput
@@ -93655,6 +95482,7 @@ export namespace Prisma {
     createdOrders?: OrderUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUpdateManyWithoutCreatedByNestedInput
     shiftExpenses?: ShiftExpenseUpdateManyWithoutCreatedByNestedInput
@@ -93689,6 +95517,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUncheckedUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUncheckedUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutCreatedByNestedInput
     shiftExpenses?: ShiftExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -93808,6 +95637,7 @@ export namespace Prisma {
     createdOrders?: OrderCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftCreateNestedManyWithoutUserInput
@@ -93842,6 +95672,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderUncheckedCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionUncheckedCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftUncheckedCreateNestedManyWithoutUserInput
@@ -93951,6 +95782,7 @@ export namespace Prisma {
     createdOrders?: OrderUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUpdateManyWithoutUserNestedInput
@@ -93985,6 +95817,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUncheckedUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUncheckedUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -94027,6 +95860,7 @@ export namespace Prisma {
     items?: OrderItemCreateNestedManyWithoutOrderInput
     payments?: PaymentCreateNestedManyWithoutOrderInput
     refunds?: RefundCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageCreateNestedOneWithoutOrderInput
@@ -94065,6 +95899,7 @@ export namespace Prisma {
     items?: OrderItemUncheckedCreateNestedManyWithoutOrderInput
     payments?: PaymentUncheckedCreateNestedManyWithoutOrderInput
     refunds?: RefundUncheckedCreateNestedManyWithoutOrderInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
     pointTransactions?: CustomerPointTransactionUncheckedCreateNestedManyWithoutOrderInput
     promotionUsage?: PromotionUsageUncheckedCreateNestedOneWithoutOrderInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedCreateNestedOneWithoutOrderInput
@@ -94099,6 +95934,7 @@ export namespace Prisma {
     loginHistories?: LoginHistoryCreateNestedManyWithoutUserInput
     createdOrders?: OrderCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderCreateNestedManyWithoutAssignedToInput
+    paymentStatusChanges?: PaymentStatusHistoryCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftCreateNestedManyWithoutUserInput
@@ -94133,6 +95969,7 @@ export namespace Prisma {
     loginHistories?: LoginHistoryUncheckedCreateNestedManyWithoutUserInput
     createdOrders?: OrderUncheckedCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderUncheckedCreateNestedManyWithoutAssignedToInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionUncheckedCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftUncheckedCreateNestedManyWithoutUserInput
@@ -94192,6 +96029,7 @@ export namespace Prisma {
     items?: OrderItemUpdateManyWithoutOrderNestedInput
     payments?: PaymentUpdateManyWithoutOrderNestedInput
     refunds?: RefundUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUpdateOneWithoutOrderNestedInput
@@ -94230,6 +96068,7 @@ export namespace Prisma {
     items?: OrderItemUncheckedUpdateManyWithoutOrderNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutOrderNestedInput
     refunds?: RefundUncheckedUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUncheckedUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUncheckedUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedUpdateOneWithoutOrderNestedInput
@@ -94270,6 +96109,7 @@ export namespace Prisma {
     loginHistories?: LoginHistoryUpdateManyWithoutUserNestedInput
     createdOrders?: OrderUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUpdateManyWithoutAssignedToNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUpdateManyWithoutUserNestedInput
@@ -94304,6 +96144,335 @@ export namespace Prisma {
     loginHistories?: LoginHistoryUncheckedUpdateManyWithoutUserNestedInput
     createdOrders?: OrderUncheckedUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUncheckedUpdateManyWithoutAssignedToNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
+    inventoryTransactions?: InventoryTransactionUncheckedUpdateManyWithoutCreatedByNestedInput
+    purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutCreatedByNestedInput
+    shifts?: WorkShiftUncheckedUpdateManyWithoutUserNestedInput
+    shiftExpenses?: ShiftExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
+    refunds?: RefundUncheckedUpdateManyWithoutCreatedByNestedInput
+    createdStockIssues?: StockIssueUncheckedUpdateManyWithoutCreatedByNestedInput
+    createdStocktakes?: StocktakeUncheckedUpdateManyWithoutCreatedByNestedInput
+    createdMembershipSubscriptions?: MembershipSubscriptionUncheckedUpdateManyWithoutCreatedByNestedInput
+    createdCustomerVouchers?: CustomerVoucherUncheckedUpdateManyWithoutCreatedByNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type OrderCreateWithoutPaymentStatusHistoryInput = {
+    id?: string
+    code: string
+    originalAmount: number
+    discountAmount?: number
+    voucherDiscount?: number
+    pointsDiscount?: number
+    membershipDiscount?: number
+    vatRate?: number
+    taxAmount?: number
+    deliveryFee?: number
+    totalAmount: number
+    customerPaid?: number
+    changeAmount?: number
+    paymentStatus?: $Enums.PaymentStatus
+    status?: $Enums.OrderStatus
+    note?: string | null
+    cancellationReason?: string | null
+    completedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    branch: BranchCreateNestedOneWithoutOrdersInput
+    customer?: CustomerCreateNestedOneWithoutOrdersInput
+    createdBy: UserCreateNestedOneWithoutCreatedOrdersInput
+    assignedTo?: UserCreateNestedOneWithoutAssignedOrdersInput
+    shift?: WorkShiftCreateNestedOneWithoutOrdersInput
+    promotion?: PromotionCreateNestedOneWithoutOrdersInput
+    items?: OrderItemCreateNestedManyWithoutOrderInput
+    payments?: PaymentCreateNestedManyWithoutOrderInput
+    refunds?: RefundCreateNestedManyWithoutOrderInput
+    statusHistory?: OrderStatusHistoryCreateNestedManyWithoutOrderInput
+    pointTransactions?: CustomerPointTransactionCreateNestedManyWithoutOrderInput
+    promotionUsage?: PromotionUsageCreateNestedOneWithoutOrderInput
+    membershipBenefitUsage?: MembershipBenefitUsageCreateNestedOneWithoutOrderInput
+    issuedVouchers?: CustomerVoucherCreateNestedManyWithoutIssuedFromOrderInput
+    usedVoucher?: CustomerVoucherCreateNestedOneWithoutUsedOrderInput
+  }
+
+  export type OrderUncheckedCreateWithoutPaymentStatusHistoryInput = {
+    id?: string
+    code: string
+    branchId: string
+    customerId?: string | null
+    createdById: string
+    assignedToId?: string | null
+    shiftId?: string | null
+    promotionId?: string | null
+    originalAmount: number
+    discountAmount?: number
+    voucherDiscount?: number
+    pointsDiscount?: number
+    membershipDiscount?: number
+    vatRate?: number
+    taxAmount?: number
+    deliveryFee?: number
+    totalAmount: number
+    customerPaid?: number
+    changeAmount?: number
+    paymentStatus?: $Enums.PaymentStatus
+    status?: $Enums.OrderStatus
+    note?: string | null
+    cancellationReason?: string | null
+    completedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    items?: OrderItemUncheckedCreateNestedManyWithoutOrderInput
+    payments?: PaymentUncheckedCreateNestedManyWithoutOrderInput
+    refunds?: RefundUncheckedCreateNestedManyWithoutOrderInput
+    statusHistory?: OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
+    pointTransactions?: CustomerPointTransactionUncheckedCreateNestedManyWithoutOrderInput
+    promotionUsage?: PromotionUsageUncheckedCreateNestedOneWithoutOrderInput
+    membershipBenefitUsage?: MembershipBenefitUsageUncheckedCreateNestedOneWithoutOrderInput
+    issuedVouchers?: CustomerVoucherUncheckedCreateNestedManyWithoutIssuedFromOrderInput
+    usedVoucher?: CustomerVoucherUncheckedCreateNestedOneWithoutUsedOrderInput
+  }
+
+  export type OrderCreateOrConnectWithoutPaymentStatusHistoryInput = {
+    where: OrderWhereUniqueInput
+    create: XOR<OrderCreateWithoutPaymentStatusHistoryInput, OrderUncheckedCreateWithoutPaymentStatusHistoryInput>
+  }
+
+  export type UserCreateWithoutPaymentStatusChangesInput = {
+    id?: string
+    username: string
+    email: string
+    passwordHash: string
+    fullName: string
+    phone?: string | null
+    avatarUrl?: string | null
+    status?: $Enums.AccountStatus
+    lastLoginAt?: Date | string | null
+    passwordResetHash?: string | null
+    passwordResetExpires?: Date | string | null
+    deletedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    role: RoleCreateNestedOneWithoutUsersInput
+    branch?: BranchCreateNestedOneWithoutUsersInput
+    managedBranches?: BranchCreateNestedManyWithoutManagerInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    loginHistories?: LoginHistoryCreateNestedManyWithoutUserInput
+    createdOrders?: OrderCreateNestedManyWithoutCreatedByInput
+    assignedOrders?: OrderCreateNestedManyWithoutAssignedToInput
+    orderStatusChanges?: OrderStatusHistoryCreateNestedManyWithoutChangedByInput
+    inventoryTransactions?: InventoryTransactionCreateNestedManyWithoutCreatedByInput
+    purchaseOrders?: PurchaseOrderCreateNestedManyWithoutCreatedByInput
+    shifts?: WorkShiftCreateNestedManyWithoutUserInput
+    shiftExpenses?: ShiftExpenseCreateNestedManyWithoutCreatedByInput
+    refunds?: RefundCreateNestedManyWithoutCreatedByInput
+    createdStockIssues?: StockIssueCreateNestedManyWithoutCreatedByInput
+    createdStocktakes?: StocktakeCreateNestedManyWithoutCreatedByInput
+    createdMembershipSubscriptions?: MembershipSubscriptionCreateNestedManyWithoutCreatedByInput
+    createdCustomerVouchers?: CustomerVoucherCreateNestedManyWithoutCreatedByInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutPaymentStatusChangesInput = {
+    id?: string
+    username: string
+    email: string
+    passwordHash: string
+    fullName: string
+    phone?: string | null
+    avatarUrl?: string | null
+    status?: $Enums.AccountStatus
+    roleId: string
+    branchId?: string | null
+    lastLoginAt?: Date | string | null
+    passwordResetHash?: string | null
+    passwordResetExpires?: Date | string | null
+    deletedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    managedBranches?: BranchUncheckedCreateNestedManyWithoutManagerInput
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    loginHistories?: LoginHistoryUncheckedCreateNestedManyWithoutUserInput
+    createdOrders?: OrderUncheckedCreateNestedManyWithoutCreatedByInput
+    assignedOrders?: OrderUncheckedCreateNestedManyWithoutAssignedToInput
+    orderStatusChanges?: OrderStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
+    inventoryTransactions?: InventoryTransactionUncheckedCreateNestedManyWithoutCreatedByInput
+    purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutCreatedByInput
+    shifts?: WorkShiftUncheckedCreateNestedManyWithoutUserInput
+    shiftExpenses?: ShiftExpenseUncheckedCreateNestedManyWithoutCreatedByInput
+    refunds?: RefundUncheckedCreateNestedManyWithoutCreatedByInput
+    createdStockIssues?: StockIssueUncheckedCreateNestedManyWithoutCreatedByInput
+    createdStocktakes?: StocktakeUncheckedCreateNestedManyWithoutCreatedByInput
+    createdMembershipSubscriptions?: MembershipSubscriptionUncheckedCreateNestedManyWithoutCreatedByInput
+    createdCustomerVouchers?: CustomerVoucherUncheckedCreateNestedManyWithoutCreatedByInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutPaymentStatusChangesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutPaymentStatusChangesInput, UserUncheckedCreateWithoutPaymentStatusChangesInput>
+  }
+
+  export type OrderUpsertWithoutPaymentStatusHistoryInput = {
+    update: XOR<OrderUpdateWithoutPaymentStatusHistoryInput, OrderUncheckedUpdateWithoutPaymentStatusHistoryInput>
+    create: XOR<OrderCreateWithoutPaymentStatusHistoryInput, OrderUncheckedCreateWithoutPaymentStatusHistoryInput>
+    where?: OrderWhereInput
+  }
+
+  export type OrderUpdateToOneWithWhereWithoutPaymentStatusHistoryInput = {
+    where?: OrderWhereInput
+    data: XOR<OrderUpdateWithoutPaymentStatusHistoryInput, OrderUncheckedUpdateWithoutPaymentStatusHistoryInput>
+  }
+
+  export type OrderUpdateWithoutPaymentStatusHistoryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    originalAmount?: IntFieldUpdateOperationsInput | number
+    discountAmount?: IntFieldUpdateOperationsInput | number
+    voucherDiscount?: IntFieldUpdateOperationsInput | number
+    pointsDiscount?: IntFieldUpdateOperationsInput | number
+    membershipDiscount?: IntFieldUpdateOperationsInput | number
+    vatRate?: FloatFieldUpdateOperationsInput | number
+    taxAmount?: IntFieldUpdateOperationsInput | number
+    deliveryFee?: IntFieldUpdateOperationsInput | number
+    totalAmount?: IntFieldUpdateOperationsInput | number
+    customerPaid?: IntFieldUpdateOperationsInput | number
+    changeAmount?: IntFieldUpdateOperationsInput | number
+    paymentStatus?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+    status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    cancellationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    branch?: BranchUpdateOneRequiredWithoutOrdersNestedInput
+    customer?: CustomerUpdateOneWithoutOrdersNestedInput
+    createdBy?: UserUpdateOneRequiredWithoutCreatedOrdersNestedInput
+    assignedTo?: UserUpdateOneWithoutAssignedOrdersNestedInput
+    shift?: WorkShiftUpdateOneWithoutOrdersNestedInput
+    promotion?: PromotionUpdateOneWithoutOrdersNestedInput
+    items?: OrderItemUpdateManyWithoutOrderNestedInput
+    payments?: PaymentUpdateManyWithoutOrderNestedInput
+    refunds?: RefundUpdateManyWithoutOrderNestedInput
+    statusHistory?: OrderStatusHistoryUpdateManyWithoutOrderNestedInput
+    pointTransactions?: CustomerPointTransactionUpdateManyWithoutOrderNestedInput
+    promotionUsage?: PromotionUsageUpdateOneWithoutOrderNestedInput
+    membershipBenefitUsage?: MembershipBenefitUsageUpdateOneWithoutOrderNestedInput
+    issuedVouchers?: CustomerVoucherUpdateManyWithoutIssuedFromOrderNestedInput
+    usedVoucher?: CustomerVoucherUpdateOneWithoutUsedOrderNestedInput
+  }
+
+  export type OrderUncheckedUpdateWithoutPaymentStatusHistoryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    branchId?: StringFieldUpdateOperationsInput | string
+    customerId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: StringFieldUpdateOperationsInput | string
+    assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    shiftId?: NullableStringFieldUpdateOperationsInput | string | null
+    promotionId?: NullableStringFieldUpdateOperationsInput | string | null
+    originalAmount?: IntFieldUpdateOperationsInput | number
+    discountAmount?: IntFieldUpdateOperationsInput | number
+    voucherDiscount?: IntFieldUpdateOperationsInput | number
+    pointsDiscount?: IntFieldUpdateOperationsInput | number
+    membershipDiscount?: IntFieldUpdateOperationsInput | number
+    vatRate?: FloatFieldUpdateOperationsInput | number
+    taxAmount?: IntFieldUpdateOperationsInput | number
+    deliveryFee?: IntFieldUpdateOperationsInput | number
+    totalAmount?: IntFieldUpdateOperationsInput | number
+    customerPaid?: IntFieldUpdateOperationsInput | number
+    changeAmount?: IntFieldUpdateOperationsInput | number
+    paymentStatus?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+    status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    cancellationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    items?: OrderItemUncheckedUpdateManyWithoutOrderNestedInput
+    payments?: PaymentUncheckedUpdateManyWithoutOrderNestedInput
+    refunds?: RefundUncheckedUpdateManyWithoutOrderNestedInput
+    statusHistory?: OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
+    pointTransactions?: CustomerPointTransactionUncheckedUpdateManyWithoutOrderNestedInput
+    promotionUsage?: PromotionUsageUncheckedUpdateOneWithoutOrderNestedInput
+    membershipBenefitUsage?: MembershipBenefitUsageUncheckedUpdateOneWithoutOrderNestedInput
+    issuedVouchers?: CustomerVoucherUncheckedUpdateManyWithoutIssuedFromOrderNestedInput
+    usedVoucher?: CustomerVoucherUncheckedUpdateOneWithoutUsedOrderNestedInput
+  }
+
+  export type UserUpsertWithoutPaymentStatusChangesInput = {
+    update: XOR<UserUpdateWithoutPaymentStatusChangesInput, UserUncheckedUpdateWithoutPaymentStatusChangesInput>
+    create: XOR<UserCreateWithoutPaymentStatusChangesInput, UserUncheckedCreateWithoutPaymentStatusChangesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutPaymentStatusChangesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutPaymentStatusChangesInput, UserUncheckedUpdateWithoutPaymentStatusChangesInput>
+  }
+
+  export type UserUpdateWithoutPaymentStatusChangesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    passwordResetHash?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordResetExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    role?: RoleUpdateOneRequiredWithoutUsersNestedInput
+    branch?: BranchUpdateOneWithoutUsersNestedInput
+    managedBranches?: BranchUpdateManyWithoutManagerNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    loginHistories?: LoginHistoryUpdateManyWithoutUserNestedInput
+    createdOrders?: OrderUpdateManyWithoutCreatedByNestedInput
+    assignedOrders?: OrderUpdateManyWithoutAssignedToNestedInput
+    orderStatusChanges?: OrderStatusHistoryUpdateManyWithoutChangedByNestedInput
+    inventoryTransactions?: InventoryTransactionUpdateManyWithoutCreatedByNestedInput
+    purchaseOrders?: PurchaseOrderUpdateManyWithoutCreatedByNestedInput
+    shifts?: WorkShiftUpdateManyWithoutUserNestedInput
+    shiftExpenses?: ShiftExpenseUpdateManyWithoutCreatedByNestedInput
+    refunds?: RefundUpdateManyWithoutCreatedByNestedInput
+    createdStockIssues?: StockIssueUpdateManyWithoutCreatedByNestedInput
+    createdStocktakes?: StocktakeUpdateManyWithoutCreatedByNestedInput
+    createdMembershipSubscriptions?: MembershipSubscriptionUpdateManyWithoutCreatedByNestedInput
+    createdCustomerVouchers?: CustomerVoucherUpdateManyWithoutCreatedByNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutPaymentStatusChangesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+    roleId?: StringFieldUpdateOperationsInput | string
+    branchId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    passwordResetHash?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordResetExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    managedBranches?: BranchUncheckedUpdateManyWithoutManagerNestedInput
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    loginHistories?: LoginHistoryUncheckedUpdateManyWithoutUserNestedInput
+    createdOrders?: OrderUncheckedUpdateManyWithoutCreatedByNestedInput
+    assignedOrders?: OrderUncheckedUpdateManyWithoutAssignedToNestedInput
+    orderStatusChanges?: OrderStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUncheckedUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -94339,6 +96508,7 @@ export namespace Prisma {
     createdOrders?: OrderCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftCreateNestedManyWithoutUserInput
@@ -94373,6 +96543,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedCreateNestedManyWithoutCreatedByInput
     assignedOrders?: OrderUncheckedCreateNestedManyWithoutAssignedToInput
     orderStatusChanges?: OrderStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
     inventoryTransactions?: InventoryTransactionUncheckedCreateNestedManyWithoutCreatedByInput
     purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutCreatedByInput
     shifts?: WorkShiftUncheckedCreateNestedManyWithoutUserInput
@@ -94423,6 +96594,7 @@ export namespace Prisma {
     createdOrders?: OrderUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUpdateManyWithoutUserNestedInput
@@ -94457,6 +96629,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUncheckedUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUncheckedUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -94512,6 +96685,7 @@ export namespace Prisma {
     createdOrders?: OrderUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUpdateManyWithoutUserNestedInput
@@ -94546,6 +96720,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUncheckedUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUncheckedUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -94845,6 +97020,7 @@ export namespace Prisma {
     createdOrders?: OrderUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUpdateManyWithoutUserNestedInput
@@ -94879,6 +97055,7 @@ export namespace Prisma {
     createdOrders?: OrderUncheckedUpdateManyWithoutCreatedByNestedInput
     assignedOrders?: OrderUncheckedUpdateManyWithoutAssignedToNestedInput
     orderStatusChanges?: OrderStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
+    paymentStatusChanges?: PaymentStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
     inventoryTransactions?: InventoryTransactionUncheckedUpdateManyWithoutCreatedByNestedInput
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutCreatedByNestedInput
     shifts?: WorkShiftUncheckedUpdateManyWithoutUserNestedInput
@@ -95171,6 +97348,7 @@ export namespace Prisma {
     payments?: PaymentUpdateManyWithoutOrderNestedInput
     refunds?: RefundUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUpdateOneWithoutOrderNestedInput
@@ -95209,6 +97387,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedUpdateManyWithoutOrderNestedInput
     refunds?: RefundUncheckedUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUncheckedUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUncheckedUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedUpdateOneWithoutOrderNestedInput
@@ -95641,6 +97820,17 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type PaymentStatusHistoryCreateManyChangedByInput = {
+    id?: string
+    orderId: string
+    fromStatus?: $Enums.PaymentStatus | null
+    status: $Enums.PaymentStatus
+    amount?: number | null
+    method?: $Enums.PaymentMethod | null
+    note?: string | null
+    createdAt?: Date | string
+  }
+
   export type InventoryTransactionCreateManyCreatedByInput = {
     id?: string
     code: string
@@ -95945,6 +98135,7 @@ export namespace Prisma {
     payments?: PaymentUpdateManyWithoutOrderNestedInput
     refunds?: RefundUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUpdateOneWithoutOrderNestedInput
@@ -95983,6 +98174,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedUpdateManyWithoutOrderNestedInput
     refunds?: RefundUncheckedUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUncheckedUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUncheckedUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedUpdateOneWithoutOrderNestedInput
@@ -96050,6 +98242,7 @@ export namespace Prisma {
     payments?: PaymentUpdateManyWithoutOrderNestedInput
     refunds?: RefundUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUpdateOneWithoutOrderNestedInput
@@ -96088,6 +98281,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedUpdateManyWithoutOrderNestedInput
     refunds?: RefundUncheckedUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUncheckedUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUncheckedUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedUpdateOneWithoutOrderNestedInput
@@ -96144,6 +98338,39 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     orderId?: StringFieldUpdateOperationsInput | string
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentStatusHistoryUpdateWithoutChangedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fromStatus?: NullableEnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus | null
+    status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
+    method?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    order?: OrderUpdateOneRequiredWithoutPaymentStatusHistoryNestedInput
+  }
+
+  export type PaymentStatusHistoryUncheckedUpdateWithoutChangedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderId?: StringFieldUpdateOperationsInput | string
+    fromStatus?: NullableEnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus | null
+    status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
+    method?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentStatusHistoryUncheckedUpdateManyWithoutChangedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderId?: StringFieldUpdateOperationsInput | string
+    fromStatus?: NullableEnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus | null
+    status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
+    method?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -98319,6 +100546,7 @@ export namespace Prisma {
     payments?: PaymentUpdateManyWithoutOrderNestedInput
     refunds?: RefundUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUpdateOneWithoutOrderNestedInput
@@ -98357,6 +100585,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedUpdateManyWithoutOrderNestedInput
     refunds?: RefundUncheckedUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUncheckedUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUncheckedUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedUpdateOneWithoutOrderNestedInput
@@ -98776,6 +101005,7 @@ export namespace Prisma {
     payments?: PaymentUpdateManyWithoutOrderNestedInput
     refunds?: RefundUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUpdateOneWithoutOrderNestedInput
@@ -98814,6 +101044,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedUpdateManyWithoutOrderNestedInput
     refunds?: RefundUncheckedUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUncheckedUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUncheckedUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedUpdateOneWithoutOrderNestedInput
@@ -98896,6 +101127,17 @@ export namespace Prisma {
     id?: string
     status: $Enums.OrderStatus
     changedById: string
+    note?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PaymentStatusHistoryCreateManyOrderInput = {
+    id?: string
+    fromStatus?: $Enums.PaymentStatus | null
+    status: $Enums.PaymentStatus
+    changedById: string
+    amount?: number | null
+    method?: $Enums.PaymentMethod | null
     note?: string | null
     createdAt?: Date | string
   }
@@ -99081,6 +101323,39 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
     changedById?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentStatusHistoryUpdateWithoutOrderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fromStatus?: NullableEnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus | null
+    status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
+    method?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    changedBy?: UserUpdateOneRequiredWithoutPaymentStatusChangesNestedInput
+  }
+
+  export type PaymentStatusHistoryUncheckedUpdateWithoutOrderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fromStatus?: NullableEnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus | null
+    status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+    changedById?: StringFieldUpdateOperationsInput | string
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
+    method?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentStatusHistoryUncheckedUpdateManyWithoutOrderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fromStatus?: NullableEnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus | null
+    status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+    changedById?: StringFieldUpdateOperationsInput | string
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
+    method?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -99312,6 +101587,7 @@ export namespace Prisma {
     payments?: PaymentUpdateManyWithoutOrderNestedInput
     refunds?: RefundUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUpdateOneWithoutOrderNestedInput
@@ -99350,6 +101626,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedUpdateManyWithoutOrderNestedInput
     refunds?: RefundUncheckedUpdateManyWithoutOrderNestedInput
     statusHistory?: OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
+    paymentStatusHistory?: PaymentStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
     pointTransactions?: CustomerPointTransactionUncheckedUpdateManyWithoutOrderNestedInput
     promotionUsage?: PromotionUsageUncheckedUpdateOneWithoutOrderNestedInput
     membershipBenefitUsage?: MembershipBenefitUsageUncheckedUpdateOneWithoutOrderNestedInput

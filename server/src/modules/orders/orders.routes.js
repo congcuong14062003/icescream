@@ -89,6 +89,10 @@ const orderInclude = {
     include: { changedBy: { select: { id: true, fullName: true } } },
     orderBy: { createdAt: "asc" },
   },
+  paymentStatusHistory: {
+    include: { changedBy: { select: { id: true, fullName: true } } },
+    orderBy: { createdAt: "asc" },
+  },
 };
 
 function orderDataFromPricing(request, pricing, branchId, shiftId, code, status) {
@@ -350,6 +354,16 @@ router.post(
           statusHistory: {
             create: { status, changedById: request.user.id, note: status === "DRAFT" ? "Lưu đơn tạm" : "Thanh toán tại POS" },
           },
+          paymentStatusHistory: {
+            create: {
+              fromStatus: null,
+              status: status === "DRAFT" ? "UNPAID" : "PAID",
+              changedById: request.user.id,
+              amount: status === "DRAFT" ? null : currentPricing.totalAmount,
+              method: status === "DRAFT" ? null : request.body.payments.length > 1 ? "MIXED" : request.body.payments[0]?.method || null,
+              note: status === "DRAFT" ? "Khởi tạo đơn chưa thanh toán" : "Thanh toán đầy đủ tại POS",
+            },
+          },
           ...(!request.body.saveAsDraft
             ? {
                 payments: {
@@ -533,9 +547,21 @@ router.post(
         },
       });
       const totalRefunded = refunded + request.body.amount;
+      const nextPaymentStatus = totalRefunded >= existing.totalAmount ? "REFUNDED" : "PARTIALLY_REFUNDED";
       await tx.order.update({
         where: { id: existing.id },
-        data: { paymentStatus: totalRefunded >= existing.totalAmount ? "REFUNDED" : "PARTIALLY_REFUNDED" },
+        data: { paymentStatus: nextPaymentStatus },
+      });
+      await tx.paymentStatusHistory.create({
+        data: {
+          orderId: existing.id,
+          fromStatus: existing.paymentStatus,
+          status: nextPaymentStatus,
+          changedById: request.user.id,
+          amount: request.body.amount,
+          method: request.body.method,
+          note: `Hoàn tiền: ${request.body.reason}`,
+        },
       });
       if (existing.shiftId) {
         await tx.workShift.update({

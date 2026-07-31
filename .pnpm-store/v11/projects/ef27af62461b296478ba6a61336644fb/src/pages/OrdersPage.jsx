@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Download, Eye, RotateCcw, Search } from "lucide-react";
+import { Banknote, Download, Eye, RotateCcw, Search } from "lucide-react";
 import { IconButton, InputAdornment } from "@mui/material";
 import { toast } from "react-toastify";
 import api, { apiMessage, downloadFile } from "../services/api";
@@ -19,6 +19,13 @@ import { formatDate, formatMoney, orderStatusLabels, paymentMethodLabels, todayI
 import { useAuth } from "../store/AuthContext";
 
 const statusOptions = Object.entries(orderStatusLabels).map(([value, label]) => ({ value, label }));
+const paymentStatusLabels = {
+  PAID: "Đã thanh toán",
+  UNPAID: "Chưa thanh toán",
+  REFUNDED: "Đã hoàn",
+  PARTIALLY_REFUNDED: "Hoàn một phần",
+  PARTIALLY_PAID: "Thanh toán một phần",
+};
 
 export default function OrdersPage() {
   const queryClient = useQueryClient();
@@ -36,6 +43,8 @@ export default function OrdersPage() {
   const [statusNote, setStatusNote] = useState("");
   const [refundOpen, setRefundOpen] = useState(false);
   const [refundForm, setRefundForm] = useState({ amount: 0, method: "CASH", reason: "" });
+  const [paymentOpen, setPaymentOpen] = useState(false);
+  const [paymentForm, setPaymentForm] = useState({ amount: 0, method: "CASH", referenceCode: "" });
 
   const ordersQuery = useQuery({
     queryKey: ["orders", filters],
@@ -97,6 +106,16 @@ export default function OrdersPage() {
     },
     onError: (error) => toast.error(apiMessage(error)),
   });
+  const paymentMutation = useMutation({
+    mutationFn: () => api.post(`/payments/order/${order.id}`, { ...paymentForm, referenceCode: paymentForm.referenceCode || null }),
+    onSuccess: () => {
+      toast.success("Đã ghi nhận thanh toán");
+      setPaymentOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["order", selectedId] });
+    },
+    onError: (error) => toast.error(apiMessage(error)),
+  });
 
   const columns = [
     { key: "code", label: "Mã đơn", render: (value, row) => <div><strong>{value}</strong><div className="tw-text-xs tw-text-slate-400">{formatDate(row.createdAt, true)}</div></div> },
@@ -110,6 +129,8 @@ export default function OrdersPage() {
 
   const refunded = order?.refunds?.reduce((sum, item) => item.status === "COMPLETED" ? sum + item.amount : sum, 0) || 0;
   const refundable = Math.max(0, (order?.totalAmount || 0) - refunded);
+  const paidAmount = order?.payments?.reduce((sum, item) => sum + item.amount, 0) || 0;
+  const paymentRemaining = Math.max(0, (order?.totalAmount || 0) - paidAmount);
 
   return (
     <div className="tw-space-y-6 tw-p-4 sm:tw-p-6 xl:tw-p-8">
@@ -142,6 +163,9 @@ export default function OrdersPage() {
         actions={order && (
           <>
             <Button variant="outlined" startIcon={<Download size={17} />} onClick={() => downloadFile(`/orders/${order.id}/invoice.pdf`, `${order.code}.pdf`)}>Hóa đơn PDF</Button>
+            {canManage && paymentRemaining > 0 && !["COMPLETED", "CANCELLED"].includes(order.status) && (
+              <Button startIcon={<Banknote size={17} />} onClick={() => { setPaymentForm({ amount: paymentRemaining, method: "CASH", referenceCode: "" }); setPaymentOpen(true); }}>Thanh toán đơn</Button>
+            )}
             {canManage && refundable > 0 && order.paymentStatus !== "UNPAID" && (
               <Button variant="outlined" color="warning" startIcon={<RotateCcw size={17} />} onClick={() => { setRefundForm({ amount: refundable, method: order.payments[0]?.method || "CASH", reason: "" }); setRefundOpen(true); }}>Hoàn tiền</Button>
             )}
@@ -150,8 +174,9 @@ export default function OrdersPage() {
       >
         {detailQuery.isLoading ? <LoadingSkeleton rows={6} /> : !order ? <EmptyState /> : (
           <div className="tw-space-y-5">
-            <div className="tw-grid tw-gap-3 sm:tw-grid-cols-3">
+            <div className="tw-grid tw-gap-3 sm:tw-grid-cols-2 lg:tw-grid-cols-4">
               <div className="tw-rounded-2xl tw-bg-slate-50 tw-p-3 dark:tw-bg-slate-800"><span className="tw-text-xs tw-text-slate-400">Trạng thái</span><div className="tw-mt-2"><StatusBadge status={order.status} label={orderStatusLabels[order.status]} /></div></div>
+              <div className="tw-rounded-2xl tw-bg-slate-50 tw-p-3 dark:tw-bg-slate-800"><span className="tw-text-xs tw-text-slate-400">Thanh toán</span><div className="tw-mt-2"><StatusBadge status={order.paymentStatus} label={paymentStatusLabels[order.paymentStatus]} /></div></div>
               <div className="tw-rounded-2xl tw-bg-slate-50 tw-p-3 dark:tw-bg-slate-800"><span className="tw-text-xs tw-text-slate-400">Chi nhánh</span><strong className="tw-mt-1 tw-block tw-text-sm">{order.branch.name}</strong></div>
               <div className="tw-rounded-2xl tw-bg-slate-50 tw-p-3 dark:tw-bg-slate-800"><span className="tw-text-xs tw-text-slate-400">Khách hàng</span><strong className="tw-mt-1 tw-block tw-text-sm">{order.customer?.fullName || "Khách lẻ"}</strong></div>
             </div>
@@ -176,12 +201,15 @@ export default function OrdersPage() {
               <div className="tw-flex tw-justify-between"><span>VAT</span><span>{formatMoney(order.taxAmount)}</span></div>
               <div className="tw-flex tw-justify-between tw-border-t tw-pt-2 tw-text-lg tw-font-black"><span>Tổng cộng</span><span>{formatMoney(order.totalAmount)}</span></div>
             </div>
+            {order.status === "READY" && order.paymentStatus !== "PAID" && (
+              <div className="tw-rounded-2xl tw-border tw-border-amber-200 tw-bg-amber-50 tw-p-3 tw-text-sm tw-font-semibold tw-text-amber-800 dark:tw-border-amber-800 dark:tw-bg-amber-900/20 dark:tw-text-amber-200">Đơn chưa thanh toán đủ. Hãy bấm “Thanh toán đơn” trước khi hoàn thành.</div>
+            )}
             {canManage && orderTransitions[order.status].length > 0 && (
               <div>
                 <h4 className="tw-mb-2 tw-text-sm tw-font-black">Cập nhật trạng thái</h4>
                 <div className="tw-flex tw-flex-wrap tw-gap-2">
                   {orderTransitions[order.status].map((status) => (
-                    <Button key={status} variant={status === "CANCELLED" ? "outlined" : "contained"} color={status === "CANCELLED" ? "error" : "primary"} onClick={() => setStatusTarget(status)}>
+                    <Button key={status} disabled={status === "COMPLETED" && order.paymentStatus !== "PAID"} variant={status === "CANCELLED" ? "outlined" : "contained"} color={status === "CANCELLED" ? "error" : "primary"} onClick={() => setStatusTarget(status)}>
                       {orderStatusLabels[status]}
                     </Button>
                   ))}
@@ -197,6 +225,18 @@ export default function OrdersPage() {
                     <div className="tw-mt-1 tw-text-xs tw-text-slate-500">{history.changedBy.fullName}{history.note ? ` · ${history.note}` : ""}</div>
                   </div>
                 ))}
+              </div>
+            </div>
+            <div>
+              <h4 className="tw-mb-3 tw-text-sm tw-font-black">Lịch sử thanh toán</h4>
+              <div className="tw-space-y-3 tw-border-l-2 tw-border-blue-200 tw-pl-4">
+                {(order.paymentStatusHistory || []).map((history) => (
+                  <div key={history.id}>
+                    <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2"><StatusBadge status={history.status} label={paymentStatusLabels[history.status]} /><span className="tw-text-xs tw-text-slate-400">{formatDate(history.createdAt, true)}</span>{history.amount != null && <strong className="tw-text-xs tw-text-blue-600">{formatMoney(history.amount)}</strong>}</div>
+                    <div className="tw-mt-1 tw-text-xs tw-text-slate-500">{history.changedBy.fullName}{history.method ? ` · ${paymentMethodLabels[history.method]}` : ""}{history.note ? ` · ${history.note}` : ""}</div>
+                  </div>
+                ))}
+                {!order.paymentStatusHistory?.length && <div className="tw-text-xs tw-text-slate-400">Chưa có lịch sử thanh toán.</div>}
               </div>
             </div>
           </div>
@@ -215,6 +255,25 @@ export default function OrdersPage() {
         }
       >
         <Input label={statusTarget === "CANCELLED" ? "Lý do hủy (bắt buộc)" : "Ghi chú"} multiline rows={3} value={statusNote} onChange={(event) => setStatusNote(event.target.value)} />
+      </Modal>
+
+      <Modal
+        open={paymentOpen}
+        onClose={() => setPaymentOpen(false)}
+        title={`Thanh toán ${order?.code || "đơn hàng"}`}
+        actions={
+          <>
+            <Button variant="text" color="inherit" onClick={() => setPaymentOpen(false)}>Hủy</Button>
+            <Button loading={paymentMutation.isPending} disabled={paymentForm.amount <= 0 || paymentForm.amount > paymentRemaining} onClick={() => paymentMutation.mutate()}>Xác nhận thanh toán</Button>
+          </>
+        }
+      >
+        <div className="tw-space-y-4 tw-pt-2">
+          <div className="tw-rounded-2xl tw-bg-mint-50 tw-p-4 tw-text-sm dark:tw-bg-mint-900/20">Còn phải thanh toán: <strong className="tw-text-lg tw-text-mint-700">{formatMoney(paymentRemaining)}</strong></div>
+          <Input label="Số tiền thanh toán" type="number" value={paymentForm.amount} onChange={(event) => setPaymentForm((current) => ({ ...current, amount: Math.min(paymentRemaining, Math.max(0, Number(event.target.value))) }))} />
+          <Select label="Phương thức thanh toán" value={paymentForm.method} onChange={(event) => setPaymentForm((current) => ({ ...current, method: event.target.value }))} options={Object.entries(paymentMethodLabels).filter(([value]) => value !== "MIXED").map(([value, label]) => ({ value, label }))} />
+          <Input label="Mã tham chiếu (nếu có)" value={paymentForm.referenceCode} onChange={(event) => setPaymentForm((current) => ({ ...current, referenceCode: event.target.value }))} />
+        </div>
       </Modal>
 
       <Modal

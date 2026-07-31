@@ -997,3 +997,63 @@ test("manager employee and financial access is limited to managed branches", asy
     .set("Authorization", managerAuthorization)
     .expect(403);
 });
+
+test("unpaid prepared order can be paid from order detail and then completed", async () => {
+  const login = await request(app)
+    .post("/api/auth/login")
+    .send({ login: "cashier", password: "IceCream@123" })
+    .expect(200);
+  const authorization = `Bearer ${login.body.data.accessToken}`;
+  const [products, flavors] = await Promise.all([
+    request(app).get("/api/products?status=ACTIVE&size=10").set("Authorization", authorization).expect(200),
+    request(app).get("/api/flavors?status=AVAILABLE&size=100").set("Authorization", authorization).expect(200),
+  ]);
+  const product = products.body.data.find((item) => item.variants.some((variant) => variant.isActive));
+  const variant = product.variants.find((item) => item.isActive);
+  const flavorIds = Array.from({ length: variant.scoopCount }, () => flavors.body.data[0].id);
+  const draft = await request(app)
+    .post("/api/orders")
+    .set("Authorization", authorization)
+    .send({
+      items: [{ variantId: variant.id, quantity: 1, flavorIds, toppingIds: [] }],
+      saveAsDraft: true,
+      customerPaid: 0,
+      payments: [],
+      deliveryFee: 0,
+    })
+    .expect(201);
+  const orderId = draft.body.data.id;
+
+  for (const status of ["PENDING", "MAKING", "READY"]) {
+    await request(app)
+      .patch(`/api/orders/${orderId}/status`)
+      .set("Authorization", authorization)
+      .send({ status })
+      .expect(200);
+  }
+  await request(app)
+    .patch(`/api/orders/${orderId}/status`)
+    .set("Authorization", authorization)
+    .send({ status: "COMPLETED" })
+    .expect(422);
+
+  await request(app)
+    .post(`/api/payments/order/${orderId}`)
+    .set("Authorization", authorization)
+    .send({ method: "CASH", amount: draft.body.data.totalAmount })
+    .expect(201);
+  const paidOrder = await request(app)
+    .get(`/api/orders/${orderId}`)
+    .set("Authorization", authorization)
+    .expect(200);
+  assert.equal(paidOrder.body.data.paymentStatus, "PAID");
+  assert.ok(paidOrder.body.data.paymentStatusHistory.some((item) => item.status === "UNPAID"));
+  assert.ok(paidOrder.body.data.paymentStatusHistory.some((item) => item.status === "PAID"));
+
+  const completed = await request(app)
+    .patch(`/api/orders/${orderId}/status`)
+    .set("Authorization", authorization)
+    .send({ status: "COMPLETED" })
+    .expect(200);
+  assert.equal(completed.body.data.status, "COMPLETED");
+});

@@ -7,6 +7,7 @@ import { asyncHandler } from "../../utils/async-handler.js";
 import { ApiError } from "../../utils/api-error.js";
 import { createBusinessCode } from "../../utils/code.js";
 import { created, success } from "../../utils/response.js";
+import { emitOrderEvent } from "../../services/socket.service.js";
 
 const router = Router();
 router.use(authenticate);
@@ -53,15 +54,32 @@ router.post(
         },
       });
       const totalPaid = paid + request.body.amount;
+      const nextPaymentStatus = totalPaid === order.totalAmount ? "PAID" : "PARTIALLY_PAID";
       await tx.order.update({
         where: { id: order.id },
         data: {
           customerPaid: totalPaid,
-          paymentStatus: totalPaid === order.totalAmount ? "PAID" : "PARTIALLY_PAID",
+          paymentStatus: nextPaymentStatus,
         },
       });
+      await tx.paymentStatusHistory.create({
+        data: {
+          orderId: order.id,
+          fromStatus: order.paymentStatus,
+          status: nextPaymentStatus,
+          changedById: request.user.id,
+          amount: request.body.amount,
+          method: request.body.method,
+          note: request.body.referenceCode ? `Mã tham chiếu: ${request.body.referenceCode}` : "Ghi nhận thanh toán",
+        },
+      });
+      const revenueField = { CASH: "cashRevenue", BANK_TRANSFER: "transferRevenue", CARD: "cardRevenue", EWALLET: "ewalletRevenue" }[request.body.method];
+      if (order.shiftId && revenueField) {
+        await tx.workShift.update({ where: { id: order.shiftId }, data: { [revenueField]: { increment: request.body.amount } } });
+      }
       return item;
     });
+    emitOrderEvent(order.branchId, "order:updated", { id: order.id, orderId: order.id });
     return created(response, payment, "Ghi nhận thanh toán thành công");
   }),
 );

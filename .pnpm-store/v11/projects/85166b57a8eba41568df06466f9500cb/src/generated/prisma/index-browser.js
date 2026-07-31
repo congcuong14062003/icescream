@@ -749,6 +749,18 @@ exports.Prisma.OrderStatusHistoryScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.PaymentStatusHistoryScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  fromStatus: 'fromStatus',
+  status: 'status',
+  changedById: 'changedById',
+  amount: 'amount',
+  method: 'method',
+  note: 'note',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.AuditLogScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -1151,6 +1163,13 @@ exports.Prisma.OrderStatusHistoryOrderByRelevanceFieldEnum = {
   note: 'note'
 };
 
+exports.Prisma.PaymentStatusHistoryOrderByRelevanceFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  changedById: 'changedById',
+  note: 'note'
+};
+
 exports.Prisma.JsonNullValueFilter = {
   DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull,
@@ -1343,6 +1362,7 @@ exports.Prisma.ModelName = {
   WorkShift: 'WorkShift',
   ShiftExpense: 'ShiftExpense',
   OrderStatusHistory: 'OrderStatusHistory',
+  PaymentStatusHistory: 'PaymentStatusHistory',
   AuditLog: 'AuditLog'
 };
 

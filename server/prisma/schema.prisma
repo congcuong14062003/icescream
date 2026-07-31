@@ -221,6 +221,7 @@ model User {
   createdOrders                  Order[]                  @relation("OrderCreator")
   assignedOrders                 Order[]                  @relation("OrderAssignee")
   orderStatusChanges             OrderStatusHistory[]
+  paymentStatusChanges           PaymentStatusHistory[]
   inventoryTransactions          InventoryTransaction[]
   purchaseOrders                 PurchaseOrder[]
   shifts                         WorkShift[]
@@ -920,6 +921,7 @@ model Order {
   payments               Payment[]
   refunds                Refund[]
   statusHistory          OrderStatusHistory[]
+  paymentStatusHistory   PaymentStatusHistory[]
   pointTransactions      CustomerPointTransaction[]
   promotionUsage         PromotionUsage?
   membershipBenefitUsage MembershipBenefitUsage?
@@ -1081,6 +1083,23 @@ model OrderStatusHistory {
   createdAt   DateTime    @default(now())
 
   @@index([orderId, createdAt])
+}
+
+model PaymentStatusHistory {
+  id          String         @id @default(cuid())
+  orderId     String
+  fromStatus  PaymentStatus?
+  status      PaymentStatus
+  changedById String
+  amount      Int?
+  method      PaymentMethod?
+  note        String?        @db.Text
+  order       Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  changedBy   User           @relation(fields: [changedById], references: [id], onDelete: Restrict)
+  createdAt   DateTime       @default(now())
+
+  @@index([orderId, createdAt])
+  @@index([status, createdAt])
 }
 
 model AuditLog {
