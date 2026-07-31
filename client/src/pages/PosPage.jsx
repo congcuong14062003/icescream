@@ -27,6 +27,7 @@ import {
 import { Accordion, AccordionDetails, AccordionSummary, IconButton, InputAdornment } from "@mui/material";
 import { toast } from "react-toastify";
 import api, { apiMessage, downloadFile } from "../services/api";
+import { getSocket } from "../services/socket";
 import Button from "../components/common/Button";
 import ConfirmDialog from "../components/common/ConfirmDialog";
 import EmptyState from "../components/common/EmptyState";
@@ -87,6 +88,50 @@ export default function PosPage() {
     queryKey: ["pos-toppings"],
     queryFn: () => api.get("/toppings", { params: { status: "AVAILABLE", size: 100 } }).then((response) => response.data.data),
   });
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return undefined;
+    const updateCatalogPrice = (payload) => {
+      if (payload?.type === "FLAVOR") {
+        queryClient.invalidateQueries({ queryKey: ["pos-flavors"] });
+      }
+      if (payload?.type === "TOPPING") {
+        queryClient.invalidateQueries({ queryKey: ["pos-toppings"] });
+      }
+      queryClient.invalidateQueries({ queryKey: ["order-quote"] });
+    };
+    socket.on("catalog:price-updated", updateCatalogPrice);
+    return () => socket.off("catalog:price-updated", updateCatalogPrice);
+  }, [queryClient]);
+
+  useEffect(() => {
+    if (!productsQuery.data || !flavorsQuery.data || !toppingsQuery.data) return;
+    const flavorPrices = new Map(flavorsQuery.data.map((item) => [item.id, item.extraPrice]));
+    const toppingPrices = new Map(toppingsQuery.data.map((item) => [item.id, item.price]));
+    setCart((current) => {
+      let changed = false;
+      const next = current.map((line) => {
+        const product = productsQuery.data.find((item) => item.id === line.productId);
+        const variant = product?.variants.find((item) => item.id === line.variantId);
+        const selectedFlavorPrices = line.flavorIds.map((id) => flavorPrices.get(id));
+        const selectedToppingPrices = line.toppingIds.map((id) => toppingPrices.get(id));
+        if (
+          !variant
+          || selectedFlavorPrices.some((value) => value === undefined)
+          || selectedToppingPrices.some((value) => value === undefined)
+        ) {
+          return line;
+        }
+        const nextUnitPrice = variant.price
+          + selectedFlavorPrices.reduce((sum, value) => sum + value, 0)
+          + selectedToppingPrices.reduce((sum, value) => sum + value, 0);
+        if (nextUnitPrice === line.displayUnitPrice) return line;
+        changed = true;
+        return { ...line, displayUnitPrice: nextUnitPrice };
+      });
+      return changed ? next : current;
+    });
+  }, [flavorsQuery.data, productsQuery.data, toppingsQuery.data]);
   const shiftQuery = useQuery({
     queryKey: ["current-shift"],
     queryFn: () => api.get("/shifts/current").then((response) => response.data.data),

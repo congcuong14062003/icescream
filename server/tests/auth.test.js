@@ -73,6 +73,111 @@ test("cashier can quote and complete a real POS order", async () => {
   assert.ok(checkout.body.data.payments.length);
 });
 
+test("manager can update flavor and topping selling prices used by POS", async () => {
+  const [managerLogin, cashierLogin] = await Promise.all([
+    request(app).post("/api/auth/login").send({ login: "manager", password: "IceCream@123" }).expect(200),
+    request(app).post("/api/auth/login").send({ login: "cashier", password: "IceCream@123" }).expect(200),
+  ]);
+  const managerAuthorization = "Bearer " + managerLogin.body.data.accessToken;
+  const cashierAuthorization = "Bearer " + cashierLogin.body.data.accessToken;
+  const [productsResponse, flavorsResponse, toppingsResponse] = await Promise.all([
+    request(app).get("/api/products?status=ACTIVE&size=100").set("Authorization", cashierAuthorization).expect(200),
+    request(app).get("/api/flavors?status=AVAILABLE&size=100").set("Authorization", cashierAuthorization).expect(200),
+    request(app).get("/api/toppings?status=AVAILABLE&size=100").set("Authorization", cashierAuthorization).expect(200),
+  ]);
+  const product = productsResponse.body.data.find((item) =>
+    item.variants.some((variant) => variant.isActive && variant.scoopCount > 0),
+  );
+  const variant = product?.variants.find((item) => item.isActive && item.scoopCount > 0);
+  const flavor = flavorsResponse.body.data[0];
+  const topping = toppingsResponse.body.data[0];
+  assert.ok(variant);
+  assert.ok(flavor);
+  assert.ok(topping);
+
+  const originalFlavorPrice = flavor.extraPrice;
+  const originalToppingPrice = topping.price;
+  const nextFlavorPrice = originalFlavorPrice + 1000;
+  const nextToppingPrice = originalToppingPrice + 2000;
+
+  await request(app)
+    .put("/api/flavors/" + flavor.id)
+    .set("Authorization", cashierAuthorization)
+    .send({ extraPrice: nextFlavorPrice })
+    .expect(403);
+  await request(app)
+    .put("/api/toppings/" + topping.id)
+    .set("Authorization", cashierAuthorization)
+    .send({ price: nextToppingPrice })
+    .expect(403);
+  await request(app)
+    .put("/api/flavors/" + flavor.id)
+    .set("Authorization", managerAuthorization)
+    .send({ extraPrice: -1 })
+    .expect(422);
+  await request(app)
+    .put("/api/toppings/" + topping.id)
+    .set("Authorization", managerAuthorization)
+    .send({ price: "" })
+    .expect(422);
+
+  try {
+    const updatedFlavor = await request(app)
+      .put("/api/flavors/" + flavor.id)
+      .set("Authorization", managerAuthorization)
+      .send({ extraPrice: nextFlavorPrice })
+      .expect(200);
+    const updatedTopping = await request(app)
+      .put("/api/toppings/" + topping.id)
+      .set("Authorization", managerAuthorization)
+      .send({ price: nextToppingPrice })
+      .expect(200);
+    assert.equal(updatedFlavor.body.data.extraPrice, nextFlavorPrice);
+    assert.equal(updatedTopping.body.data.price, nextToppingPrice);
+
+    const quantity = 2;
+    const quote = await request(app)
+      .post("/api/orders/quote")
+      .set("Authorization", cashierAuthorization)
+      .send({
+        items: [{
+          variantId: variant.id,
+          quantity,
+          flavorIds: Array.from({ length: variant.scoopCount }, () => flavor.id),
+          toppingIds: [topping.id],
+        }],
+        pointsToRedeem: 0,
+        deliveryFee: 0,
+      })
+      .expect(200);
+    const expectedUnitPrice = variant.price + nextFlavorPrice * variant.scoopCount + nextToppingPrice;
+    assert.equal(quote.body.data.originalAmount, expectedUnitPrice * quantity);
+
+    const [flavorAudit, toppingAudit] = await Promise.all([
+      prisma.auditLog.findFirst({
+        where: { action: "FLAVOR_UPDATE", entityId: flavor.id },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.auditLog.findFirst({
+        where: { action: "TOPPING_UPDATE", entityId: topping.id },
+        orderBy: { createdAt: "desc" },
+      }),
+    ]);
+    assert.equal(flavorAudit?.newData?.extraPrice, nextFlavorPrice);
+    assert.equal(toppingAudit?.newData?.price, nextToppingPrice);
+  } finally {
+    await request(app)
+      .put("/api/flavors/" + flavor.id)
+      .set("Authorization", managerAuthorization)
+      .send({ extraPrice: originalFlavorPrice })
+      .expect(200);
+    await request(app)
+      .put("/api/toppings/" + topping.id)
+      .set("Authorization", managerAuthorization)
+      .send({ price: originalToppingPrice })
+      .expect(200);
+  }
+});
 test("warehouse role is blocked from POS by backend permission", async () => {
   const login = await request(app)
     .post("/api/auth/login")

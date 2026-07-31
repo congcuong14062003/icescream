@@ -8,16 +8,22 @@ import { created, success } from "../../utils/response.js";
 import { getPagination, paginationMeta } from "../../utils/pagination.js";
 import { ApiError } from "../../utils/api-error.js";
 import { writeAudit } from "../../utils/audit.js";
+import { emitCatalogEvent } from "../../services/socket.service.js";
 
 const router = Router();
 router.use(authenticate);
+
+const sellingPriceSchema = z.preprocess(
+  (value) => (value === null || (typeof value === "string" && !value.trim()) ? Number.NaN : value),
+  z.coerce.number().int().min(0).max(1000000000),
+);
 
 const schema = z.object({
   code: z.string().trim().min(2).max(30).transform((value) => value.toUpperCase()),
   name: z.string().trim().min(2).max(100),
   imageUrl: z.string().url().optional().nullable().or(z.literal("")),
-  price: z.coerce.number().int().min(0),
-  costPrice: z.coerce.number().int().min(0),
+  price: sellingPriceSchema,
+  costPrice: sellingPriceSchema,
   stockStatus: z.enum(["AVAILABLE", "OUT_OF_STOCK", "INACTIVE"]).default("AVAILABLE"),
 });
 
@@ -68,9 +74,15 @@ router.put(
       },
     });
     await writeAudit(prisma, request, "TOPPING_UPDATE", "Topping", item.id, oldItem, item);
+    if (request.body.price !== undefined && item.price !== oldItem.price) {
+      emitCatalogEvent("catalog:price-updated", {
+        type: "TOPPING",
+        id: item.id,
+        price: item.price,
+      });
+    }
     return success(response, item, "Cập nhật topping thành công");
   }),
 );
 
 export default router;
-

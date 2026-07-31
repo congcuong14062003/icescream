@@ -8,16 +8,22 @@ import { created, success } from "../../utils/response.js";
 import { getPagination, paginationMeta } from "../../utils/pagination.js";
 import { ApiError } from "../../utils/api-error.js";
 import { writeAudit } from "../../utils/audit.js";
+import { emitCatalogEvent } from "../../services/socket.service.js";
 
 const router = Router();
 router.use(authenticate);
+
+const sellingPriceSchema = z.preprocess(
+  (value) => (value === null || (typeof value === "string" && !value.trim()) ? Number.NaN : value),
+  z.coerce.number().int().min(0).max(1000000000),
+);
 
 const schema = z.object({
   code: z.string().trim().min(2).max(30).transform((value) => value.toUpperCase()),
   name: z.string().trim().min(2).max(100),
   color: z.string().regex(/^#[0-9a-fA-F]{6}$/),
   imageUrl: z.string().url().optional().nullable().or(z.literal("")),
-  extraPrice: z.coerce.number().int().min(0).default(0),
+  extraPrice: sellingPriceSchema.default(0),
   status: z.enum(["AVAILABLE", "OUT_OF_STOCK", "INACTIVE"]).default("AVAILABLE"),
   ingredients: z
     .array(z.object({ ingredientId: z.string(), quantity: z.coerce.number().positive() }))
@@ -95,9 +101,15 @@ router.put(
       });
     });
     await writeAudit(prisma, request, "FLAVOR_UPDATE", "Flavor", item.id, oldItem, data);
+    if (request.body.extraPrice !== undefined && item.extraPrice !== oldItem.extraPrice) {
+      emitCatalogEvent("catalog:price-updated", {
+        type: "FLAVOR",
+        id: item.id,
+        extraPrice: item.extraPrice,
+      });
+    }
     return success(response, item, "Cập nhật hương vị thành công");
   }),
 );
 
 export default router;
-

@@ -167,7 +167,7 @@ export default function ProductCustomizer({
                 >
                   <span className="tw-h-6 tw-w-6 tw-shrink-0 tw-rounded-full tw-shadow-inner" style={{ background: flavor.color }} />
                   <span className="tw-min-w-0 tw-flex-1 tw-truncate">{flavor.name}</span>
-                  {flavor.extraPrice > 0 && <span className="tw-text-[10px] tw-text-slate-400">+{Math.round(flavor.extraPrice / 1000)}k</span>}
+                  {flavor.extraPrice > 0 && <span className="tw-text-[10px] tw-text-slate-400">+{formatMoney(flavor.extraPrice)}</span>}
                 </button>
               ))}
             </div>

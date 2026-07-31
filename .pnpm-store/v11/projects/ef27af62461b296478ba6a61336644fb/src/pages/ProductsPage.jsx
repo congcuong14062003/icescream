@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { BookOpen, Edit3, Plus, Search, Trash2 } from "lucide-react";
+import { BadgeDollarSign, BookOpen, Edit3, Plus, Search, Trash2 } from "lucide-react";
 import { IconButton, InputAdornment } from "@mui/material";
 import { toast } from "react-toastify";
 import api, { apiMessage } from "../services/api";
@@ -12,6 +12,7 @@ import PageHeader from "../components/common/PageHeader";
 import Select from "../components/common/Select";
 import StatusBadge from "../components/common/StatusBadge";
 import ProductFormDialog from "../features/products/ProductFormDialog";
+import ExtraPricingDialog from "../features/products/ExtraPricingDialog";
 import ProductRecipeDialog from "../features/products/ProductRecipeDialog";
 import { formatMoney } from "../utils/format";
 import { useAuth } from "../store/AuthContext";
@@ -25,6 +26,7 @@ export default function ProductsPage() {
   const [editing, setEditing] = useState(null);
   const [deleting, setDeleting] = useState(null);
   const [recipeProductId, setRecipeProductId] = useState(null);
+  const [pricingOpen, setPricingOpen] = useState(false);
 
   const categoriesQuery = useQuery({
     queryKey: ["categories"],
@@ -117,7 +119,16 @@ export default function ProductsPage() {
         eyebrow="Danh mục & thực đơn"
         title="Quản lý sản phẩm kem"
         description="Giá bán và biến thể tại đây được dùng trực tiếp khi backend tính tiền POS."
-        actions={canManage && <Button startIcon={<Plus size={18} />} onClick={() => { setEditing(null); setFormOpen(true); }}>Thêm sản phẩm</Button>}
+        actions={canManage && (
+          <div className="tw-flex tw-flex-wrap tw-gap-2">
+            <Button variant="outlined" startIcon={<BadgeDollarSign size={18} />} onClick={() => setPricingOpen(true)}>
+              Giá hương vị & topping
+            </Button>
+            <Button startIcon={<Plus size={18} />} onClick={() => { setEditing(null); setFormOpen(true); }}>
+              Thêm sản phẩm
+            </Button>
+          </div>
+        )}
       />
       <div className="tw-grid tw-gap-3 tw-rounded-2xl tw-border tw-border-slate-200 tw-bg-white tw-p-4 sm:tw-grid-cols-3 dark:tw-border-slate-700 dark:tw-bg-slate-900">
         <Input
@@ -147,6 +158,7 @@ export default function ProductsPage() {
       <div className="tw-rounded-2xl tw-border tw-border-slate-200 tw-bg-white tw-p-4 tw-shadow-[0_1px_2px_rgba(15,23,42,0.025)] dark:tw-border-slate-700 dark:tw-bg-slate-900">
         <DataTable columns={columns} rows={productsQuery.data || []} loading={productsQuery.isLoading} />
       </div>
+      <ExtraPricingDialog open={pricingOpen} onClose={() => setPricingOpen(false)} />
       <ProductRecipeDialog
         open={Boolean(recipeProductId)}
         productId={recipeProductId}
