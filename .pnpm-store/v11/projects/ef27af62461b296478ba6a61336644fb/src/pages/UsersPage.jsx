@@ -12,16 +12,19 @@ import PageHeader from "../components/common/PageHeader";
 import Select from "../components/common/Select";
 import StatusBadge from "../components/common/StatusBadge";
 import { formatDate } from "../utils/format";
+import { useAuth } from "../store/AuthContext";
 
 const emptyForm = { username: "", email: "", fullName: "", phone: "", password: "IceCream@123", roleId: "", branchId: "" };
 
 export default function UsersPage() {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [roleEditing, setRoleEditing] = useState(null);
   const [newRoleId, setNewRoleId] = useState("");
+  const [newBranchId, setNewBranchId] = useState("");
   const metaQuery = useQuery({
     queryKey: ["user-meta"],
     queryFn: () => api.get("/users/meta").then((response) => response.data.data),
@@ -49,10 +52,27 @@ export default function UsersPage() {
     },
     onError: (error) => toast.error(apiMessage(error)),
   });
+  const openEmployeeEditor = (employee) => {
+    setRoleEditing(employee);
+    setNewRoleId(employee.role.id);
+    setNewBranchId(employee.branch?.id || "");
+  };
   const columns = [
     { key: "fullName", label: "Nhân viên", render: (value, row) => <div className="tw-flex tw-items-center tw-gap-3"><div className="tw-flex tw-h-10 tw-w-10 tw-items-center tw-justify-center tw-rounded-full tw-bg-mint-100 tw-font-black tw-text-mint-700">{value.charAt(0)}</div><div><strong>{value}</strong><div className="tw-text-xs tw-text-slate-400">@{row.username}</div></div></div> },
-    { key: "role", label: "Vai trò", render: (value, row) => <button type="button" onClick={() => { setRoleEditing(row); setNewRoleId(value.id); }} className="tw-rounded-full tw-border-0 tw-bg-lavender-50 tw-px-3 tw-py-1.5 tw-text-xs tw-font-bold tw-text-lavender-500 dark:tw-bg-lavender-500/10">{value.name}</button> },
-    { key: "branch", label: "Chi nhánh", render: (value) => value?.name || "Toàn hệ thống" },
+    { key: "role", label: "Vai trò", render: (value, row) => <button type="button" onClick={() => openEmployeeEditor(row)} className="tw-rounded-full tw-border-0 tw-bg-lavender-50 tw-px-3 tw-py-1.5 tw-text-xs tw-font-bold tw-text-lavender-500 dark:tw-bg-lavender-500/10">{value.name}</button> },
+    {
+      key: "branch",
+      label: "Chi nhánh",
+      render: (value, row) => metaQuery.data?.canUpdateBranch ? (
+        <button
+          type="button"
+          onClick={() => openEmployeeEditor(row)}
+          className="tw-rounded-lg tw-border tw-border-slate-200 tw-bg-white tw-px-2.5 tw-py-1.5 tw-text-left tw-text-xs tw-font-semibold tw-text-slate-700 hover:tw-border-mint-400 hover:tw-text-mint-700 dark:tw-border-slate-700 dark:tw-bg-slate-900 dark:tw-text-slate-200"
+        >
+          {value?.name || "Toàn hệ thống"}
+        </button>
+      ) : value?.name || "Chưa gán chi nhánh",
+    },
     { key: "lastLoginAt", label: "Đăng nhập gần nhất", render: (value) => formatDate(value, true) },
     { key: "status", label: "Trạng thái", render: (value) => <StatusBadge status={value} label={{ ACTIVE: "Đang hoạt động", LOCKED: "Đã khóa", INACTIVE: "Ngừng hoạt động" }[value]} /> },
     { key: "action", label: "", align: "right", render: (_, row) => <Button variant="outlined" size="small" color={row.status === "ACTIVE" ? "error" : "primary"} startIcon={row.status === "ACTIVE" ? <Lock size={15} /> : <Unlock size={15} />} onClick={() => updateMutation.mutate({ id: row.id, data: { status: row.status === "ACTIVE" ? "LOCKED" : "ACTIVE" } })}>{row.status === "ACTIVE" ? "Khóa" : "Mở khóa"}</Button> },
@@ -63,7 +83,9 @@ export default function UsersPage() {
       <PageHeader
         eyebrow="Tài khoản & phân quyền"
         title="Nhân viên"
-        description="Khóa tài khoản sẽ thu hồi refresh token; mọi API vẫn kiểm tra quyền phía backend."
+        description={user.role.code === "ADMIN"
+          ? "Admin xem toàn bộ nhân viên và có thể cập nhật vai trò, chi nhánh."
+          : "Danh sách chỉ gồm nhân viên thuộc chi nhánh bạn quản lý; không thể cấp quyền Admin."}
         actions={<Button startIcon={<Plus size={18} />} onClick={() => setCreateOpen(true)}>Thêm nhân viên</Button>}
       />
       <div className="tw-max-w-xl tw-rounded-2xl tw-border tw-border-slate-200 tw-bg-white tw-p-4 dark:tw-border-slate-700 dark:tw-bg-slate-900">
@@ -98,15 +120,43 @@ export default function UsersPage() {
       <Modal
         open={Boolean(roleEditing)}
         onClose={() => setRoleEditing(null)}
-        title={`Phân quyền cho ${roleEditing?.fullName || ""}`}
+        title={`Cập nhật nhân viên ${roleEditing?.fullName || ""}`}
         actions={
           <>
             <Button variant="text" color="inherit" onClick={() => setRoleEditing(null)}>Hủy</Button>
-            <Button loading={updateMutation.isPending} onClick={() => updateMutation.mutate({ id: roleEditing.id, data: { roleId: newRoleId } })}>Cập nhật vai trò</Button>
+            <Button
+              loading={updateMutation.isPending}
+              onClick={() => updateMutation.mutate({
+                id: roleEditing.id,
+                data: {
+                  roleId: newRoleId,
+                  ...(metaQuery.data?.canUpdateBranch ? { branchId: newBranchId || null } : {}),
+                },
+              })}
+            >
+              Lưu thay đổi
+            </Button>
           </>
         }
       >
-        <Select label="Vai trò" value={newRoleId} onChange={(event) => setNewRoleId(event.target.value)} options={(metaQuery.data?.roles || []).map((item) => ({ value: item.id, label: `${item.name} (${item.code})` }))} />
+        <div className="tw-space-y-4">
+          <Select label="Vai trò" value={newRoleId} onChange={(event) => setNewRoleId(event.target.value)} options={(metaQuery.data?.roles || []).map((item) => ({ value: item.id, label: `${item.name} (${item.code})` }))} />
+          <Select
+            label="Chi nhánh"
+            value={newBranchId}
+            onChange={(event) => setNewBranchId(event.target.value)}
+            disabled={!metaQuery.data?.canUpdateBranch}
+            options={[
+              { value: "", label: "Chưa gán chi nhánh / toàn hệ thống" },
+              ...(metaQuery.data?.branches || []).map((item) => ({ value: item.id, label: item.name })),
+            ]}
+          />
+          {!metaQuery.data?.canUpdateBranch && (
+            <p className="tw-m-0 tw-text-xs tw-text-slate-400">
+              Chỉ Admin được chuyển nhân viên sang chi nhánh khác.
+            </p>
+          )}
+        </div>
       </Modal>
     </div>
   );

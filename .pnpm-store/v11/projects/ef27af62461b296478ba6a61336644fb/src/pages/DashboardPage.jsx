@@ -98,6 +98,15 @@ export default function DashboardPage() {
     queryKey: ["branches"],
     queryFn: () => api.get("/branches").then((response) => response.data.data),
   });
+  const visibleBranches = user.role.code === "ADMIN"
+    ? branches
+    : user.role.code === "MANAGER"
+      ? branches.filter(
+          (branch) =>
+            branch.manager?.id === user.id ||
+            branch.id === user.branch?.id,
+        )
+      : branches.filter((branch) => branch.id === user.branch?.id);
   const reportQuery = useQuery({
     queryKey: ["dashboard", filters],
     queryFn: () =>
@@ -168,8 +177,15 @@ export default function DashboardPage() {
               inputProps={{ "aria-label": "Chi nhánh" }}
               onChange={(event) => setFilters((current) => ({ ...current, branchId: event.target.value }))}
               options={[
-                { value: "", label: "Tất cả chi nhánh" },
-                ...branches.map((branch) => ({ value: branch.id, label: branch.name })),
+                {
+                  value: "",
+                  label: user.role.code === "ADMIN"
+                    ? "Tất cả chi nhánh"
+                    : user.role.code === "MANAGER"
+                      ? "Tất cả chi nhánh quản lý"
+                      : user.branch?.name || "Chi nhánh hiện tại",
+                },
+                ...visibleBranches.map((branch) => ({ value: branch.id, label: branch.name })),
               ]}
               disabled={!["ADMIN", "MANAGER"].includes(user.role.code)}
             />

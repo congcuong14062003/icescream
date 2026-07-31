@@ -4,6 +4,9 @@ import PDFDocument from "pdfkit";
 import { authenticate, requirePermission } from "../../middlewares/auth.js";
 import { asyncHandler } from "../../utils/async-handler.js";
 import { success } from "../../utils/response.js";
+import { ApiError } from "../../utils/api-error.js";
+import { prisma } from "../../config/prisma.js";
+import { getManagedBranchIds } from "../../services/branch-access.service.js";
 import { buildReport, reportRange } from "./reports.service.js";
 
 const router = Router();
@@ -34,15 +37,24 @@ function reportForUser(report, user) {
   };
 }
 
+async function resolveReportBranchIds(request) {
+  const requestedBranchId = request.query.branchId || null;
+  const allowedBranchIds = await getManagedBranchIds(prisma, request.user);
+  if (allowedBranchIds === null) {
+    return requestedBranchId ? [requestedBranchId] : null;
+  }
+  if (requestedBranchId && !allowedBranchIds.includes(requestedBranchId)) {
+    throw new ApiError(403, "Bạn không được xem báo cáo của chi nhánh này");
+  }
+  return requestedBranchId ? [requestedBranchId] : allowedBranchIds;
+}
+
 router.get(
   "/dashboard",
   asyncHandler(async (request, response) => {
     const range = reportRange(request.query);
-    const branchId =
-      ["ADMIN", "MANAGER"].includes(request.user.role.code)
-        ? request.query.branchId || undefined
-        : request.user.branch?.id;
-    const report = await buildReport({ ...range, branchId });
+    const branchIds = await resolveReportBranchIds(request);
+    const report = await buildReport({ ...range, branchIds });
     return success(
       response,
       reportForUser(report, request.user),
@@ -56,7 +68,8 @@ router.get(
   requirePermission("reports.view"),
   asyncHandler(async (request, response) => {
     const range = reportRange(request.query);
-    const report = await buildReport({ ...range, branchId: request.query.branchId || undefined });
+    const branchIds = await resolveReportBranchIds(request);
+    const report = await buildReport({ ...range, branchIds });
     const workbook = new ExcelJS.Workbook();
     workbook.creator = "IceCream POS";
     const summary = workbook.addWorksheet("Tổng quan");
@@ -148,7 +161,8 @@ router.get(
   requirePermission("reports.view"),
   asyncHandler(async (request, response) => {
     const range = reportRange(request.query);
-    const report = await buildReport({ ...range, branchId: request.query.branchId || undefined });
+    const branchIds = await resolveReportBranchIds(request);
+    const report = await buildReport({ ...range, branchIds });
     response.setHeader("Content-Type", "application/pdf");
     response.setHeader(
       "Content-Disposition",

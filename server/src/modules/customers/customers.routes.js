@@ -82,8 +82,20 @@ router.get(
     const voucherBranchIds = await getManagedBranchIds(prisma, request.user);
     const { page, size, skip } = getPagination(request.query);
     const search = String(request.query.search || "").trim();
+    const paidMembership = String(request.query.paidMembership || "").toUpperCase();
+    const now = new Date();
+    const activeMembershipWhere = {
+      status: "ACTIVE",
+      startsAt: { lte: now },
+      endsAt: { gt: now },
+    };
     const where = {
       deletedAt: null,
+      ...(paidMembership === "ACTIVE"
+        ? { membershipSubscriptions: { some: activeMembershipWhere } }
+        : paidMembership === "INACTIVE"
+          ? { membershipSubscriptions: { none: activeMembershipWhere } }
+          : {}),
       ...(search
         ? {
             OR: [
@@ -106,11 +118,7 @@ router.get(
             orderBy: { expiresAt: "asc" },
           },
           membershipSubscriptions: {
-            where: {
-              status: "ACTIVE",
-              startsAt: { lte: new Date() },
-              endsAt: { gt: new Date() },
-            },
+            where: activeMembershipWhere,
             include: currentMembershipInclude,
             orderBy: { endsAt: "desc" },
             take: 1,

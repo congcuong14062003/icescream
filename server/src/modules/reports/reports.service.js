@@ -111,10 +111,20 @@ export function reportRange(query) {
   return { from, to };
 }
 
-export async function buildReport({ from, to, branchId }) {
+export async function buildReport({ from, to, branchId, branchIds }) {
+  const scopedBranchIds =
+    branchIds !== undefined
+      ? branchIds
+      : branchId
+        ? [branchId]
+        : null;
+  const branchWhere =
+    scopedBranchIds === null
+      ? {}
+      : { branchId: { in: scopedBranchIds } };
   const orderWhere = {
     createdAt: { gte: from, lte: to },
-    ...(branchId ? { branchId } : {}),
+    ...branchWhere,
   };
   const completedWhere = { ...orderWhere, status: "COMPLETED" };
   const duration = to.getTime() - from.getTime() + 1;
@@ -123,7 +133,7 @@ export async function buildReport({ from, to, branchId }) {
   const previousWhere = {
     status: "COMPLETED",
     createdAt: { gte: previousFrom, lte: previousTo },
-    ...(branchId ? { branchId } : {}),
+    ...branchWhere,
   };
 
   const [
@@ -167,7 +177,15 @@ export async function buildReport({ from, to, branchId }) {
       where: orderWhere,
       select: { status: true },
     }),
-    prisma.customer.count({ where: { createdAt: { gte: from, lte: to }, deletedAt: null } }),
+    prisma.customer.count({
+      where: {
+        createdAt: { gte: from, lte: to },
+        deletedAt: null,
+        ...(scopedBranchIds === null
+          ? {}
+          : { orders: { some: { branchId: { in: scopedBranchIds } } } }),
+      },
+    }),
     prisma.order.findMany({
       where: previousWhere,
       select: {
@@ -196,7 +214,7 @@ export async function buildReport({ from, to, branchId }) {
     prisma.membershipSubscription.findMany({
       where: {
         createdAt: { gte: from, lte: to },
-        ...(branchId ? { branchId } : {}),
+        ...branchWhere,
       },
       select: {
         amountPaid: true,
@@ -211,7 +229,7 @@ export async function buildReport({ from, to, branchId }) {
     prisma.membershipSubscription.findMany({
       where: {
         createdAt: { gte: previousFrom, lte: previousTo },
-        ...(branchId ? { branchId } : {}),
+        ...branchWhere,
       },
       select: { amountPaid: true },
     }),
@@ -237,12 +255,12 @@ export async function buildReport({ from, to, branchId }) {
       take: 8,
     }),
     prisma.inventory.findMany({
-      where: branchId ? { branchId } : {},
+      where: branchWhere,
       include: { ingredient: true, branch: { select: { name: true } } },
     }),
     prisma.inventoryBatch.findMany({
       where: {
-        ...(branchId ? { branchId } : {}),
+        ...branchWhere,
         remaining: { gt: 0 },
         expiryDate: { gte: new Date(), lte: new Date(Date.now() + 14 * 86400000) },
       },

@@ -11,6 +11,7 @@ import Input from "../components/common/Input";
 import LoadingSkeleton from "../components/common/LoadingSkeleton";
 import Modal from "../components/common/Modal";
 import PageHeader from "../components/common/PageHeader";
+import Select from "../components/common/Select";
 import { formatDate, formatMoney } from "../utils/format";
 import { useAuth } from "../store/AuthContext";
 import MembershipEnrollDialog from "../features/customers/MembershipEnrollDialog";
@@ -67,13 +68,16 @@ export default function CustomersPage() {
   const queryClient = useQueryClient();
   const canManage = hasPermission("customers.manage");
   const [search, setSearch] = useState("");
+  const [paidMembership, setPaidMembership] = useState("");
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
   const [enrollCustomer, setEnrollCustomer] = useState(null);
   const customersQuery = useQuery({
-    queryKey: ["customers", search],
-    queryFn: () => api.get("/customers", { params: { search, size: 100 } }).then((response) => response.data.data),
+    queryKey: ["customers", search, paidMembership],
+    queryFn: () => api.get("/customers", {
+      params: { search, paidMembership: paidMembership || undefined, size: 100 },
+    }).then((response) => response.data.data),
   });
   const detailQuery = useQuery({
     queryKey: ["customer", selectedId],
@@ -109,8 +113,18 @@ export default function CustomersPage() {
         description="Điểm chỉ dùng để xét hạng. Khi khách lên hạng, hệ thống tự cấp voucher theo chính sách quản lý đã cấu hình."
         actions={canManage && <Button startIcon={<Plus size={18} />} onClick={() => { setEditing(null); setFormOpen(true); }}>Thêm khách hàng</Button>}
       />
-      <div className="tw-max-w-xl tw-rounded-2xl tw-border tw-border-slate-200 tw-bg-white tw-p-4 dark:tw-border-slate-700 dark:tw-bg-slate-900">
+      <div className="tw-grid tw-gap-3 tw-rounded-2xl tw-border tw-border-slate-200 tw-bg-white tw-p-4 sm:tw-grid-cols-[minmax(0,1fr)_260px] sm:tw-items-center dark:tw-border-slate-700 dark:tw-bg-slate-900">
         <Input placeholder="Tìm theo tên, mã, số điện thoại..." value={search} onChange={(event) => setSearch(event.target.value)} InputProps={{ startAdornment: <InputAdornment position="start"><Search size={18} /></InputAdornment> }} />
+        <Select
+          label="Hội viên trả phí"
+          value={paidMembership}
+          onChange={(event) => setPaidMembership(event.target.value)}
+          options={[
+            { value: "", label: "Tất cả khách hàng" },
+            { value: "ACTIVE", label: "Đang có hội viên trả phí" },
+            { value: "INACTIVE", label: "Chưa có / đã hết hạn" },
+          ]}
+        />
       </div>
       <div className="tw-rounded-2xl tw-border tw-border-slate-200 tw-bg-white tw-p-4 tw-shadow-[0_1px_2px_rgba(15,23,42,0.025)] dark:tw-border-slate-700 dark:tw-bg-slate-900">
         <DataTable columns={columns} rows={customersQuery.data || []} loading={customersQuery.isLoading} />

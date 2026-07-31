@@ -919,3 +919,81 @@ test("admin can issue vouchers for many branches while manager is limited to man
     }
   }
 });
+
+test("paid membership filter separates active members from other customers", async () => {
+  const login = await request(app)
+    .post("/api/auth/login")
+    .send({ login: "manager", password: "IceCream@123" })
+    .expect(200);
+  const authorization = `Bearer ${login.body.data.accessToken}`;
+
+  const [active, inactive] = await Promise.all([
+    request(app)
+      .get("/api/customers?paidMembership=ACTIVE&size=100")
+      .set("Authorization", authorization)
+      .expect(200),
+    request(app)
+      .get("/api/customers?paidMembership=INACTIVE&size=100")
+      .set("Authorization", authorization)
+      .expect(200),
+  ]);
+
+  assert.ok(active.body.data.every((customer) => customer.activeMembership));
+  assert.ok(inactive.body.data.every((customer) => !customer.activeMembership));
+});
+
+test("manager employee and financial access is limited to managed branches", async () => {
+  const [adminLogin, managerLogin] = await Promise.all([
+    request(app)
+      .post("/api/auth/login")
+      .send({ login: "admin", password: "IceCream@123" })
+      .expect(200),
+    request(app)
+      .post("/api/auth/login")
+      .send({ login: "manager", password: "IceCream@123" })
+      .expect(200),
+  ]);
+  const adminAuthorization = `Bearer ${adminLogin.body.data.accessToken}`;
+  const managerAuthorization = `Bearer ${managerLogin.body.data.accessToken}`;
+  const ownBranchId = managerLogin.body.data.user.branch.id;
+
+  const [branches, managerMeta, managerUsers, adminUsers] = await Promise.all([
+    request(app)
+      .get("/api/branches")
+      .set("Authorization", adminAuthorization)
+      .expect(200),
+    request(app)
+      .get("/api/users/meta")
+      .set("Authorization", managerAuthorization)
+      .expect(200),
+    request(app)
+      .get("/api/users?size=100")
+      .set("Authorization", managerAuthorization)
+      .expect(200),
+    request(app)
+      .get("/api/users?size=100")
+      .set("Authorization", adminAuthorization)
+      .expect(200),
+  ]);
+  const otherBranch = branches.body.data.find((branch) => branch.id !== ownBranchId);
+  assert.ok(otherBranch);
+  assert.equal(managerMeta.body.data.canUpdateBranch, false);
+  assert.ok(managerMeta.body.data.roles.every((role) => role.code !== "ADMIN"));
+  assert.ok(
+    managerUsers.body.data.every(
+      (employee) =>
+        employee.branch?.id === ownBranchId &&
+        employee.role.code !== "ADMIN",
+    ),
+  );
+  assert.ok(adminUsers.body.data.some((employee) => employee.role.code === "ADMIN"));
+
+  await request(app)
+    .get(`/api/users?branchId=${otherBranch.id}`)
+    .set("Authorization", managerAuthorization)
+    .expect(403);
+  await request(app)
+    .get(`/api/reports/dashboard?branchId=${otherBranch.id}`)
+    .set("Authorization", managerAuthorization)
+    .expect(403);
+});
