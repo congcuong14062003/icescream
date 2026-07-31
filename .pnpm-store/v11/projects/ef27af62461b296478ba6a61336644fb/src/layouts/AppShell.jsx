@@ -17,6 +17,7 @@ import {
   UsersRound,
   WalletCards,
   Crown,
+  ChartNoAxesCombined,
   Award,
   X,
 } from "lucide-react";
@@ -32,6 +33,7 @@ const navigation = [
   { to: "/products", label: "Sản phẩm", icon: IceCreamBowl, permissions: ["products.view"] },
   { to: "/promotions", label: "Ưu đãi", icon: BadgePercent, permissions: ["promotions.manage"] },
   { to: "/memberships", label: "Gói hội viên", icon: Crown, permissions: ["promotions.manage"] },
+  { to: "/membership-revenue", label: "Doanh thu hội viên", icon: ChartNoAxesCombined, permissions: ["memberships.revenue.view"] },
   { to: "/loyalty", label: "Hạng & voucher", icon: Award, permissions: ["promotions.manage"] },
   { to: "/customers", label: "Khách hàng", icon: UsersRound, permissions: ["customers.view"] },
   { to: "/inventory", label: "Kho nguyên liệu", icon: Boxes, permissions: ["inventory.view"] },

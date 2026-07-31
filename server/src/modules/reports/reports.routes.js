@@ -1,16 +1,41 @@
 import { Router } from "express";
 import ExcelJS from "exceljs";
 import PDFDocument from "pdfkit";
+import { z } from "zod";
 import { authenticate, requirePermission } from "../../middlewares/auth.js";
+import { validate } from "../../middlewares/validate.js";
 import { asyncHandler } from "../../utils/async-handler.js";
 import { success } from "../../utils/response.js";
 import { ApiError } from "../../utils/api-error.js";
 import { prisma } from "../../config/prisma.js";
 import { getManagedBranchIds } from "../../services/branch-access.service.js";
 import { buildReport, reportRange } from "./reports.service.js";
+import { buildMembershipRevenueReport } from "./membership-revenue.service.js";
 
 const router = Router();
-router.use(authenticate, requirePermission("reports.view", "dashboard.view"));
+router.use(authenticate);
+
+const dateInputSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine((value) => {
+  const [year, month, day] = value.split("-").map(Number);
+  const parsed = new Date(year, month - 1, day);
+  return parsed.getFullYear() === year &&
+    parsed.getMonth() === month - 1 &&
+    parsed.getDate() === day;
+}, "Ngày không hợp lệ");
+
+const membershipRevenueQuerySchema = z.object({
+  from: dateInputSchema.optional(),
+  to: dateInputSchema.optional(),
+  branchId: z.string().trim().min(1).optional(),
+}).superRefine((value, context) => {
+  if (value.from && value.to && value.from > value.to) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["from"],
+      message: "Từ ngày phải nhỏ hơn hoặc bằng đến ngày",
+    });
+  }
+});
 
 function canViewFinancials(user) {
   return user.role.code === "ADMIN" || user.permissions.includes("reports.view");
@@ -50,7 +75,27 @@ async function resolveReportBranchIds(request) {
 }
 
 router.get(
+  "/membership-revenue",
+  requirePermission("memberships.revenue.view"),
+  validate(membershipRevenueQuerySchema, "query"),
+  asyncHandler(async (request, response) => {
+    const range = reportRange(request.query);
+    const branchIds = await resolveReportBranchIds(request);
+    const report = await buildMembershipRevenueReport(prisma, {
+      ...range,
+      branchIds,
+    });
+    return success(
+      response,
+      report,
+      "Lấy báo cáo doanh thu hội viên thành công",
+    );
+  }),
+);
+
+router.get(
   "/dashboard",
+  requirePermission("reports.view", "dashboard.view"),
   asyncHandler(async (request, response) => {
     const range = reportRange(request.query);
     const branchIds = await resolveReportBranchIds(request);

@@ -24,6 +24,7 @@ const permissionCodes = [
   ["inventory.manage", "Quản lý tồn kho", "inventory"],
   ["users.manage", "Quản lý nhân viên", "users"],
   ["reports.view", "Xem báo cáo", "reports"],
+  ["memberships.revenue.view", "Xem doanh thu hội viên", "memberships"],
   ["shifts.manage", "Quản lý ca", "shifts"],
   ["suppliers.manage", "Quản lý nhà cung cấp", "suppliers"],
   ["promotions.manage", "Quản lý khuyến mãi", "promotions"],
@@ -238,6 +239,7 @@ async function main() {
       "products.view",
       "customers.view",
       "customers.manage",
+      "memberships.revenue.view",
       "shifts.manage",
     ],
     WAREHOUSE: [
@@ -245,9 +247,10 @@ async function main() {
       "products.view",
       "inventory.view",
       "inventory.manage",
+      "memberships.revenue.view",
       "suppliers.manage",
     ],
-    STAFF: ["dashboard.view", "orders.view", "orders.manage", "products.view"],
+    STAFF: ["dashboard.view", "orders.view", "orders.manage", "products.view", "memberships.revenue.view"],
   };
 
   for (const [roleCode, permissionList] of Object.entries(grants)) {

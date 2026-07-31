@@ -1302,3 +1302,151 @@ test("branch data scope protects inventory, purchase orders and orders", async (
     .set("Authorization", adminAuthorization)
     .expect(200);
 });
+
+test("membership revenue report is accurate and branch scoped for every role", async () => {
+  const [adminLogin, managerLogin, cashier02Login, warehouse02Login, staffLogin] = await Promise.all([
+    request(app).post("/api/auth/login").send({ login: "admin", password: "IceCream@123" }).expect(200),
+    request(app).post("/api/auth/login").send({ login: "manager", password: "IceCream@123" }).expect(200),
+    request(app).post("/api/auth/login").send({ login: "cashier02", password: "IceCream@123" }).expect(200),
+    request(app).post("/api/auth/login").send({ login: "warehouse02", password: "IceCream@123" }).expect(200),
+    request(app).post("/api/auth/login").send({ login: "staff01", password: "IceCream@123" }).expect(200),
+  ]);
+  const authorization = {
+    admin: `Bearer ${adminLogin.body.data.accessToken}`,
+    manager: `Bearer ${managerLogin.body.data.accessToken}`,
+    cashier02: `Bearer ${cashier02Login.body.data.accessToken}`,
+    warehouse02: `Bearer ${warehouse02Login.body.data.accessToken}`,
+    staff: `Bearer ${staffLogin.body.data.accessToken}`,
+  };
+  const branchOneId = managerLogin.body.data.user.branch.id;
+  const branchTwoId = cashier02Login.body.data.user.branch.id;
+  assert.notEqual(branchOneId, branchTwoId);
+
+  const [plan, customers, managerUser, cashier02User] = await Promise.all([
+    prisma.membershipPlan.findFirst({ orderBy: { createdAt: "asc" } }),
+    prisma.customer.findMany({ take: 2, orderBy: { createdAt: "asc" } }),
+    prisma.user.findUnique({ where: { username: "manager" } }),
+    prisma.user.findUnique({ where: { username: "cashier02" } }),
+  ]);
+  assert.ok(plan);
+  assert.equal(customers.length, 2);
+  const suffix = Date.now().toString().slice(-8);
+  const codes = [`HV-SCOPE-A-${suffix}`, `HV-SCOPE-B-${suffix}`, `HV-SCOPE-C-${suffix}`];
+  const reportPath = "/api/reports/membership-revenue?from=2024-02-10&to=2024-02-10";
+
+  try {
+    await prisma.membershipSubscription.createMany({
+      data: [
+        {
+          code: codes[0],
+          customerId: customers[0].id,
+          membershipPlanId: plan.id,
+          branchId: branchOneId,
+          createdById: managerUser.id,
+          startsAt: new Date("2024-02-10T03:00:00.000Z"),
+          endsAt: new Date("2024-03-11T03:00:00.000Z"),
+          amountPaid: 111000,
+          paymentMethod: "CASH",
+          status: "EXPIRED",
+          createdAt: new Date("2024-02-10T03:00:00.000Z"),
+          updatedAt: new Date("2024-02-10T03:00:00.000Z"),
+        },
+        {
+          code: codes[1],
+          customerId: customers[0].id,
+          membershipPlanId: plan.id,
+          branchId: branchOneId,
+          createdById: managerUser.id,
+          startsAt: new Date("2024-03-11T03:00:00.000Z"),
+          endsAt: new Date("2024-04-10T03:00:00.000Z"),
+          amountPaid: 333000,
+          paymentMethod: "CARD",
+          status: "EXPIRED",
+          createdAt: new Date("2024-02-10T04:00:00.000Z"),
+          updatedAt: new Date("2024-02-10T04:00:00.000Z"),
+        },
+        {
+          code: codes[2],
+          customerId: customers[1].id,
+          membershipPlanId: plan.id,
+          branchId: branchTwoId,
+          createdById: cashier02User.id,
+          startsAt: new Date("2024-02-10T05:00:00.000Z"),
+          endsAt: new Date("2024-03-11T05:00:00.000Z"),
+          amountPaid: 222000,
+          paymentMethod: "BANK_TRANSFER",
+          status: "EXPIRED",
+          createdAt: new Date("2024-02-10T05:00:00.000Z"),
+          updatedAt: new Date("2024-02-10T05:00:00.000Z"),
+        },
+      ],
+    });
+
+    const adminReport = await request(app)
+      .get(reportPath)
+      .set("Authorization", authorization.admin)
+      .expect(200);
+    assert.equal(adminReport.body.data.summary.revenue, 666000);
+    assert.equal(adminReport.body.data.summary.subscriptions, 3);
+    assert.equal(adminReport.body.data.summary.uniqueCustomers, 2);
+    assert.equal(adminReport.body.data.summary.averageRevenue, 222000);
+    assert.equal(adminReport.body.data.summary.newSubscriptions, 2);
+    assert.equal(adminReport.body.data.summary.renewals, 1);
+    assert.equal(adminReport.body.data.dailySeries.length, 1);
+    assert.equal(adminReport.body.data.dailySeries[0].date, "2024-02-10");
+    assert.equal(adminReport.body.data.planBreakdown[0].revenue, 666000);
+    assert.equal(adminReport.body.data.branchBreakdown.length, 2);
+    assert.equal(adminReport.body.data.paymentBreakdown.length, 3);
+    assert.equal(adminReport.body.data.recentSubscriptions.length, 3);
+
+    const [managerReport, cashierReport, warehouseReport, staffReport, adminBranchTwo] = await Promise.all([
+      request(app).get(reportPath).set("Authorization", authorization.manager).expect(200),
+      request(app).get(reportPath).set("Authorization", authorization.cashier02).expect(200),
+      request(app).get(reportPath).set("Authorization", authorization.warehouse02).expect(200),
+      request(app).get(reportPath).set("Authorization", authorization.staff).expect(200),
+      request(app).get(`${reportPath}&branchId=${branchTwoId}`).set("Authorization", authorization.admin).expect(200),
+    ]);
+    assert.equal(managerReport.body.data.summary.revenue, 444000);
+    assert.ok(managerReport.body.data.branchBreakdown.every((item) => item.id === branchOneId));
+    assert.equal(cashierReport.body.data.summary.revenue, 222000);
+    assert.ok(cashierReport.body.data.branchBreakdown.every((item) => item.id === branchTwoId));
+    assert.equal(warehouseReport.body.data.summary.revenue, 222000);
+    assert.equal(staffReport.body.data.summary.revenue, 444000);
+    assert.equal(adminBranchTwo.body.data.summary.revenue, 222000);
+
+    await request(app)
+      .get(`${reportPath}&branchId=${branchTwoId}`)
+      .set("Authorization", authorization.manager)
+      .expect(403);
+    await request(app)
+      .get(`${reportPath}&branchId=${branchOneId}`)
+      .set("Authorization", authorization.cashier02)
+      .expect(403);
+    await request(app)
+      .get("/api/reports/membership-revenue?from=2024-02-11&to=2024-02-10")
+      .set("Authorization", authorization.admin)
+      .expect(422);
+
+    const managerSubscriptions = await request(app)
+      .get("/api/memberships/subscriptions")
+      .set("Authorization", authorization.manager)
+      .expect(200);
+    assert.ok(managerSubscriptions.body.data.every((item) => item.branchId === branchOneId));
+    await request(app)
+      .get(`/api/memberships/subscriptions?branchId=${branchTwoId}`)
+      .set("Authorization", authorization.manager)
+      .expect(403);
+    await request(app)
+      .post("/api/memberships/subscriptions")
+      .set("Authorization", authorization.manager)
+      .send({
+        customerId: customers[0].id,
+        membershipPlanId: plan.id,
+        branchId: branchTwoId,
+        paymentMethod: "CASH",
+      })
+      .expect(403);
+  } finally {
+    await prisma.membershipSubscription.deleteMany({ where: { code: { in: codes } } });
+  }
+});

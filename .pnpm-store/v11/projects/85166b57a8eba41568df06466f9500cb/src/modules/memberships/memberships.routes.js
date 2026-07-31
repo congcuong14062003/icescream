@@ -10,8 +10,11 @@ import { createBusinessCode } from "../../utils/code.js";
 import { created, success } from "../../utils/response.js";
 import { writeAudit } from "../../utils/audit.js";
 import {
+  assertBranchAccess,
   assertVoucherBranchAccess,
+  branchWhere,
   getManagedBranchIds,
+  resolveBranchIds,
 } from "../../services/branch-access.service.js";
 import { publicVoucher } from "../../services/loyalty.service.js";
 import { getPagination, paginationMeta } from "../../utils/pagination.js";
@@ -532,8 +535,14 @@ router.get(
   "/subscriptions",
   requirePermission("customers.view"),
   asyncHandler(async (request, response) => {
+    const branchIds = await resolveBranchIds(
+      prisma,
+      request.user,
+      request.query.branchId || null,
+    );
     const items = await prisma.membershipSubscription.findMany({
       where: {
+        ...branchWhere(branchIds),
         ...(request.query.customerId ? { customerId: String(request.query.customerId) } : {}),
       },
       include: {
@@ -573,6 +582,12 @@ router.post(
         ? request.body.branchId
         : request.user.branch?.id;
     if (!branchId) throw new ApiError(422, "Tài khoản chưa được gán chi nhánh");
+    await assertBranchAccess(
+      prisma,
+      request.user,
+      branchId,
+      "Bạn chỉ được đăng ký hội viên tại chi nhánh mình quản lý",
+    );
 
     const branch = await prisma.branch.findFirst({
       where: { id: branchId, deletedAt: null, isActive: true },

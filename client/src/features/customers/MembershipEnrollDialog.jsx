@@ -73,6 +73,7 @@ export default function MembershipEnrollDialog({
       queryClient.invalidateQueries({ queryKey: ["customers"] });
       queryClient.invalidateQueries({ queryKey: ["customer", customer.id] });
       queryClient.invalidateQueries({ queryKey: ["membership-subscriptions"] });
+      queryClient.invalidateQueries({ queryKey: ["membership-revenue"] });
       queryClient.invalidateQueries({ queryKey: ["current-shift"] });
       toast.success(
         customer.activeMembership
