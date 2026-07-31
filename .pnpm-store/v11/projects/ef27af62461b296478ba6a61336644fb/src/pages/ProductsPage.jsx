@@ -151,6 +151,7 @@ export default function ProductsPage() {
         open={Boolean(recipeProductId)}
         productId={recipeProductId}
         onClose={() => setRecipeProductId(null)}
+        canManage={canManage}
       />
       <ProductFormDialog
         open={formOpen}

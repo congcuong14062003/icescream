@@ -1080,3 +1080,71 @@ test("product detail exposes fixed and selectable ingredient recipes", async () 
   assert.ok(detail.body.data.flavorRecipes.some((flavor) => flavor.recipes.length > 0));
   assert.ok(detail.body.data.toppingRecipes.some((topping) => topping.recipes.length > 0));
 });
+
+test("manager can update product recipes while cashier is forbidden", async () => {
+  const [managerLogin, cashierLogin] = await Promise.all([
+    request(app).post("/api/auth/login").send({ login: "manager", password: "IceCream@123" }).expect(200),
+    request(app).post("/api/auth/login").send({ login: "cashier", password: "IceCream@123" }).expect(200),
+  ]);
+  const managerAuthorization = `Bearer ${managerLogin.body.data.accessToken}`;
+  const cashierAuthorization = `Bearer ${cashierLogin.body.data.accessToken}`;
+  const products = await request(app)
+    .get("/api/products?status=ACTIVE&size=10")
+    .set("Authorization", managerAuthorization)
+    .expect(200);
+  const product = products.body.data.find((item) => item.variants.length > 0);
+  const detail = await request(app)
+    .get(`/api/products/${product.id}`)
+    .set("Authorization", managerAuthorization)
+    .expect(200);
+  const originalPayload = {
+    productRecipes: detail.body.data.recipes.map(({ ingredientId, quantity, note }) => ({ ingredientId, quantity, note })),
+    variants: detail.body.data.variants.map((variant) => ({
+      variantId: variant.id,
+      recipes: variant.recipes.map(({ ingredientId, quantity, note }) => ({ ingredientId, quantity, note })),
+    })),
+  };
+  const modifiedPayload = structuredClone(originalPayload);
+  const targetVariant = modifiedPayload.variants.find((variant) => variant.recipes.length > 0);
+  assert.ok(targetVariant);
+  targetVariant.recipes[0].note = "Kiểm thử cập nhật công thức";
+
+  await request(app)
+    .get("/api/products/recipes/meta")
+    .set("Authorization", managerAuthorization)
+    .expect(200);
+  await request(app)
+    .get("/api/products/recipes/meta")
+    .set("Authorization", cashierAuthorization)
+    .expect(403);
+  await request(app)
+    .put(`/api/products/${product.id}/recipes`)
+    .set("Authorization", cashierAuthorization)
+    .send(modifiedPayload)
+    .expect(403);
+
+  try {
+    await request(app)
+      .put(`/api/products/${product.id}/recipes`)
+      .set("Authorization", managerAuthorization)
+      .send(modifiedPayload)
+      .expect(200);
+    const updated = await request(app)
+      .get(`/api/products/${product.id}`)
+      .set("Authorization", managerAuthorization)
+      .expect(200);
+    const updatedVariant = updated.body.data.variants.find((variant) => variant.id === targetVariant.variantId);
+    assert.equal(updatedVariant.recipes[0].note, "Kiểm thử cập nhật công thức");
+    const audit = await prisma.auditLog.findFirst({
+      where: { action: "PRODUCT_RECIPE_UPDATE", entityId: product.id },
+      orderBy: { createdAt: "desc" },
+    });
+    assert.ok(audit);
+  } finally {
+    await request(app)
+      .put(`/api/products/${product.id}/recipes`)
+      .set("Authorization", managerAuthorization)
+      .send(originalPayload)
+      .expect(200);
+  }
+});
