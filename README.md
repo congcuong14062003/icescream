@@ -20,6 +20,7 @@ IceCream POS là ứng dụng full-stack quản lý và bán hàng tại quầy 
 - Khách hàng, điểm xếp hạng, lịch sử điểm, tự nâng hạng và voucher theo hạng.
 - Hội viên trả phí: quản lý cấu hình gói/phí/thời hạn và một biến thể quà cố định; thu ngân đăng ký hoặc gia hạn, ghi nhận phương thức thu phí; POS thêm quà vào đơn và tự miễn phí đúng một đơn vị mỗi ngày, chặn dùng lặp và hỗ trợ khuyến mãi chỉ dành cho hội viên còn hạn.
 - Điểm khách hàng chỉ dùng để xét và nâng hạng, không quy đổi thành tiền. Khi lên hạng, hệ thống tự cấp voucher; hạn dùng, thời gian chờ và mức hóa đơn để cấp lại được quản lý cấu hình riêng theo từng hạng.
+- Voucher luôn gắn với chi nhánh phát hành và chỉ được dùng tại chi nhánh đó. Admin có thể phát hành hàng loạt cho nhiều chi nhánh; Manager chỉ được phát hành và xem voucher thuộc các chi nhánh mình quản lý.
 - Kho theo chi nhánh/lô/hạn dùng, nhập–xuất–điều chỉnh–chuyển kho, cảnh báo tồn thấp/hết hạn, công thức định lượng và chặn tồn âm.
 - Nhà cung cấp và phiếu nhập; chỉ tăng kho khi phiếu chuyển sang `RECEIVED`.
 - Ca làm việc, tiền đầu ca, doanh thu theo phương thức, chi phí, kiểm đếm và chênh lệch cuối ca.
@@ -33,8 +34,9 @@ Tài khoản `ADMIN` hoặc `MANAGER` mở menu **Hạng & voucher** (`/loyalty`
 - Mốc điểm lên hạng và số điểm nhận trên mỗi `10.000đ`.
 - Bật/tắt voucher, loại giảm tiền/phần trăm, giá trị giảm, mức giảm tối đa và giá trị đơn tối thiểu để dùng.
 - Số ngày voucher còn hiệu lực, số ngày chờ sau khi dùng và giá trị hóa đơn tối thiểu để được cấp lại.
+- Phát hành voucher thủ công cho khách hàng: Admin chọn được nhiều chi nhánh, Manager chỉ chọn được chi nhánh thuộc quyền quản lý. Hệ thống sinh một mã riêng cho từng chi nhánh.
 
-Mặc định voucher có hạn `15 ngày`, thời gian chờ sau khi dùng là `15 ngày` và hóa đơn cấp lại tối thiểu là `200.000đ`. Backend tự cấp voucher trong transaction hoàn tất đơn, kiểm tra đúng chủ sở hữu khi áp dụng và khóa voucher ngay khi thanh toán; client không được tự gửi số tiền giảm.
+Mặc định voucher có hạn `15 ngày`, thời gian chờ sau khi dùng là `15 ngày` và hóa đơn cấp lại tối thiểu là `200.000đ`. Backend tự cấp voucher trong transaction hoàn tất đơn, kiểm tra đúng chủ sở hữu và đúng chi nhánh khi áp dụng, sau đó khóa voucher ngay khi thanh toán; client không được tự gửi số tiền giảm.
 
 ## Yêu cầu trên Windows
 

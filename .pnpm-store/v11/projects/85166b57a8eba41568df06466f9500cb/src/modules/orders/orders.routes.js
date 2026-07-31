@@ -32,6 +32,7 @@ const lineSchema = z.object({
 
 const quoteSchema = z.object({
   items: z.array(lineSchema).min(1),
+  branchId: z.string().optional().nullable(),
   customerId: z.string().optional().nullable(),
   promotionCode: z.string().trim().max(30).optional().nullable(),
   pointsToRedeem: z.coerce.number().int().min(0).default(0),
@@ -40,7 +41,6 @@ const quoteSchema = z.object({
 
 const createSchema = quoteSchema.extend({
   draftId: z.string().optional().nullable(),
-  branchId: z.string().optional().nullable(),
   note: z.string().trim().max(1000).optional().nullable(),
   saveAsDraft: z.boolean().default(false),
   customerPaid: z.coerce.number().int().min(0).default(0),
@@ -64,11 +64,15 @@ const orderInclude = {
   usedVoucher: {
     include: {
       membershipLevel: { select: { id: true, code: true, name: true } },
+      branch: { select: { id: true, code: true, name: true } },
+      createdBy: { select: { id: true, fullName: true } },
     },
   },
   issuedVouchers: {
     include: {
       membershipLevel: { select: { id: true, code: true, name: true } },
+      branch: { select: { id: true, code: true, name: true } },
+      createdBy: { select: { id: true, fullName: true } },
     },
   },
   items: {
@@ -114,12 +118,26 @@ function orderDataFromPricing(request, pricing, branchId, shiftId, code, status)
   };
 }
 
+function resolveOrderBranchId(request) {
+  if (request.user.role.code === "ADMIN" && request.body.branchId) {
+    return request.body.branchId;
+  }
+  return request.user.branch?.id;
+}
+
 router.post(
   "/quote",
   requirePermission("pos.use"),
   validate(quoteSchema),
   asyncHandler(async (request, response) => {
-    const pricing = await calculateOrder(prisma, request.body);
+    const branchId = resolveOrderBranchId(request);
+    if (!branchId) {
+      throw new ApiError(422, "Tài khoản chưa được gán chi nhánh");
+    }
+    const pricing = await calculateOrder(prisma, {
+      ...request.body,
+      branchId,
+    });
     return success(response, {
       ...pricing,
       customer: pricing.customer
@@ -147,10 +165,12 @@ router.post(
         ? {
             id: pricing.voucher.id,
             code: pricing.voucher.code,
+            branchId: pricing.voucher.branchId,
             type: pricing.voucher.type,
             value: pricing.voucher.value,
             expiresAt: pricing.voucher.expiresAt,
             membershipLevel: pricing.voucher.membershipLevel,
+            branch: pricing.voucher.branch,
           }
         : null,
       activeMembership: publicMembership(pricing.activeMembership),
@@ -237,10 +257,7 @@ router.post(
   requirePermission("pos.use"),
   validate(createSchema),
   asyncHandler(async (request, response) => {
-    const branchId =
-      ["ADMIN", "MANAGER"].includes(request.user.role.code) && request.body.branchId
-        ? request.body.branchId
-        : request.user.branch?.id;
+    const branchId = resolveOrderBranchId(request);
     if (!branchId) throw new ApiError(422, "Tài khoản chưa được gán chi nhánh");
 
     const restoredDraft = request.body.draftId
@@ -263,7 +280,10 @@ router.post(
     });
     if (!shift) throw new ApiError(422, "Bạn cần mở ca làm việc trước khi tạo đơn");
 
-    const pricing = await calculateOrder(prisma, request.body);
+    const pricing = await calculateOrder(prisma, {
+      ...request.body,
+      branchId,
+    });
     const status = request.body.saveAsDraft ? "DRAFT" : "COMPLETED";
     if (!request.body.saveAsDraft) {
       const paymentTotal = request.body.payments.reduce((sum, payment) => sum + payment.amount, 0);
@@ -280,7 +300,10 @@ router.post(
       if (restoredDraft) {
         await tx.order.delete({ where: { id: restoredDraft.id } });
       }
-      const currentPricing = await calculateOrder(tx, request.body);
+      const currentPricing = await calculateOrder(tx, {
+        ...request.body,
+        branchId,
+      });
       if (!request.body.saveAsDraft) {
         const paymentTotal = request.body.payments.reduce(
           (sum, payment) => sum + payment.amount,
@@ -347,6 +370,7 @@ router.post(
           tx,
           currentPricing.voucher,
           createdOrder.id,
+          branchId,
         );
         await deductInventory(tx, branchId, currentPricing.lines, request.user.id, createdOrder.id);
         await updateCustomerAfterCompletion(tx, createdOrder);

@@ -37,6 +37,8 @@ async function issueVoucher(tx, customer, level, order, issueReason, now) {
       code: createBusinessCode("VC"),
       customerId: customer.id,
       membershipLevelId: level.id,
+      branchId: order.branchId,
+      createdById: order.createdById,
       issuedFromOrderId: order.id,
       type: level.voucherType,
       value: level.voucherValue,
@@ -48,10 +50,11 @@ async function issueVoucher(tx, customer, level, order, issueReason, now) {
   });
 }
 
-async function canIssueVoucher(tx, customerId, level, now) {
+async function canIssueVoucher(tx, customerId, level, branchId, now) {
   const activeVoucher = await tx.customerVoucher.findFirst({
     where: {
       customerId,
+      branchId,
       status: "ACTIVE",
       expiresAt: { gt: now },
     },
@@ -62,6 +65,7 @@ async function canIssueVoucher(tx, customerId, level, now) {
   const latestUsedVoucher = await tx.customerVoucher.findFirst({
     where: {
       customerId,
+      branchId,
       status: "USED",
       usedAt: { not: null },
     },
@@ -83,17 +87,26 @@ async function maybeIssueRenewalVoucher(tx, customer, level, order, now) {
   ) {
     return null;
   }
-  if (!(await canIssueVoucher(tx, customer.id, level, now))) return null;
+  if (!(await canIssueVoucher(tx, customer.id, level, order.branchId, now))) {
+    return null;
+  }
 
   return issueVoucher(tx, customer, level, order, "QUALIFYING_ORDER", now);
 }
 
-export async function consumeCustomerVoucher(tx, voucher, orderId, now = new Date()) {
+export async function consumeCustomerVoucher(
+  tx,
+  voucher,
+  orderId,
+  branchId,
+  now = new Date(),
+) {
   if (!voucher) return null;
   const result = await tx.customerVoucher.updateMany({
     where: {
       id: voucher.id,
       customerId: voucher.customerId,
+      branchId,
       status: "ACTIVE",
       usedAt: null,
       expiresAt: { gt: now },
@@ -168,7 +181,8 @@ export async function updateCustomerAfterCompletion(tx, order) {
 
   await expireOldVouchers(tx, customer.id, now);
   const voucher =
-    upgraded && (await canIssueVoucher(tx, customer.id, level, now))
+    upgraded &&
+    (await canIssueVoucher(tx, customer.id, level, order.branchId, now))
       ? await issueVoucher(tx, customer, level, order, "TIER_UPGRADE", now)
       : await maybeIssueRenewalVoucher(tx, customer, level, order, now);
 

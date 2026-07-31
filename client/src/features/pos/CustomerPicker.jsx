@@ -12,7 +12,7 @@ import EmptyState from "../../components/common/EmptyState";
 import MembershipEnrollDialog from "../customers/MembershipEnrollDialog";
 import { formatDate } from "../../utils/format";
 
-export default function CustomerPicker({ customer, onSelect }) {
+export default function CustomerPicker({ customer, onSelect, branchId }) {
   const [open, setOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const [membershipOpen, setMembershipOpen] = useState(false);
@@ -43,6 +43,9 @@ export default function CustomerPicker({ customer, onSelect }) {
   };
 
   if (customer) {
+    const branchVouchers = (customer.activeVouchers || []).filter(
+      (voucher) => !branchId || voucher.branchId === branchId,
+    );
     return (
       <>
         <div className="tw-rounded-2xl tw-bg-mint-50 tw-p-3 dark:tw-bg-mint-700/20">
@@ -54,8 +57,8 @@ export default function CustomerPicker({ customer, onSelect }) {
               <div className="tw-truncate tw-text-sm tw-font-black">{customer.fullName}</div>
               <div className="tw-text-xs tw-text-slate-500">
                 {customer.phone} · {customer.points} điểm xếp hạng
-                {customer.activeVouchers?.length
-                  ? ` · ${customer.activeVouchers.length} voucher`
+                {branchVouchers.length
+                  ? ` · ${branchVouchers.length} voucher tại chi nhánh`
                   : ""}
               </div>
             </div>
@@ -130,9 +133,13 @@ export default function CustomerPicker({ customer, onSelect }) {
                 </div>
                 <span className="tw-text-right tw-text-xs tw-font-bold tw-text-mint-700">
                   {item.points} điểm
-                  {item.activeVouchers?.length ? (
+                  {(item.activeVouchers || []).filter(
+                    (voucher) => !branchId || voucher.branchId === branchId,
+                  ).length ? (
                     <small className="tw-block tw-font-medium tw-text-amber-600">
-                      {item.activeVouchers.length} voucher
+                      {(item.activeVouchers || []).filter(
+                        (voucher) => !branchId || voucher.branchId === branchId,
+                      ).length} voucher
                     </small>
                   ) : null}
                 </span>

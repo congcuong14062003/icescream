@@ -762,3 +762,160 @@ test("tier upgrade issues a voucher and using it does not issue another during c
   assert.ok(renewalVoucher);
   assert.equal(renewalVoucher.issueReason, "QUALIFYING_ORDER");
 });
+
+test("admin can issue vouchers for many branches while manager is limited to managed branches", async () => {
+  const [adminLogin, managerLogin, cashierLogin] = await Promise.all([
+    request(app)
+      .post("/api/auth/login")
+      .send({ login: "admin", password: "IceCream@123" })
+      .expect(200),
+    request(app)
+      .post("/api/auth/login")
+      .send({ login: "manager", password: "IceCream@123" })
+      .expect(200),
+    request(app)
+      .post("/api/auth/login")
+      .send({ login: "cashier", password: "IceCream@123" })
+      .expect(200),
+  ]);
+  const adminAuthorization = `Bearer ${adminLogin.body.data.accessToken}`;
+  const managerAuthorization = `Bearer ${managerLogin.body.data.accessToken}`;
+  const cashierAuthorization = `Bearer ${cashierLogin.body.data.accessToken}`;
+  const [branchesResponse, customersResponse, productsResponse, flavorsResponse] =
+    await Promise.all([
+      request(app)
+        .get("/api/branches")
+        .set("Authorization", adminAuthorization)
+        .expect(200),
+      request(app)
+        .get("/api/customers?size=100")
+        .set("Authorization", adminAuthorization)
+        .expect(200),
+      request(app)
+        .get("/api/products?status=ACTIVE&size=100")
+        .set("Authorization", cashierAuthorization)
+        .expect(200),
+      request(app)
+        .get("/api/flavors?status=AVAILABLE&size=100")
+        .set("Authorization", cashierAuthorization)
+        .expect(200),
+    ]);
+  const branches = branchesResponse.body.data.filter((branch) => branch.isActive);
+  assert.ok(branches.length >= 2);
+  const ownBranchId = managerLogin.body.data.user.branch.id;
+  const otherBranch = branches.find((branch) => branch.id !== ownBranchId);
+  const customer = customersResponse.body.data.find(
+    (item) => !item.activeMembership,
+  );
+  assert.ok(otherBranch);
+  assert.ok(customer);
+
+  const createdVoucherIds = [];
+  try {
+    const adminBatch = await request(app)
+      .post("/api/memberships/vouchers")
+      .set("Authorization", adminAuthorization)
+      .send({
+        customerId: customer.id,
+        branchIds: branches.slice(0, 2).map((branch) => branch.id),
+        type: "FIXED_AMOUNT",
+        value: 10000,
+        maxDiscount: null,
+        minOrderValue: 0,
+        validityDays: 15,
+      })
+      .expect(201);
+    assert.equal(adminBatch.body.data.length, 2);
+    createdVoucherIds.push(...adminBatch.body.data.map((voucher) => voucher.id));
+    assert.deepEqual(
+      new Set(adminBatch.body.data.map((voucher) => voucher.branchId)),
+      new Set(branches.slice(0, 2).map((branch) => branch.id)),
+    );
+
+    await request(app)
+      .post("/api/memberships/vouchers")
+      .set("Authorization", managerAuthorization)
+      .send({
+        customerId: customer.id,
+        branchIds: [otherBranch.id],
+        type: "PERCENT",
+        value: 10,
+        maxDiscount: 20000,
+        minOrderValue: 0,
+        validityDays: 10,
+      })
+      .expect(403);
+
+    const managerVoucher = await request(app)
+      .post("/api/memberships/vouchers")
+      .set("Authorization", managerAuthorization)
+      .send({
+        customerId: customer.id,
+        branchIds: [ownBranchId],
+        type: "PERCENT",
+        value: 10,
+        maxDiscount: 20000,
+        minOrderValue: 0,
+        validityDays: 10,
+      })
+      .expect(201);
+    assert.equal(managerVoucher.body.data.length, 1);
+    assert.equal(managerVoucher.body.data[0].branchId, ownBranchId);
+    createdVoucherIds.push(managerVoucher.body.data[0].id);
+
+    const managerList = await request(app)
+      .get("/api/memberships/vouchers?size=100")
+      .set("Authorization", managerAuthorization)
+      .expect(200);
+    assert.ok(
+      managerList.body.data.every((voucher) => voucher.branchId === ownBranchId),
+    );
+
+    const product = productsResponse.body.data.find((item) =>
+      item.variants.some((variant) => variant.isActive),
+    );
+    const variant = product.variants.find((item) => item.isActive);
+    const flavor = flavorsResponse.body.data.find((item) => item.extraPrice === 0);
+    const items = [{
+      variantId: variant.id,
+      quantity: 1,
+      flavorIds: Array.from({ length: variant.scoopCount }, () => flavor.id),
+      toppingIds: [],
+    }];
+    const wrongBranchVoucher = adminBatch.body.data.find(
+      (voucher) => voucher.branchId !== cashierLogin.body.data.user.branch.id,
+    );
+    await request(app)
+      .post("/api/orders/quote")
+      .set("Authorization", cashierAuthorization)
+      .send({
+        items,
+        customerId: customer.id,
+        promotionCode: wrongBranchVoucher.code,
+        deliveryFee: 0,
+      })
+      .expect(422);
+
+    const ownBranchVoucher = adminBatch.body.data.find(
+      (voucher) => voucher.branchId === cashierLogin.body.data.user.branch.id,
+    );
+    const validQuote = await request(app)
+      .post("/api/orders/quote")
+      .set("Authorization", cashierAuthorization)
+      .send({
+        items,
+        customerId: customer.id,
+        promotionCode: ownBranchVoucher.code,
+        deliveryFee: 0,
+      })
+      .expect(200);
+    assert.equal(validQuote.body.data.voucher.branchId, ownBranchId);
+    assert.equal(validQuote.body.data.voucher.branch.id, ownBranchId);
+  } finally {
+    if (createdVoucherIds.length) {
+      await prisma.customerVoucher.deleteMany({
+        where: { id: { in: createdVoucherIds } },
+      });
+    }
+  }
+});

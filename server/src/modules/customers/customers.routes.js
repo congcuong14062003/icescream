@@ -11,6 +11,7 @@ import { ApiError } from "../../utils/api-error.js";
 import { writeAudit } from "../../utils/audit.js";
 import { publicMembership } from "../../services/membership.service.js";
 import { publicVoucher } from "../../services/loyalty.service.js";
+import { getManagedBranchIds } from "../../services/branch-access.service.js";
 
 const router = Router();
 router.use(authenticate);
@@ -43,6 +44,21 @@ const currentMembershipInclude = {
   },
 };
 
+function voucherScope(branchIds, activeOnly = false) {
+  return {
+    ...(branchIds ? { branchId: { in: branchIds } } : {}),
+    ...(activeOnly
+      ? { status: "ACTIVE", expiresAt: { gt: new Date() } }
+      : {}),
+  };
+}
+
+const voucherRelations = {
+  membershipLevel: { select: { id: true, code: true, name: true } },
+  branch: { select: { id: true, code: true, name: true } },
+  createdBy: { select: { id: true, fullName: true } },
+};
+
 function serializeCustomer(customer) {
   const subscriptions = customer.membershipSubscriptions || [];
   const vouchers = (customer.vouchers || []).map((voucher) =>
@@ -63,6 +79,7 @@ router.get(
   "/",
   requirePermission("customers.view", "pos.use"),
   asyncHandler(async (request, response) => {
+    const voucherBranchIds = await getManagedBranchIds(prisma, request.user);
     const { page, size, skip } = getPagination(request.query);
     const search = String(request.query.search || "").trim();
     const where = {
@@ -84,10 +101,8 @@ router.get(
         include: {
           membershipLevel: true,
           vouchers: {
-            where: { status: "ACTIVE", expiresAt: { gt: new Date() } },
-            include: {
-              membershipLevel: { select: { id: true, code: true, name: true } },
-            },
+            where: voucherScope(voucherBranchIds, true),
+            include: voucherRelations,
             orderBy: { expiresAt: "asc" },
           },
           membershipSubscriptions: {
@@ -120,14 +135,16 @@ router.get(
   "/:id",
   requirePermission("customers.view", "pos.use"),
   asyncHandler(async (request, response) => {
+    const voucherBranchIds = await getManagedBranchIds(prisma, request.user);
     const customer = await prisma.customer.findFirst({
       where: { id: request.params.id, deletedAt: null },
       include: {
         membershipLevel: true,
         pointTransactions: { orderBy: { createdAt: "desc" }, take: 30 },
         vouchers: {
+          where: voucherScope(voucherBranchIds),
           include: {
-            membershipLevel: { select: { id: true, code: true, name: true } },
+            ...voucherRelations,
             issuedFromOrder: { select: { id: true, code: true } },
             usedOrder: { select: { id: true, code: true } },
           },
@@ -165,6 +182,7 @@ router.post(
   requirePermission("customers.manage", "pos.use"),
   validate(customerSchema),
   asyncHandler(async (request, response) => {
+    const voucherBranchIds = await getManagedBranchIds(prisma, request.user);
     const defaultLevel = await prisma.membershipLevel.findFirst({ orderBy: { minPoints: "asc" } });
     if (!defaultLevel) throw new ApiError(500, "Hệ thống chưa cấu hình hạng thành viên");
     const customer = await prisma.customer.create({
@@ -177,10 +195,8 @@ router.post(
       include: {
         membershipLevel: true,
         vouchers: {
-          where: { status: "ACTIVE", expiresAt: { gt: new Date() } },
-          include: {
-            membershipLevel: { select: { id: true, code: true, name: true } },
-          },
+          where: voucherScope(voucherBranchIds, true),
+          include: voucherRelations,
         },
         membershipSubscriptions: {
           where: {
@@ -206,6 +222,7 @@ router.put(
   requirePermission("customers.manage"),
   validate(customerSchema),
   asyncHandler(async (request, response) => {
+    const voucherBranchIds = await getManagedBranchIds(prisma, request.user);
     const oldCustomer = await prisma.customer.findFirst({
       where: { id: request.params.id, deletedAt: null },
     });
@@ -216,10 +233,8 @@ router.put(
       include: {
         membershipLevel: true,
         vouchers: {
-          where: { status: "ACTIVE", expiresAt: { gt: new Date() } },
-          include: {
-            membershipLevel: { select: { id: true, code: true, name: true } },
-          },
+          where: voucherScope(voucherBranchIds, true),
+          include: voucherRelations,
         },
         membershipSubscriptions: {
           where: {

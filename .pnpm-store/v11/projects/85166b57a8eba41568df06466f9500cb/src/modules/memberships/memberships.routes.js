@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import { prisma } from "../../config/prisma.js";
 import { authenticate, requirePermission } from "../../middlewares/auth.js";
@@ -8,6 +9,12 @@ import { ApiError } from "../../utils/api-error.js";
 import { createBusinessCode } from "../../utils/code.js";
 import { created, success } from "../../utils/response.js";
 import { writeAudit } from "../../utils/audit.js";
+import {
+  assertVoucherBranchAccess,
+  getManagedBranchIds,
+} from "../../services/branch-access.service.js";
+import { publicVoucher } from "../../services/loyalty.service.js";
+import { getPagination, paginationMeta } from "../../utils/pagination.js";
 
 const router = Router();
 router.use(authenticate);
@@ -44,6 +51,29 @@ const levelSchema = z
       context.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["voucherValue"],
+        message: "Voucher phần trăm không được vượt quá 100%",
+      });
+    }
+  });
+
+const manualVoucherSchema = z
+  .object({
+    customerId: z.string().min(1),
+    branchIds: z.array(z.string().min(1)).min(1).max(50),
+    type: z.enum(["PERCENT", "FIXED_AMOUNT"]),
+    value: z.coerce.number().int().positive().max(100000000),
+    maxDiscount: z.preprocess(
+      (value) => (value === "" || value == null ? null : value),
+      z.coerce.number().int().positive().max(100000000).nullable(),
+    ),
+    minOrderValue: z.coerce.number().int().min(0).max(100000000),
+    validityDays: z.coerce.number().int().min(1).max(3650),
+  })
+  .superRefine((value, context) => {
+    if (value.type === "PERCENT" && value.value > 100) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["value"],
         message: "Voucher phần trăm không được vượt quá 100%",
       });
     }
@@ -93,6 +123,211 @@ function serializePlan(plan) {
     productIds: plan.products.map((item) => item.productId),
   };
 }
+
+function createVoucherCode(branchCode) {
+  const branchPart = branchCode
+    .replace(/[^A-Z0-9]/gi, "")
+    .toUpperCase()
+    .slice(-4);
+  return `VC${branchPart}${Date.now().toString(36).toUpperCase()}${randomBytes(3).toString("hex").toUpperCase()}`;
+}
+
+const voucherInclude = {
+  customer: {
+    select: {
+      id: true,
+      code: true,
+      fullName: true,
+      phone: true,
+    },
+  },
+  membershipLevel: {
+    select: { id: true, code: true, name: true },
+  },
+  branch: {
+    select: { id: true, code: true, name: true },
+  },
+  createdBy: {
+    select: { id: true, fullName: true },
+  },
+  issuedFromOrder: {
+    select: { id: true, code: true },
+  },
+  usedOrder: {
+    select: { id: true, code: true },
+  },
+};
+
+router.get(
+  "/vouchers",
+  requirePermission("promotions.manage"),
+  asyncHandler(async (request, response) => {
+    const { page, size, skip } = getPagination(request.query);
+    const allowedBranchIds = await getManagedBranchIds(prisma, request.user);
+    const requestedBranchId = request.query.branchId
+      ? String(request.query.branchId)
+      : null;
+    const requestedStatus = request.query.status
+      ? String(request.query.status)
+      : null;
+    if (
+      requestedStatus &&
+      !["ACTIVE", "USED", "EXPIRED", "CANCELLED"].includes(requestedStatus)
+    ) {
+      throw new ApiError(422, "Trạng thái voucher không hợp lệ");
+    }
+    if (
+      requestedBranchId &&
+      allowedBranchIds &&
+      !allowedBranchIds.includes(requestedBranchId)
+    ) {
+      throw new ApiError(403, "Bạn không được xem voucher của chi nhánh này");
+    }
+    const search = String(request.query.search || "").trim();
+    const now = new Date();
+    const where = {
+      ...(allowedBranchIds ? { branchId: { in: allowedBranchIds } } : {}),
+      ...(requestedBranchId ? { branchId: requestedBranchId } : {}),
+      ...(requestedStatus ? { status: requestedStatus } : {}),
+      ...(request.query.customerId
+        ? { customerId: String(request.query.customerId) }
+        : {}),
+      ...(search
+        ? {
+            OR: [
+              { code: { contains: search } },
+              { customer: { fullName: { contains: search } } },
+              { customer: { phone: { contains: search } } },
+            ],
+          }
+        : {}),
+    };
+    await prisma.customerVoucher.updateMany({
+      where: {
+        ...(allowedBranchIds ? { branchId: { in: allowedBranchIds } } : {}),
+        status: "ACTIVE",
+        expiresAt: { lte: now },
+      },
+      data: { status: "EXPIRED" },
+    });
+    const [items, total] = await Promise.all([
+      prisma.customerVoucher.findMany({
+        where,
+        include: voucherInclude,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: size,
+      }),
+      prisma.customerVoucher.count({ where }),
+    ]);
+    return success(
+      response,
+      items.map((voucher) => publicVoucher(voucher, now)),
+      "Lấy danh sách voucher thành công",
+      paginationMeta(page, size, total),
+    );
+  }),
+);
+
+router.post(
+  "/vouchers",
+  requirePermission("promotions.manage"),
+  validate(manualVoucherSchema),
+  asyncHandler(async (request, response) => {
+    const customer = await prisma.customer.findFirst({
+      where: { id: request.body.customerId, deletedAt: null },
+      include: { membershipLevel: true },
+    });
+    if (!customer) throw new ApiError(404, "Không tìm thấy khách hàng");
+    const branches = await assertVoucherBranchAccess(
+      prisma,
+      request.user,
+      request.body.branchIds,
+    );
+    const expiresAt = new Date(
+      Date.now() + request.body.validityDays * 86400000,
+    );
+    const vouchers = await prisma.$transaction(async (tx) => {
+      const createdVouchers = [];
+      for (const branch of branches) {
+        createdVouchers.push(
+          await tx.customerVoucher.create({
+            data: {
+              code: createVoucherCode(branch.code),
+              customerId: customer.id,
+              membershipLevelId: customer.membershipLevelId,
+              branchId: branch.id,
+              createdById: request.user.id,
+              type: request.body.type,
+              value: request.body.value,
+              maxDiscount: request.body.maxDiscount,
+              minOrderValue: request.body.minOrderValue,
+              issueReason: "MANUAL",
+              expiresAt,
+            },
+            include: voucherInclude,
+          }),
+        );
+      }
+      await tx.auditLog.create({
+        data: {
+          userId: request.user.id,
+          action: "CUSTOMER_VOUCHER_BATCH_CREATE",
+          entityType: "CustomerVoucher",
+          entityId: createdVouchers[0].id,
+          newData: {
+            voucherIds: createdVouchers.map((voucher) => voucher.id),
+            customerId: customer.id,
+            branchIds: branches.map((branch) => branch.id),
+            voucherCodes: createdVouchers.map((voucher) => voucher.code),
+            type: request.body.type,
+            value: request.body.value,
+            expiresAt,
+          },
+          ipAddress: request.ip,
+          userAgent: request.get("user-agent"),
+        },
+      });
+      return createdVouchers;
+    });
+    return created(
+      response,
+      vouchers.map((voucher) => publicVoucher(voucher)),
+      `Đã phát hành ${vouchers.length} voucher theo chi nhánh`,
+    );
+  }),
+);
+
+router.patch(
+  "/vouchers/:id/cancel",
+  requirePermission("promotions.manage"),
+  asyncHandler(async (request, response) => {
+    const voucher = await prisma.customerVoucher.findUnique({
+      where: { id: request.params.id },
+      include: voucherInclude,
+    });
+    if (!voucher) throw new ApiError(404, "Không tìm thấy voucher");
+    await assertVoucherBranchAccess(prisma, request.user, [voucher.branchId]);
+    if (voucher.status !== "ACTIVE") {
+      throw new ApiError(422, "Chỉ có thể hủy voucher đang hoạt động");
+    }
+    const updated = await prisma.customerVoucher.update({
+      where: { id: voucher.id },
+      data: { status: "CANCELLED" },
+      include: voucherInclude,
+    });
+    await writeAudit(
+      prisma,
+      request,
+      "CUSTOMER_VOUCHER_CANCEL",
+      "CustomerVoucher",
+      voucher.id,
+      { status: voucher.status },
+      { status: updated.status },
+    );
+    return success(response, publicVoucher(updated), "Đã hủy voucher");
+  }),
+);
 
 router.get(
   "/levels",

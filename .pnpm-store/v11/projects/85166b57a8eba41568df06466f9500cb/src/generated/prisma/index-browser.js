@@ -597,6 +597,8 @@ exports.Prisma.CustomerVoucherScalarFieldEnum = {
   code: 'code',
   customerId: 'customerId',
   membershipLevelId: 'membershipLevelId',
+  branchId: 'branchId',
+  createdById: 'createdById',
   issuedFromOrderId: 'issuedFromOrderId',
   usedOrderId: 'usedOrderId',
   type: 'type',
@@ -1068,6 +1070,8 @@ exports.Prisma.CustomerVoucherOrderByRelevanceFieldEnum = {
   code: 'code',
   customerId: 'customerId',
   membershipLevelId: 'membershipLevelId',
+  branchId: 'branchId',
+  createdById: 'createdById',
   issuedFromOrderId: 'issuedFromOrderId',
   usedOrderId: 'usedOrderId'
 };
@@ -1252,7 +1256,8 @@ exports.PromotionType = exports.$Enums.PromotionType = {
 
 exports.VoucherIssueReason = exports.$Enums.VoucherIssueReason = {
   TIER_UPGRADE: 'TIER_UPGRADE',
-  QUALIFYING_ORDER: 'QUALIFYING_ORDER'
+  QUALIFYING_ORDER: 'QUALIFYING_ORDER',
+  MANUAL: 'MANUAL'
 };
 
 exports.VoucherStatus = exports.$Enums.VoucherStatus = {

@@ -78,6 +78,7 @@ export async function calculateOrder(tx, input) {
   const { promotion, voucher, discount, benefit } = await validatePromotion(tx, input.promotionCode, {
     originalAmount,
     customerId: input.customerId,
+    branchId: input.branchId,
     lines,
   });
   const membershipPricing = await calculateMembershipBenefit(

@@ -109,6 +109,7 @@ enum VoucherStatus {
 enum VoucherIssueReason {
   TIER_UPGRADE
   QUALIFYING_ORDER
+  MANUAL
 }
 
 enum MembershipSubscriptionStatus {
@@ -189,6 +190,7 @@ model Branch {
   stockIssues             StockIssue[]
   stocktakes              Stocktake[]
   membershipSubscriptions MembershipSubscription[]
+  customerVouchers        CustomerVoucher[]
   createdAt               DateTime                 @default(now())
   updatedAt               DateTime                 @updatedAt
 
@@ -227,6 +229,7 @@ model User {
   createdStockIssues             StockIssue[]             @relation("StockIssueCreator")
   createdStocktakes              Stocktake[]              @relation("StocktakeCreator")
   createdMembershipSubscriptions MembershipSubscription[] @relation("MembershipSubscriptionCreator")
+  createdCustomerVouchers        CustomerVoucher[]        @relation("CustomerVoucherCreator")
   auditLogs                      AuditLog[]
   createdAt                      DateTime                 @default(now())
   updatedAt                      DateTime                 @updatedAt
@@ -853,6 +856,8 @@ model CustomerVoucher {
   code              String              @unique
   customerId        String
   membershipLevelId String
+  branchId          String
+  createdById       String?
   issuedFromOrderId String?
   usedOrderId       String?             @unique
   type              VoucherDiscountType
@@ -865,12 +870,16 @@ model CustomerVoucher {
   usedAt            DateTime?
   customer          Customer            @relation(fields: [customerId], references: [id], onDelete: Restrict)
   membershipLevel   MembershipLevel     @relation(fields: [membershipLevelId], references: [id], onDelete: Restrict)
+  branch            Branch              @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  createdBy         User?               @relation("CustomerVoucherCreator", fields: [createdById], references: [id], onDelete: SetNull)
   issuedFromOrder   Order?              @relation("VoucherIssuedOrder", fields: [issuedFromOrderId], references: [id], onDelete: SetNull)
   usedOrder         Order?              @relation("VoucherUsedOrder", fields: [usedOrderId], references: [id], onDelete: SetNull)
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
 
   @@index([customerId, status, expiresAt])
+  @@index([branchId, status, expiresAt])
+  @@index([createdById, createdAt])
   @@index([membershipLevelId, createdAt])
   @@index([issuedFromOrderId])
 }

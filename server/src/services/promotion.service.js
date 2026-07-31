@@ -71,6 +71,9 @@ export async function validatePromotion(tx, code, context) {
         membershipLevel: {
           select: { id: true, code: true, name: true },
         },
+        branch: {
+          select: { id: true, code: true, name: true },
+        },
       },
     });
     if (!voucher) {
@@ -81,6 +84,15 @@ export async function validatePromotion(tx, code, context) {
     }
     if (voucher.customerId !== context.customerId) {
       throw new ApiError(422, "Voucher không thuộc khách hàng đang chọn");
+    }
+    if (!context.branchId) {
+      throw new ApiError(422, "Không xác định được chi nhánh bán hàng");
+    }
+    if (voucher.branchId !== context.branchId) {
+      throw new ApiError(
+        422,
+        `Voucher chỉ được sử dụng tại ${voucher.branch.name}`,
+      );
     }
     if (voucher.status !== "ACTIVE" || voucher.expiresAt <= now) {
       throw new ApiError(422, "Voucher đã được sử dụng, hết hạn hoặc bị hủy");

@@ -351,6 +351,7 @@ router.post(
   requirePermission("pos.use"),
   validate(z.object({
     code: z.string().min(3),
+    branchId: z.string().optional().nullable(),
     customerId: z.string().optional().nullable(),
     originalAmount: z.number().int().min(0),
     lines: z.array(z.object({
@@ -362,7 +363,14 @@ router.post(
     })),
   })),
   asyncHandler(async (request, response) => {
-    const result = await validatePromotion(prisma, request.body.code, request.body);
+    const branchId =
+      request.user.role.code === "ADMIN" && request.body.branchId
+        ? request.body.branchId
+        : request.user.branch?.id;
+    const result = await validatePromotion(prisma, request.body.code, {
+      ...request.body,
+      branchId,
+    });
     return success(response, {
       promotion: result.promotion
         ? {
@@ -376,10 +384,12 @@ router.post(
         ? {
             id: result.voucher.id,
             code: result.voucher.code,
+            branchId: result.voucher.branchId,
             type: result.voucher.type,
             value: result.voucher.value,
             expiresAt: result.voucher.expiresAt,
             membershipLevel: result.voucher.membershipLevel,
+            branch: result.voucher.branch,
           }
         : null,
       discount: result.discount,

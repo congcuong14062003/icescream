@@ -38,6 +38,7 @@ import ProductCustomizer from "../features/pos/ProductCustomizer";
 import CustomerPicker from "../features/pos/CustomerPicker";
 import { formatDate, formatMoney, paymentMethodLabels } from "../utils/format";
 import { Link } from "react-router-dom";
+import { useAuth } from "../store/AuthContext";
 
 const paymentIcons = {
   CASH: Banknote,
@@ -47,6 +48,7 @@ const paymentIcons = {
 };
 
 export default function PosPage() {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [categoryId, setCategoryId] = useState("");
@@ -129,6 +131,9 @@ export default function PosPage() {
   const localTotal = cart.reduce((sum, line) => sum + line.displayUnitPrice * line.quantity, 0);
   const total = quote?.totalAmount ?? localTotal;
   const change = paymentMethod === "CASH" ? Math.max(0, Number(customerPaid || 0) - total) : 0;
+  const branchVouchers = (customer?.activeVouchers || []).filter(
+    (voucher) => voucher.branchId === user?.branch?.id,
+  );
 
   const saveOrderMutation = useMutation({
     mutationFn: (saveAsDraft) =>
@@ -360,19 +365,20 @@ export default function PosPage() {
               <div className="tw-space-y-3">
                 <CustomerPicker
                   customer={customer}
+                  branchId={user?.branch?.id}
                   onSelect={(value) => {
                     setCustomer(value);
                     setPromotionCode("");
                     setPromotionInput("");
                   }}
                 />
-                {customer?.activeVouchers?.length > 0 && (
+                {branchVouchers.length > 0 && (
                   <div>
                     <div className="tw-mb-2 tw-flex tw-items-center tw-gap-1.5 tw-text-[11px] tw-font-bold tw-uppercase tw-tracking-wide tw-text-slate-500">
-                      <Gift size={14} className="tw-text-mint-600" /> Voucher của khách
+                      <Gift size={14} className="tw-text-mint-600" /> Voucher dùng tại {user?.branch?.name}
                     </div>
                     <div className="tw-space-y-2">
-                      {customer.activeVouchers.map((voucher) => {
+                      {branchVouchers.map((voucher) => {
                         const selected = promotionCode === voucher.code;
                         return (
                           <button
@@ -395,7 +401,7 @@ export default function PosPage() {
                                 {voucher.type === "PERCENT"
                                   ? `Giảm ${voucher.value}%`
                                   : `Giảm ${formatMoney(voucher.value)}`}{" "}
-                                · Hạn {formatDate(voucher.expiresAt)}
+                                · {voucher.branch.name} · Hạn {formatDate(voucher.expiresAt)}
                               </span>
                             </span>
                             <span className="tw-rounded-full tw-bg-mint-100 tw-px-2.5 tw-py-1 tw-text-[10px] tw-font-black tw-text-mint-700 dark:tw-bg-mint-900/30">
@@ -499,7 +505,7 @@ export default function PosPage() {
                   Voucher {quote.voucher.code}
                 </strong>
                 <span className="tw-mt-0.5 tw-block tw-text-[11px] tw-text-mint-700/80 dark:tw-text-mint-300/80">
-                  Hạng {quote.voucher.membershipLevel.name} · Giảm {formatMoney(quote.voucherDiscount)}
+                  {quote.voucher.branch.name} · Giảm {formatMoney(quote.voucherDiscount)}
                 </span>
               </div>
               <button
@@ -649,7 +655,7 @@ export default function PosPage() {
               </div>
               <div className="tw-mt-2 tw-flex tw-items-end tw-justify-between tw-gap-3">
                 <strong className="tw-text-lg tw-tracking-wide">{voucher.code}</strong>
-                <span className="tw-text-xs tw-text-slate-500">Hạn {formatDate(voucher.expiresAt)}</span>
+                <span className="tw-text-xs tw-text-slate-500">{voucher.branch.name} · Hạn {formatDate(voucher.expiresAt)}</span>
               </div>
             </div>
           ))}

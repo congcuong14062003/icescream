@@ -175,7 +175,7 @@ export default function CustomersPage() {
                           Hạng {voucher.membershipLevel.name} ·{" "}
                           {voucher.type === "PERCENT"
                             ? `giảm ${voucher.value}%`
-                            : `giảm ${formatMoney(voucher.value)}`}
+                            : `giảm ${formatMoney(voucher.value)}`} · {voucher.branch.name}
                         </span>
                       </div>
                     </div>
