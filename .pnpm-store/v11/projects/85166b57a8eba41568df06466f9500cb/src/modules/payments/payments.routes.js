@@ -8,6 +8,7 @@ import { ApiError } from "../../utils/api-error.js";
 import { createBusinessCode } from "../../utils/code.js";
 import { created, success } from "../../utils/response.js";
 import { emitOrderEvent } from "../../services/socket.service.js";
+import { branchWhere, resolveBranchIds } from "../../services/branch-access.service.js";
 
 const router = Router();
 router.use(authenticate);
@@ -16,8 +17,14 @@ router.get(
   "/order/:orderId",
   requirePermission("orders.view"),
   asyncHandler(async (request, response) => {
+    const branchIds = await resolveBranchIds(prisma, request.user);
+    const order = await prisma.order.findFirst({
+      where: { id: request.params.orderId, ...branchWhere(branchIds) },
+      select: { id: true },
+    });
+    if (!order) throw new ApiError(404, "Không tìm thấy đơn hàng");
     const payments = await prisma.payment.findMany({
-      where: { orderId: request.params.orderId },
+      where: { orderId: order.id },
       orderBy: { paidAt: "asc" },
     });
     return success(response, payments);
@@ -33,12 +40,14 @@ router.post(
     referenceCode: z.string().trim().max(100).optional().nullable(),
   })),
   asyncHandler(async (request, response) => {
-    const order = await prisma.order.findUnique({
-      where: { id: request.params.orderId },
+    const branchIds = await resolveBranchIds(prisma, request.user);
+    const order = await prisma.order.findFirst({
+      where: { id: request.params.orderId, ...branchWhere(branchIds) },
       include: { payments: true },
     });
-    if (!order || ["CANCELLED", "COMPLETED"].includes(order.status)) {
-      throw new ApiError(422, "Đơn không tồn tại hoặc không thể thanh toán thêm");
+    if (!order) throw new ApiError(404, "Không tìm thấy đơn hàng");
+    if (["CANCELLED", "COMPLETED"].includes(order.status)) {
+      throw new ApiError(422, "Đơn hàng không thể thanh toán thêm");
     }
     const paid = order.payments.reduce((sum, item) => sum + item.amount, 0);
     if (paid + request.body.amount > order.totalAmount) {
@@ -85,4 +94,3 @@ router.post(
 );
 
 export default router;
-

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Eye, Plus, Trash2, Truck } from "lucide-react";
 import { IconButton } from "@mui/material";
@@ -33,12 +33,17 @@ const emptyLine = { ingredientId: "", quantity: 1, unitCost: 0, batchNumber: "",
 export default function PurchaseOrdersPage() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const isAdmin = user.role.code === "ADMIN";
+  const canSelectBranch = ["ADMIN", "MANAGER"].includes(user.role.code);
   const [createOpen, setCreateOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
+  const [branchFilter, setBranchFilter] = useState(canSelectBranch ? "" : user.branch?.id || "");
   const [form, setForm] = useState({ supplierId: "", branchId: user.branch?.id || "", note: "", items: [{ ...emptyLine }] });
   const ordersQuery = useQuery({
-    queryKey: ["purchase-orders"],
-    queryFn: () => api.get("/purchase-orders", { params: { size: 100 } }).then((response) => response.data.data),
+    queryKey: ["purchase-orders", branchFilter],
+    queryFn: () => api.get("/purchase-orders", {
+      params: { size: 100, branchId: branchFilter || undefined },
+    }).then((response) => response.data.data),
   });
   const detailQuery = useQuery({
     queryKey: ["purchase-order", selectedId],
@@ -57,6 +62,14 @@ export default function PurchaseOrdersPage() {
     queryKey: ["branches"],
     queryFn: () => api.get("/branches").then((response) => response.data.data),
   });
+
+  useEffect(() => {
+    const branches = branchesQuery.data || [];
+    if (!form.branchId && branches.length) {
+      setForm((current) => ({ ...current, branchId: user.branch?.id || branches[0].id }));
+    }
+  }, [branchesQuery.data, form.branchId, user.branch?.id]);
+
   const createMutation = useMutation({
     mutationFn: () => api.post("/purchase-orders", {
       ...form,
@@ -106,6 +119,18 @@ export default function PurchaseOrdersPage() {
         actions={<Button startIcon={<Plus size={18} />} onClick={() => setCreateOpen(true)}>Tạo phiếu nhập</Button>}
       />
       <div className="tw-rounded-2xl tw-border tw-border-slate-200 tw-bg-white tw-p-4 dark:tw-border-slate-700 dark:tw-bg-slate-900">
+        <div className="tw-mb-4 tw-max-w-sm">
+          <Select
+            label="Chi nhánh nhận"
+            value={branchFilter}
+            onChange={(event) => setBranchFilter(event.target.value)}
+            options={[
+              ...(canSelectBranch ? [{ value: "", label: isAdmin ? "Tất cả chi nhánh" : "Tất cả chi nhánh được quản lý" }] : []),
+              ...(branchesQuery.data || []).map((branch) => ({ value: branch.id, label: branch.name })),
+            ]}
+            disabled={!canSelectBranch}
+          />
+        </div>
         <DataTable columns={columns} rows={ordersQuery.data || []} loading={ordersQuery.isLoading} />
       </div>
       <Modal
@@ -123,7 +148,7 @@ export default function PurchaseOrdersPage() {
         <div className="tw-space-y-5 tw-pt-2">
           <div className="tw-grid tw-gap-4 sm:tw-grid-cols-2">
             <Select label="Nhà cung cấp" value={form.supplierId} onChange={(event) => setForm((current) => ({ ...current, supplierId: event.target.value }))} options={(suppliersQuery.data || []).map((item) => ({ value: item.id, label: item.name }))} />
-            <Select label="Chi nhánh nhận" value={form.branchId} onChange={(event) => setForm((current) => ({ ...current, branchId: event.target.value }))} options={(branchesQuery.data || []).map((item) => ({ value: item.id, label: item.name }))} />
+            <Select label="Chi nhánh nhận" value={form.branchId} onChange={(event) => setForm((current) => ({ ...current, branchId: event.target.value }))} options={(branchesQuery.data || []).map((item) => ({ value: item.id, label: item.name }))} disabled={!canSelectBranch} />
           </div>
           <Input label="Ghi chú phiếu" value={form.note} onChange={(event) => setForm((current) => ({ ...current, note: event.target.value }))} />
           <div className="tw-flex tw-items-center tw-justify-between"><h3 className="tw-m-0 tw-text-base tw-font-black">Danh sách nguyên liệu</h3><Button variant="outlined" size="small" startIcon={<Plus size={15} />} onClick={() => setForm((current) => ({ ...current, items: [...current.items, { ...emptyLine }] }))}>Thêm dòng</Button></div>

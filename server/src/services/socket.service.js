@@ -6,6 +6,5 @@ export function setSocketServer(io) {
 
 export function emitOrderEvent(branchId, event, data) {
   if (!ioInstance) return;
-  ioInstance.to(`branch:${branchId}`).emit(event, data);
+  ioInstance.to(`branch:${branchId}`).to("orders:admin").emit(event, data);
 }
-

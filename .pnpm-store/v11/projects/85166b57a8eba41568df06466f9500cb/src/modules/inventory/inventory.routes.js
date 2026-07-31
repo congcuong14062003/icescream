@@ -13,6 +13,11 @@ import {
   createAdjustmentBatch,
   normalizeStockQuantity,
 } from "../../services/inventory-batch.service.js";
+import {
+  assertBranchAccess,
+  branchWhere,
+  resolveBranchIds,
+} from "../../services/branch-access.service.js";
 
 const router = Router();
 router.use(authenticate);
@@ -84,18 +89,6 @@ const issueReasonLabels = {
   OTHER: "Lý do khác",
 };
 
-function assertBranchAccess(request, branchId) {
-  if (["ADMIN", "MANAGER"].includes(request.user.role.code)) return;
-  if (!request.user.branch?.id || request.user.branch.id !== branchId) {
-    throw new ApiError(403, "Bạn chỉ được thao tác kho tại chi nhánh được phân công");
-  }
-}
-
-function scopedBranchId(request) {
-  const branchId = request.query.branchId || request.user.branch?.id;
-  if (branchId) assertBranchAccess(request, branchId);
-  return branchId;
-}
 
 const stockIssueInclude = {
   branch: { select: { id: true, code: true, name: true } },
@@ -120,11 +113,14 @@ router.get(
   requirePermission("inventory.view"),
   asyncHandler(async (request, response) => {
     const { page, size, skip } = getPagination(request.query);
-    const branchId = scopedBranchId(request);
-    if (!branchId) throw new ApiError(422, "Vui lòng chọn chi nhánh");
+    const branchIds = await resolveBranchIds(
+      prisma,
+      request.user,
+      request.query.branchId || null,
+    );
     const search = String(request.query.search || "").trim();
     const where = {
-      branchId,
+      ...branchWhere(branchIds),
       ...(search
         ? {
             ingredient: {
@@ -158,14 +154,18 @@ router.get(
   "/alerts",
   requirePermission("inventory.view", "dashboard.view"),
   asyncHandler(async (request, response) => {
-    const branchId = scopedBranchId(request);
+    const branchIds = await resolveBranchIds(
+      prisma,
+      request.user,
+      request.query.branchId || null,
+    );
     const inventories = await prisma.inventory.findMany({
-      where: branchId ? { branchId } : {},
+      where: branchWhere(branchIds),
       include: { ingredient: true, branch: { select: { id: true, name: true } } },
     });
     const expiringBatches = await prisma.inventoryBatch.findMany({
       where: {
-        ...(branchId ? { branchId } : {}),
+        ...branchWhere(branchIds),
         remaining: { gt: 0 },
         expiryDate: { lte: new Date(Date.now() + 14 * 86400000), gte: new Date() },
       },
@@ -219,9 +219,13 @@ router.get(
   requirePermission("inventory.view"),
   asyncHandler(async (request, response) => {
     const { page, size, skip } = getPagination(request.query);
-    const branchId = scopedBranchId(request);
+    const branchIds = await resolveBranchIds(
+      prisma,
+      request.user,
+      request.query.branchId || null,
+    );
     const where = {
-      ...(branchId ? { branchId } : {}),
+      ...branchWhere(branchIds),
       ...(request.query.ingredientId ? { ingredientId: request.query.ingredientId } : {}),
       ...(request.query.type ? { type: request.query.type } : {}),
     };
@@ -248,8 +252,12 @@ router.get(
   requirePermission("inventory.view"),
   asyncHandler(async (request, response) => {
     const { page, size, skip } = getPagination(request.query);
-    const branchId = scopedBranchId(request);
-    const where = branchId ? { branchId } : {};
+    const branchIds = await resolveBranchIds(
+      prisma,
+      request.user,
+      request.query.branchId || null,
+    );
+    const where = branchWhere(branchIds);
     const [items, total] = await Promise.all([
       prisma.stockIssue.findMany({
         where,
@@ -274,7 +282,12 @@ router.post(
   requirePermission("inventory.manage"),
   validate(stockIssueSchema),
   asyncHandler(async (request, response) => {
-    assertBranchAccess(request, request.body.branchId);
+    await assertBranchAccess(
+      prisma,
+      request.user,
+      request.body.branchId,
+      "Bạn chỉ được thao tác kho tại chi nhánh được phân công",
+    );
     const item = await prisma.$transaction(async (tx) => {
       const code = createBusinessCode("PXK");
       const issue = await tx.stockIssue.create({
@@ -388,8 +401,12 @@ router.get(
   requirePermission("inventory.view"),
   asyncHandler(async (request, response) => {
     const { page, size, skip } = getPagination(request.query);
-    const branchId = scopedBranchId(request);
-    const where = branchId ? { branchId } : {};
+    const branchIds = await resolveBranchIds(
+      prisma,
+      request.user,
+      request.query.branchId || null,
+    );
+    const where = branchWhere(branchIds);
     const [items, total] = await Promise.all([
       prisma.stocktake.findMany({
         where,
@@ -414,7 +431,12 @@ router.post(
   requirePermission("inventory.manage"),
   validate(stocktakeSchema),
   asyncHandler(async (request, response) => {
-    assertBranchAccess(request, request.body.branchId);
+    await assertBranchAccess(
+      prisma,
+      request.user,
+      request.body.branchId,
+      "Bạn chỉ được thao tác kho tại chi nhánh được phân công",
+    );
     const item = await prisma.$transaction(async (tx) => {
       const code = createBusinessCode("KK");
       const stocktake = await tx.stocktake.create({
@@ -545,7 +567,12 @@ router.post(
   })),
   asyncHandler(async (request, response) => {
     const { branchId, ingredientId, type, quantity, note } = request.body;
-    assertBranchAccess(request, branchId);
+    await assertBranchAccess(
+      prisma,
+      request.user,
+      branchId,
+      "Bạn chỉ được thao tác kho tại chi nhánh được phân công",
+    );
     const adjustment = await prisma.$transaction(async (tx) => {
       const inventory = await tx.inventory.findUnique({
         where: { branchId_ingredientId: { branchId, ingredientId } },
@@ -631,8 +658,22 @@ router.post(
     path: ["toBranchId"],
   })),
   asyncHandler(async (request, response) => {
+    const { fromBranchId, toBranchId, ingredientId, quantity, note } = request.body;
+    await Promise.all([
+      assertBranchAccess(
+        prisma,
+        request.user,
+        fromBranchId,
+        "Bạn chỉ được chuyển hàng từ kho thuộc chi nhánh mình quản lý",
+      ),
+      assertBranchAccess(
+        prisma,
+        request.user,
+        toBranchId,
+        "Bạn chỉ được chuyển hàng đến kho thuộc chi nhánh mình quản lý",
+      ),
+    ]);
     const data = await prisma.$transaction(async (tx) => {
-      const { fromBranchId, toBranchId, ingredientId, quantity, note } = request.body;
       const [source, target] = await Promise.all([
         tx.inventory.findUnique({ where: { branchId_ingredientId: { branchId: fromBranchId, ingredientId } } }),
         tx.inventory.findUnique({ where: { branchId_ingredientId: { branchId: toBranchId, ingredientId } } }),

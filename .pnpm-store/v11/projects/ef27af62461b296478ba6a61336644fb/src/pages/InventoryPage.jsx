@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
@@ -58,6 +58,8 @@ const emptyIssueForm = {
 export default function InventoryPage() {
   const { user, hasPermission } = useAuth();
   const canManage = hasPermission("inventory.manage");
+  const isAdmin = user.role.code === "ADMIN";
+  const canSelectBranch = ["ADMIN", "MANAGER"].includes(user.role.code);
   const queryClient = useQueryClient();
   const [branchId, setBranchId] = useState(user.branch?.id || "");
   const [search, setSearch] = useState("");
@@ -76,30 +78,38 @@ export default function InventoryPage() {
     queryKey: ["branches"],
     queryFn: () => api.get("/branches").then((response) => response.data.data),
   });
+
+  useEffect(() => {
+    const branches = branchesQuery.data || [];
+    if (!isAdmin && !branchId && branches.length) {
+      setBranchId(user.branch?.id || branches[0].id);
+    }
+  }, [branchId, branchesQuery.data, isAdmin, user.branch?.id]);
+
   const inventoryQuery = useQuery({
     queryKey: ["inventory", branchId, search],
     queryFn: () => api.get("/inventory", { params: { branchId, search, size: 100 } }).then((response) => response.data.data),
-    enabled: Boolean(branchId),
+    enabled: isAdmin || Boolean(branchId),
   });
   const alertsQuery = useQuery({
     queryKey: ["inventory-alerts", branchId],
     queryFn: () => api.get("/inventory/alerts", { params: { branchId } }).then((response) => response.data.data),
-    enabled: Boolean(branchId),
+    enabled: isAdmin || Boolean(branchId),
   });
   const transactionsQuery = useQuery({
     queryKey: ["inventory-transactions", branchId],
     queryFn: () => api.get("/inventory/transactions", { params: { branchId, size: 20 } }).then((response) => response.data.data),
-    enabled: Boolean(branchId),
+    enabled: isAdmin || Boolean(branchId),
   });
   const issuesQuery = useQuery({
     queryKey: ["stock-issues", branchId],
     queryFn: () => api.get("/inventory/issues", { params: { branchId, size: 5 } }).then((response) => response.data.data),
-    enabled: Boolean(branchId),
+    enabled: isAdmin || Boolean(branchId),
   });
   const stocktakesQuery = useQuery({
     queryKey: ["stocktakes", branchId],
     queryFn: () => api.get("/inventory/stocktakes", { params: { branchId, size: 5 } }).then((response) => response.data.data),
-    enabled: Boolean(branchId),
+    enabled: isAdmin || Boolean(branchId),
   });
 
   const refreshInventory = () => {
@@ -113,7 +123,7 @@ export default function InventoryPage() {
 
   const adjustMutation = useMutation({
     mutationFn: () => api.post("/inventory/adjust", {
-      branchId,
+      branchId: adjusting.branchId,
       ingredientId: adjusting.ingredientId,
       ...adjustForm,
       quantity: Number(adjustForm.quantity),
@@ -234,6 +244,7 @@ export default function InventoryPage() {
   };
 
   const columns = [
+    ...(isAdmin ? [{ key: "branch", label: "Chi nhánh", render: (value) => value.name }] : []),
     { key: "ingredient", label: "Nguyên liệu", render: (value) => <div><strong>{value.name}</strong><div className="tw-text-xs tw-text-slate-400">{value.code} · {value.warehouseLocation || "Chưa có vị trí"}</div></div> },
     { key: "quantity", label: "Tồn hiện tại", align: "right", render: (value, row) => <strong className={row.isLowStock ? "tw-text-rose-500" : "tw-text-emerald-600"}>{value.toLocaleString("vi-VN")} {row.ingredient.unit}</strong> },
     { key: "minStock", label: "Tồn tối thiểu", align: "right", render: (_, row) => `${row.ingredient.minStock.toLocaleString("vi-VN")} ${row.ingredient.unit}` },
@@ -289,8 +300,11 @@ export default function InventoryPage() {
           label="Chi nhánh"
           value={branchId}
           onChange={(event) => setBranchId(event.target.value)}
-          options={(branchesQuery.data || []).map((branch) => ({ value: branch.id, label: branch.name }))}
-          disabled={!["ADMIN", "MANAGER"].includes(user.role.code)}
+          options={[
+            ...(isAdmin ? [{ value: "", label: "Tất cả chi nhánh" }] : []),
+            ...(branchesQuery.data || []).map((branch) => ({ value: branch.id, label: branch.name })),
+          ]}
+          disabled={!canSelectBranch}
         />
         <Input placeholder="Tìm nguyên liệu hoặc mã..." value={search} onChange={(event) => setSearch(event.target.value)} InputProps={{ startAdornment: <InputAdornment position="start"><Search size={18} /></InputAdornment> }} />
       </div>

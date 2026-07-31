@@ -29,10 +29,13 @@ const paymentStatusLabels = {
 
 export default function OrdersPage() {
   const queryClient = useQueryClient();
-  const { hasPermission } = useAuth();
+  const { user, hasPermission } = useAuth();
   const canManage = hasPermission("orders.manage");
+  const canSelectBranch = ["ADMIN", "MANAGER"].includes(user.role.code);
+  const isAdmin = user.role.code === "ADMIN";
   const [filters, setFilters] = useState({
     search: "",
+    branchId: canSelectBranch ? "" : user.branch?.id || "",
     status: "",
     paymentMethod: "",
     dateFrom: todayInput(),
@@ -53,11 +56,16 @@ export default function OrdersPage() {
         .get("/orders", {
           params: {
             ...filters,
+            branchId: filters.branchId || undefined,
             status: filters.status || undefined,
             paymentMethod: filters.paymentMethod || undefined,
           },
         })
         .then((response) => response.data),
+  });
+  const branchesQuery = useQuery({
+    queryKey: ["branches"],
+    queryFn: () => api.get("/branches").then((response) => response.data.data),
   });
   const detailQuery = useQuery({
     queryKey: ["order", selectedId],
@@ -119,6 +127,7 @@ export default function OrdersPage() {
 
   const columns = [
     { key: "code", label: "Mã đơn", render: (value, row) => <div><strong>{value}</strong><div className="tw-text-xs tw-text-slate-400">{formatDate(row.createdAt, true)}</div></div> },
+    ...(canSelectBranch ? [{ key: "branch", label: "Chi nhánh", render: (value) => value.name }] : []),
     { key: "customer", label: "Khách hàng", render: (value) => value ? <div><strong className="tw-block tw-text-sm">{value.fullName}</strong><span className="tw-text-xs tw-text-slate-400">{value.phone}</span></div> : "Khách lẻ" },
     { key: "createdBy", label: "Nhân viên", render: (value) => value.fullName },
     { key: "totalAmount", label: "Tổng tiền", align: "right", render: (value) => <strong>{formatMoney(value)}</strong> },
@@ -139,13 +148,24 @@ export default function OrdersPage() {
         title="Đơn hàng"
         description="Theo dõi trạng thái làm kem, thanh toán, lịch sử xử lý và hoàn tiền."
       />
-      <div className="tw-grid tw-gap-3 tw-rounded-2xl tw-border tw-border-slate-200 tw-bg-white tw-p-4 sm:tw-grid-cols-2 xl:tw-grid-cols-5 dark:tw-border-slate-700 dark:tw-bg-slate-900">
+      <div className={`tw-grid tw-gap-3 tw-rounded-2xl tw-border tw-border-slate-200 tw-bg-white tw-p-4 sm:tw-grid-cols-2 ${canSelectBranch ? "xl:tw-grid-cols-6" : "xl:tw-grid-cols-5"} dark:tw-border-slate-700 dark:tw-bg-slate-900`}>
         <Input
           placeholder="Mã đơn hoặc SĐT..."
           value={filters.search}
           onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))}
           InputProps={{ startAdornment: <InputAdornment position="start"><Search size={18} /></InputAdornment> }}
         />
+        {canSelectBranch && (
+          <Select
+            label="Chi nhánh"
+            value={filters.branchId}
+            onChange={(event) => setFilters((current) => ({ ...current, branchId: event.target.value }))}
+            options={[
+              { value: "", label: isAdmin ? "Tất cả chi nhánh" : "Tất cả chi nhánh được quản lý" },
+              ...(branchesQuery.data || []).map((branch) => ({ value: branch.id, label: branch.name })),
+            ]}
+          />
+        )}
         <Select label="Trạng thái" value={filters.status} onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value }))} options={[{ value: "", label: "Tất cả trạng thái" }, ...statusOptions]} />
         <Select label="Thanh toán" value={filters.paymentMethod} onChange={(event) => setFilters((current) => ({ ...current, paymentMethod: event.target.value }))} options={[{ value: "", label: "Mọi phương thức" }, ...Object.entries(paymentMethodLabels).filter(([value]) => value !== "MIXED").map(([value, label]) => ({ value, label }))]} />
         <Input label="Từ ngày" type="date" value={filters.dateFrom} onChange={(event) => setFilters((current) => ({ ...current, dateFrom: event.target.value }))} InputLabelProps={{ shrink: true }} />

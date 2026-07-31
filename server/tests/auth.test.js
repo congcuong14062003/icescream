@@ -94,20 +94,17 @@ test("warehouse staff can issue stock and complete a stocktake only at their bra
   const authorization = `Bearer ${login.body.data.accessToken}`;
   const ownBranchId = login.body.data.user.branch.id;
 
-  const [inventoryResponse, branchesResponse] = await Promise.all([
-    request(app)
-      .get(`/api/inventory?branchId=${ownBranchId}&size=100`)
-      .set("Authorization", authorization)
-      .expect(200),
-    request(app)
-      .get("/api/branches")
-      .set("Authorization", authorization)
-      .expect(200),
-  ]);
+  const inventoryResponse = await request(app)
+    .get(`/api/inventory?branchId=${ownBranchId}&size=100`)
+    .set("Authorization", authorization)
+    .expect(200);
   const inventoryLine = inventoryResponse.body.data.find((item) => item.quantity >= 2);
   assert.ok(inventoryLine);
 
-  const otherBranch = branchesResponse.body.data.find((branch) => branch.id !== ownBranchId);
+  const otherBranch = await prisma.branch.findFirst({
+    where: { id: { not: ownBranchId }, deletedAt: null },
+    select: { id: true },
+  });
   assert.ok(otherBranch);
   await request(app)
     .post("/api/inventory/issues")
@@ -1147,4 +1144,161 @@ test("manager can update product recipes while cashier is forbidden", async () =
       .send(originalPayload)
       .expect(200);
   }
+});
+
+test("branch data scope protects inventory, purchase orders and orders", async () => {
+  const [adminLogin, managerLogin, warehouseLogin, cashierLogin] = await Promise.all([
+    request(app).post("/api/auth/login").send({ login: "admin", password: "IceCream@123" }).expect(200),
+    request(app).post("/api/auth/login").send({ login: "manager", password: "IceCream@123" }).expect(200),
+    request(app).post("/api/auth/login").send({ login: "warehouse", password: "IceCream@123" }).expect(200),
+    request(app).post("/api/auth/login").send({ login: "cashier", password: "IceCream@123" }).expect(200),
+  ]);
+  const adminAuthorization = `Bearer ${adminLogin.body.data.accessToken}`;
+  const managerAuthorization = `Bearer ${managerLogin.body.data.accessToken}`;
+  const warehouseAuthorization = `Bearer ${warehouseLogin.body.data.accessToken}`;
+  const cashierAuthorization = `Bearer ${cashierLogin.body.data.accessToken}`;
+  const ownBranchId = managerLogin.body.data.user.branch.id;
+
+  const [adminBranches, managerBranches, warehouseBranches] = await Promise.all([
+    request(app).get("/api/branches").set("Authorization", adminAuthorization).expect(200),
+    request(app).get("/api/branches").set("Authorization", managerAuthorization).expect(200),
+    request(app).get("/api/branches").set("Authorization", warehouseAuthorization).expect(200),
+  ]);
+  const otherBranch = adminBranches.body.data.find((branch) => branch.id !== ownBranchId);
+  assert.ok(otherBranch);
+  assert.ok(managerBranches.body.data.length >= 1);
+  assert.ok(managerBranches.body.data.every((branch) => branch.id === ownBranchId));
+  assert.deepEqual(
+    warehouseBranches.body.data.map((branch) => branch.id),
+    [warehouseLogin.body.data.user.branch.id],
+  );
+
+  const [adminInventory, managerInventory, warehouseInventory] = await Promise.all([
+    request(app).get("/api/inventory?size=100").set("Authorization", adminAuthorization).expect(200),
+    request(app).get("/api/inventory?size=100").set("Authorization", managerAuthorization).expect(200),
+    request(app).get("/api/inventory?size=100").set("Authorization", warehouseAuthorization).expect(200),
+  ]);
+  assert.ok(new Set(adminInventory.body.data.map((item) => item.branchId)).size >= 2);
+  assert.ok(managerInventory.body.data.every((item) => item.branchId === ownBranchId));
+  assert.ok(
+    warehouseInventory.body.data.every(
+      (item) => item.branchId === warehouseLogin.body.data.user.branch.id,
+    ),
+  );
+  await request(app)
+    .get(`/api/inventory?branchId=${otherBranch.id}`)
+    .set("Authorization", managerAuthorization)
+    .expect(403);
+  await request(app)
+    .get(`/api/inventory/transactions?branchId=${otherBranch.id}`)
+    .set("Authorization", warehouseAuthorization)
+    .expect(403);
+
+  const [suppliers, ingredients] = await Promise.all([
+    request(app).get("/api/suppliers?size=1").set("Authorization", adminAuthorization).expect(200),
+    request(app).get("/api/inventory/ingredients").set("Authorization", adminAuthorization).expect(200),
+  ]);
+  const purchaseInput = {
+    supplierId: suppliers.body.data[0].id,
+    branchId: otherBranch.id,
+    note: "Phiếu kiểm thử phạm vi chi nhánh",
+    items: [{
+      ingredientId: ingredients.body.data[0].id,
+      quantity: 1,
+      unitCost: ingredients.body.data[0].averageCost,
+      batchNumber: `TEST-SCOPE-${Date.now()}`,
+      manufactureDate: null,
+      expiryDate: null,
+    }],
+  };
+  let purchaseOrderId;
+  try {
+    const createdPurchaseOrder = await request(app)
+      .post("/api/purchase-orders")
+      .set("Authorization", adminAuthorization)
+      .send(purchaseInput)
+      .expect(201);
+    purchaseOrderId = createdPurchaseOrder.body.data.id;
+
+    await request(app)
+      .post("/api/purchase-orders")
+      .set("Authorization", managerAuthorization)
+      .send(purchaseInput)
+      .expect(403);
+    await request(app)
+      .get(`/api/purchase-orders?branchId=${otherBranch.id}`)
+      .set("Authorization", managerAuthorization)
+      .expect(403);
+    await request(app)
+      .get(`/api/purchase-orders/${purchaseOrderId}`)
+      .set("Authorization", managerAuthorization)
+      .expect(404);
+    await request(app)
+      .patch(`/api/purchase-orders/${purchaseOrderId}/status`)
+      .set("Authorization", warehouseAuthorization)
+      .send({ status: "PENDING" })
+      .expect(404);
+    await request(app)
+      .get(`/api/purchase-orders/${purchaseOrderId}`)
+      .set("Authorization", adminAuthorization)
+      .expect(200);
+  } finally {
+    if (purchaseOrderId) {
+      await prisma.purchaseOrder.delete({ where: { id: purchaseOrderId } });
+    }
+  }
+
+  const otherOrder = await prisma.order.findFirst({
+    where: { branchId: otherBranch.id },
+    select: { id: true },
+  });
+  assert.ok(otherOrder);
+  const [managerOrders, cashierOrders, adminOtherOrders] = await Promise.all([
+    request(app).get("/api/orders?size=100").set("Authorization", managerAuthorization).expect(200),
+    request(app).get("/api/orders?size=100").set("Authorization", cashierAuthorization).expect(200),
+    request(app).get(`/api/orders?branchId=${otherBranch.id}&size=5`).set("Authorization", adminAuthorization).expect(200),
+  ]);
+  assert.ok(managerOrders.body.data.every((order) => order.branchId === ownBranchId));
+  assert.ok(
+    cashierOrders.body.data.every(
+      (order) => order.branchId === cashierLogin.body.data.user.branch.id,
+    ),
+  );
+  assert.ok(adminOtherOrders.body.data.every((order) => order.branchId === otherBranch.id));
+
+  await request(app)
+    .get(`/api/orders?branchId=${otherBranch.id}`)
+    .set("Authorization", managerAuthorization)
+    .expect(403);
+  await request(app)
+    .get(`/api/orders?branchId=${otherBranch.id}`)
+    .set("Authorization", cashierAuthorization)
+    .expect(403);
+  for (const [path, authorization] of [
+    [`/api/orders/${otherOrder.id}`, managerAuthorization],
+    [`/api/orders/${otherOrder.id}`, cashierAuthorization],
+    [`/api/orders/${otherOrder.id}/invoice.pdf`, managerAuthorization],
+    [`/api/payments/order/${otherOrder.id}`, managerAuthorization],
+  ]) {
+    await request(app).get(path).set("Authorization", authorization).expect(404);
+  }
+  await request(app)
+    .patch(`/api/orders/${otherOrder.id}/status`)
+    .set("Authorization", managerAuthorization)
+    .send({ status: "CANCELLED", note: "Không được phép truy cập" })
+    .expect(404);
+  await request(app)
+    .post(`/api/orders/${otherOrder.id}/refunds`)
+    .set("Authorization", managerAuthorization)
+    .send({ amount: 1, method: "CASH", reason: "Không được phép truy cập" })
+    .expect(404);
+  await request(app)
+    .post(`/api/payments/order/${otherOrder.id}`)
+    .set("Authorization", managerAuthorization)
+    .send({ amount: 1, method: "CASH" })
+    .expect(404);
+  await request(app)
+    .get(`/api/orders/${otherOrder.id}`)
+    .set("Authorization", adminAuthorization)
+    .expect(200);
 });

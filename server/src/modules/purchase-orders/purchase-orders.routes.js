@@ -8,6 +8,11 @@ import { ApiError } from "../../utils/api-error.js";
 import { createBusinessCode } from "../../utils/code.js";
 import { getPagination, paginationMeta } from "../../utils/pagination.js";
 import { created, success } from "../../utils/response.js";
+import {
+  assertBranchAccess,
+  branchWhere,
+  resolveBranchIds,
+} from "../../services/branch-access.service.js";
 
 const router = Router();
 router.use(authenticate, requirePermission("inventory.manage", "suppliers.manage"));
@@ -45,8 +50,13 @@ router.get(
   "/",
   asyncHandler(async (request, response) => {
     const { page, size, skip } = getPagination(request.query);
+    const branchIds = await resolveBranchIds(
+      prisma,
+      request.user,
+      request.query.branchId || null,
+    );
     const where = {
-      ...(request.query.branchId ? { branchId: request.query.branchId } : {}),
+      ...branchWhere(branchIds),
       ...(request.query.status ? { status: request.query.status } : {}),
     };
     const [items, total] = await Promise.all([
@@ -60,7 +70,11 @@ router.get(
 router.get(
   "/:id",
   asyncHandler(async (request, response) => {
-    const item = await prisma.purchaseOrder.findUnique({ where: { id: request.params.id }, include });
+    const branchIds = await resolveBranchIds(prisma, request.user);
+    const item = await prisma.purchaseOrder.findFirst({
+      where: { id: request.params.id, ...branchWhere(branchIds) },
+      include,
+    });
     if (!item) throw new ApiError(404, "Không tìm thấy phiếu nhập");
     return success(response, item);
   }),
@@ -70,6 +84,12 @@ router.post(
   "/",
   validate(createSchema),
   asyncHandler(async (request, response) => {
+    await assertBranchAccess(
+      prisma,
+      request.user,
+      request.body.branchId,
+      "Bạn chỉ được tạo phiếu nhập cho kho thuộc chi nhánh mình quản lý",
+    );
     const totalAmount = request.body.items.reduce(
       (sum, item) => sum + Math.round(item.quantity * item.unitCost),
       0,
@@ -101,8 +121,9 @@ router.patch(
     status: z.enum(["PENDING", "APPROVED", "RECEIVED", "CANCELLED"]),
   })),
   asyncHandler(async (request, response) => {
-    const existing = await prisma.purchaseOrder.findUnique({
-      where: { id: request.params.id },
+    const branchIds = await resolveBranchIds(prisma, request.user);
+    const existing = await prisma.purchaseOrder.findFirst({
+      where: { id: request.params.id, ...branchWhere(branchIds) },
       include: { items: true },
     });
     if (!existing) throw new ApiError(404, "Không tìm thấy phiếu nhập");

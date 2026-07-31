@@ -19,6 +19,40 @@ export async function getManagedBranchIds(tx, user) {
   return user.branch?.id ? [user.branch.id] : [];
 }
 
+export async function assertBranchAccess(
+  tx,
+  user,
+  branchId,
+  message = "Bạn chỉ được truy cập dữ liệu tại chi nhánh được phân công",
+) {
+  if (!branchId) {
+    throw new ApiError(422, "Vui lòng chọn chi nhánh");
+  }
+  const allowedBranchIds = await getManagedBranchIds(tx, user);
+  if (allowedBranchIds && !allowedBranchIds.includes(branchId)) {
+    throw new ApiError(403, message);
+  }
+  return branchId;
+}
+
+export async function resolveBranchIds(tx, user, requestedBranchId = null) {
+  const allowedBranchIds = await getManagedBranchIds(tx, user);
+  if (requestedBranchId) {
+    if (allowedBranchIds && !allowedBranchIds.includes(requestedBranchId)) {
+      throw new ApiError(
+        403,
+        "Bạn chỉ được truy cập dữ liệu tại chi nhánh được phân công",
+      );
+    }
+    return [requestedBranchId];
+  }
+  return allowedBranchIds;
+}
+
+export function branchWhere(branchIds) {
+  return branchIds === null ? {} : { branchId: { in: branchIds } };
+}
+
 export async function assertVoucherBranchAccess(tx, user, branchIds) {
   const uniqueBranchIds = [...new Set(branchIds.filter(Boolean))];
   if (!uniqueBranchIds.length) {

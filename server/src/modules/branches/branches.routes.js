@@ -5,6 +5,7 @@ import { authenticate, requirePermission } from "../../middlewares/auth.js";
 import { validate } from "../../middlewares/validate.js";
 import { asyncHandler } from "../../utils/async-handler.js";
 import { created, success } from "../../utils/response.js";
+import { getManagedBranchIds } from "../../services/branch-access.service.js";
 
 const router = Router();
 router.use(authenticate);
@@ -22,8 +23,12 @@ const schema = z.object({
 router.get(
   "/",
   asyncHandler(async (request, response) => {
+    const allowedBranchIds = await getManagedBranchIds(prisma, request.user);
     const branches = await prisma.branch.findMany({
-      where: { deletedAt: null },
+      where: {
+        deletedAt: null,
+        ...(allowedBranchIds ? { id: { in: allowedBranchIds } } : {}),
+      },
       include: {
         manager: { select: { id: true, fullName: true } },
         _count: { select: { users: true, orders: true } },
