@@ -1057,3 +1057,26 @@ test("unpaid prepared order can be paid from order detail and then completed", a
     .expect(200);
   assert.equal(completed.body.data.status, "COMPLETED");
 });
+
+test("product detail exposes fixed and selectable ingredient recipes", async () => {
+  const login = await request(app)
+    .post("/api/auth/login")
+    .send({ login: "cashier", password: "IceCream@123" })
+    .expect(200);
+  const authorization = `Bearer ${login.body.data.accessToken}`;
+  const products = await request(app)
+    .get("/api/products?status=ACTIVE&size=10")
+    .set("Authorization", authorization)
+    .expect(200);
+  const product = products.body.data.find((item) => item.variants.length > 0);
+  const detail = await request(app)
+    .get(`/api/products/${product.id}`)
+    .set("Authorization", authorization)
+    .expect(200);
+
+  assert.ok(Array.isArray(detail.body.data.recipes));
+  assert.ok(detail.body.data.variants.every((variant) => Array.isArray(variant.recipes)));
+  assert.ok(detail.body.data.variants.some((variant) => variant.recipes.length > 0));
+  assert.ok(detail.body.data.flavorRecipes.some((flavor) => flavor.recipes.length > 0));
+  assert.ok(detail.body.data.toppingRecipes.some((topping) => topping.recipes.length > 0));
+});

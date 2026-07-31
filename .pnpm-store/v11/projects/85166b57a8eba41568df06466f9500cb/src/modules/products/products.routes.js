@@ -48,6 +48,9 @@ const productInclude = {
   variants: { orderBy: { price: "asc" } },
   images: { orderBy: { displayOrder: "asc" } },
 };
+const recipeInclude = {
+  ingredient: { select: { id: true, code: true, name: true, unit: true, averageCost: true } },
+};
 
 router.get(
   "/",
@@ -88,15 +91,42 @@ router.get(
   "/:id",
   requirePermission("products.view", "pos.use"),
   asyncHandler(async (request, response) => {
-    const item = await prisma.product.findFirst({
-      where: { id: request.params.id, deletedAt: null },
-      include: {
-        ...productInclude,
-        recipes: { include: { ingredient: true } },
-      },
-    });
+    const [item, flavorRecipes, toppingRecipes] = await Promise.all([
+      prisma.product.findFirst({
+        where: { id: request.params.id, deletedAt: null },
+        include: {
+          ...productInclude,
+          variants: {
+            include: { recipes: { include: recipeInclude } },
+            orderBy: { price: "asc" },
+          },
+          recipes: { include: recipeInclude },
+        },
+      }),
+      prisma.flavor.findMany({
+        where: { deletedAt: null, recipes: { some: {} } },
+        select: {
+          id: true,
+          code: true,
+          name: true,
+          color: true,
+          recipes: { include: recipeInclude },
+        },
+        orderBy: { name: "asc" },
+      }),
+      prisma.topping.findMany({
+        where: { deletedAt: null, recipes: { some: {} } },
+        select: {
+          id: true,
+          code: true,
+          name: true,
+          recipes: { include: recipeInclude },
+        },
+        orderBy: { name: "asc" },
+      }),
+    ]);
     if (!item) throw new ApiError(404, "Không tìm thấy sản phẩm");
-    return success(response, item);
+    return success(response, { ...item, flavorRecipes, toppingRecipes });
   }),
 );
 

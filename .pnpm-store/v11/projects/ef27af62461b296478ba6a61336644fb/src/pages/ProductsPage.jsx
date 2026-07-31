@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Edit3, Plus, Search, Trash2 } from "lucide-react";
+import { BookOpen, Edit3, Plus, Search, Trash2 } from "lucide-react";
 import { IconButton, InputAdornment } from "@mui/material";
 import { toast } from "react-toastify";
 import api, { apiMessage } from "../services/api";
@@ -12,6 +12,7 @@ import PageHeader from "../components/common/PageHeader";
 import Select from "../components/common/Select";
 import StatusBadge from "../components/common/StatusBadge";
 import ProductFormDialog from "../features/products/ProductFormDialog";
+import ProductRecipeDialog from "../features/products/ProductRecipeDialog";
 import { formatMoney } from "../utils/format";
 import { useAuth } from "../store/AuthContext";
 
@@ -23,6 +24,7 @@ export default function ProductsPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [deleting, setDeleting] = useState(null);
+  const [recipeProductId, setRecipeProductId] = useState(null);
 
   const categoriesQuery = useQuery({
     queryKey: ["categories"],
@@ -91,17 +93,22 @@ export default function ProductsPage() {
       },
     },
     { key: "status", label: "Trạng thái", render: (value) => <StatusBadge status={value} label={{ ACTIVE: "Đang bán", INACTIVE: "Ngừng bán", OUT_OF_STOCK: "Hết hàng" }[value]} /> },
-    ...(canManage ? [{
+    {
       key: "actions",
       label: "",
       align: "right",
       render: (_, row) => (
         <div className="tw-whitespace-nowrap">
-          <IconButton onClick={(event) => { event.stopPropagation(); setEditing(row); setFormOpen(true); }} aria-label="Sửa sản phẩm"><Edit3 size={17} /></IconButton>
-          <IconButton color="error" onClick={(event) => { event.stopPropagation(); setDeleting(row); }} aria-label="Xóa sản phẩm"><Trash2 size={17} /></IconButton>
+          <IconButton color="primary" onClick={(event) => { event.stopPropagation(); setRecipeProductId(row.id); }} aria-label="Xem công thức nguyên liệu"><BookOpen size={17} /></IconButton>
+          {canManage && (
+            <>
+              <IconButton onClick={(event) => { event.stopPropagation(); setEditing(row); setFormOpen(true); }} aria-label="Sửa sản phẩm"><Edit3 size={17} /></IconButton>
+              <IconButton color="error" onClick={(event) => { event.stopPropagation(); setDeleting(row); }} aria-label="Xóa sản phẩm"><Trash2 size={17} /></IconButton>
+            </>
+          )}
         </div>
       ),
-    }] : []),
+    },
   ];
 
   return (
@@ -140,6 +147,11 @@ export default function ProductsPage() {
       <div className="tw-rounded-2xl tw-border tw-border-slate-200 tw-bg-white tw-p-4 tw-shadow-[0_1px_2px_rgba(15,23,42,0.025)] dark:tw-border-slate-700 dark:tw-bg-slate-900">
         <DataTable columns={columns} rows={productsQuery.data || []} loading={productsQuery.isLoading} />
       </div>
+      <ProductRecipeDialog
+        open={Boolean(recipeProductId)}
+        productId={recipeProductId}
+        onClose={() => setRecipeProductId(null)}
+      />
       <ProductFormDialog
         open={formOpen}
         product={editing}
