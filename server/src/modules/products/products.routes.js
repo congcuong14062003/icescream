@@ -55,6 +55,14 @@ const recipeConfigSchema = z.object({
     variantId: z.string().min(1),
     recipes: z.array(recipeLineSchema).max(100).default([]),
   })).min(1),
+  flavorRecipes: z.array(z.object({
+    flavorId: z.string().min(1),
+    recipes: z.array(recipeLineSchema).max(100).default([]),
+  })).max(200).optional(),
+  toppingRecipes: z.array(z.object({
+    toppingId: z.string().min(1),
+    recipes: z.array(recipeLineSchema).max(100).default([]),
+  })).max(200).optional(),
 }).superRefine((data, context) => {
   const validateUniqueIngredients = (recipes, path) => {
     const ids = recipes.map((recipe) => recipe.ingredientId);
@@ -77,6 +85,28 @@ const recipeConfigSchema = z.object({
   }
   data.variants.forEach((variant, index) => {
     validateUniqueIngredients(variant.recipes, ["variants", index, "recipes"]);
+  });
+  const flavorIds = (data.flavorRecipes || []).map((flavor) => flavor.flavorId);
+  if (new Set(flavorIds).size !== flavorIds.length) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["flavorRecipes"],
+      message: "Hương vị không được lặp lại",
+    });
+  }
+  (data.flavorRecipes || []).forEach((flavor, index) => {
+    validateUniqueIngredients(flavor.recipes, ["flavorRecipes", index, "recipes"]);
+  });
+  const toppingIds = (data.toppingRecipes || []).map((topping) => topping.toppingId);
+  if (new Set(toppingIds).size !== toppingIds.length) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["toppingRecipes"],
+      message: "Topping không được lặp lại",
+    });
+  }
+  (data.toppingRecipes || []).forEach((topping, index) => {
+    validateUniqueIngredients(topping.recipes, ["toppingRecipes", index, "recipes"]);
   });
 });
 
@@ -154,7 +184,7 @@ router.get(
         },
       }),
       prisma.flavor.findMany({
-        where: { deletedAt: null, recipes: { some: {} } },
+        where: { deletedAt: null },
         select: {
           id: true,
           code: true,
@@ -165,7 +195,7 @@ router.get(
         orderBy: { name: "asc" },
       }),
       prisma.topping.findMany({
-        where: { deletedAt: null, recipes: { some: {} } },
+        where: { deletedAt: null },
         select: {
           id: true,
           code: true,
@@ -272,6 +302,10 @@ router.put(
     });
     if (!existing) throw new ApiError(404, "Không tìm thấy sản phẩm");
 
+    const submittedFlavorRecipes = request.body.flavorRecipes;
+    const submittedToppingRecipes = request.body.toppingRecipes;
+    const submittedFlavorIds = (submittedFlavorRecipes || []).map((flavor) => flavor.flavorId);
+    const submittedToppingIds = (submittedToppingRecipes || []).map((topping) => topping.toppingId);
     const expectedVariantIds = existing.variants.map((variant) => variant.id);
     const submittedVariantIds = request.body.variants.map((variant) => variant.variantId);
     if (
@@ -281,9 +315,32 @@ router.put(
       throw new ApiError(422, "Công thức phải bao gồm đúng các biến thể của sản phẩm");
     }
 
+    const [existingFlavors, existingToppings] = await Promise.all([
+      submittedFlavorRecipes
+        ? prisma.flavor.findMany({
+            where: { id: { in: submittedFlavorIds }, deletedAt: null },
+            select: { id: true, recipes: true },
+          })
+        : [],
+      submittedToppingRecipes
+        ? prisma.topping.findMany({
+            where: { id: { in: submittedToppingIds }, deletedAt: null },
+            select: { id: true, recipes: true },
+          })
+        : [],
+    ]);
+    if (submittedFlavorRecipes && existingFlavors.length !== submittedFlavorIds.length) {
+      throw new ApiError(422, "Một hương vị không tồn tại hoặc đã bị xóa");
+    }
+    if (submittedToppingRecipes && existingToppings.length !== submittedToppingIds.length) {
+      throw new ApiError(422, "Một topping không tồn tại hoặc đã bị xóa");
+    }
+
     const ingredientIds = [...new Set([
       ...request.body.productRecipes.map((recipe) => recipe.ingredientId),
       ...request.body.variants.flatMap((variant) => variant.recipes.map((recipe) => recipe.ingredientId)),
+      ...(submittedFlavorRecipes || []).flatMap((flavor) => flavor.recipes.map((recipe) => recipe.ingredientId)),
+      ...(submittedToppingRecipes || []).flatMap((topping) => topping.recipes.map((recipe) => recipe.ingredientId)),
     ])];
     const ingredientCount = ingredientIds.length
       ? await prisma.ingredient.count({ where: { id: { in: ingredientIds }, deletedAt: null } })
@@ -298,37 +355,57 @@ router.put(
         variantId: variant.id,
         recipes: variant.recipes.map(({ ingredientId, quantity, note }) => ({ ingredientId, quantity, note })),
       })),
+      ...(submittedFlavorRecipes ? {
+        flavorRecipes: existingFlavors.map((flavor) => ({
+          flavorId: flavor.id,
+          recipes: flavor.recipes.map(({ ingredientId, quantity, note }) => ({ ingredientId, quantity, note })),
+        })),
+      } : {}),
+      ...(submittedToppingRecipes ? {
+        toppingRecipes: existingToppings.map((topping) => ({
+          toppingId: topping.id,
+          recipes: topping.recipes.map(({ ingredientId, quantity, note }) => ({ ingredientId, quantity, note })),
+        })),
+      } : {}),
     };
     const item = await prisma.$transaction(async (tx) => {
+      const recipeScopes = [
+        { productId: existing.id },
+        { variantId: { in: expectedVariantIds } },
+        ...(submittedFlavorRecipes ? [{ flavorId: { in: submittedFlavorIds } }] : []),
+        ...(submittedToppingRecipes ? [{ toppingId: { in: submittedToppingIds } }] : []),
+      ];
       await tx.productRecipe.deleteMany({
-        where: {
-          OR: [
-            { productId: existing.id },
-            { variantId: { in: expectedVariantIds } },
-          ],
-        },
+        where: { OR: recipeScopes },
       });
-      if (request.body.productRecipes.length) {
-        await tx.productRecipe.createMany({
-          data: request.body.productRecipes.map((recipe) => ({
-            productId: existing.id,
-            ingredientId: recipe.ingredientId,
-            quantity: recipe.quantity,
-            note: recipe.note || null,
-          })),
-        });
-      }
-      for (const variant of request.body.variants) {
-        if (variant.recipes.length) {
-          await tx.productRecipe.createMany({
-            data: variant.recipes.map((recipe) => ({
-              variantId: variant.variantId,
-              ingredientId: recipe.ingredientId,
-              quantity: recipe.quantity,
-              note: recipe.note || null,
-            })),
-          });
-        }
+      const recipes = [
+        ...request.body.productRecipes.map((recipe) => ({
+          productId: existing.id,
+          ingredientId: recipe.ingredientId,
+          quantity: recipe.quantity,
+          note: recipe.note || null,
+        })),
+        ...request.body.variants.flatMap((variant) => variant.recipes.map((recipe) => ({
+          variantId: variant.variantId,
+          ingredientId: recipe.ingredientId,
+          quantity: recipe.quantity,
+          note: recipe.note || null,
+        }))),
+        ...(submittedFlavorRecipes || []).flatMap((flavor) => flavor.recipes.map((recipe) => ({
+          flavorId: flavor.flavorId,
+          ingredientId: recipe.ingredientId,
+          quantity: recipe.quantity,
+          note: recipe.note || null,
+        }))),
+        ...(submittedToppingRecipes || []).flatMap((topping) => topping.recipes.map((recipe) => ({
+          toppingId: topping.toppingId,
+          ingredientId: recipe.ingredientId,
+          quantity: recipe.quantity,
+          note: recipe.note || null,
+        }))),
+      ];
+      if (recipes.length) {
+        await tx.productRecipe.createMany({ data: recipes });
       }
       await tx.auditLog.create({
         data: {
@@ -342,7 +419,7 @@ router.put(
           userAgent: request.get("user-agent"),
         },
       });
-      return tx.product.findUnique({
+      const updatedProduct = await tx.product.findUnique({
         where: { id: existing.id },
         include: {
           ...productInclude,
@@ -353,6 +430,30 @@ router.put(
           recipes: { include: recipeInclude },
         },
       });
+      const [flavorRecipes, toppingRecipes] = await Promise.all([
+        tx.flavor.findMany({
+          where: { deletedAt: null },
+          select: {
+            id: true,
+            code: true,
+            name: true,
+            color: true,
+            recipes: { include: recipeInclude },
+          },
+          orderBy: { name: "asc" },
+        }),
+        tx.topping.findMany({
+          where: { deletedAt: null },
+          select: {
+            id: true,
+            code: true,
+            name: true,
+            recipes: { include: recipeInclude },
+          },
+          orderBy: { name: "asc" },
+        }),
+      ]);
+      return { ...updatedProduct, flavorRecipes, toppingRecipes };
     });
     return success(response, item, "Cập nhật công thức sản phẩm thành công");
   }),

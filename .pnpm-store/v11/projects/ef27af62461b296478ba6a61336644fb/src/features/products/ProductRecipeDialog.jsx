@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Beaker, Boxes, Edit3, IceCreamBowl, PackageOpen, Plus, Sparkles, Trash2 } from "lucide-react";
+import { AlertTriangle, Beaker, Boxes, Edit3, IceCreamBowl, PackageOpen, Plus, Sparkles, Trash2 } from "lucide-react";
 import { IconButton } from "@mui/material";
 import { toast } from "react-toastify";
 import api, { apiMessage } from "../../services/api";
@@ -49,7 +49,7 @@ function RecipeEditor({ recipes, ingredients, onChange, emptyText }) {
     onChange(recipes.map((recipe) => recipe.clientId === clientId ? { ...recipe, [key]: value } : recipe));
   };
   const addLine = () => {
-    const available = ingredients.find((ingredient) => !recipes.some((recipe) => recipe.ingredientId === ingredient.id));
+    const available = ingredients.find((ingredient) => ingredient.isActive && !recipes.some((recipe) => recipe.ingredientId === ingredient.id)) || ingredients.find((ingredient) => !recipes.some((recipe) => recipe.ingredientId === ingredient.id));
     if (!available) return toast.info("Không còn nguyên liệu nào để thêm");
     onChange([...recipes, editableLine({ ingredientId: available.id, quantity: 1 })]);
   };
@@ -59,7 +59,7 @@ function RecipeEditor({ recipes, ingredients, onChange, emptyText }) {
       {recipes.map((recipe) => {
         const selectedIngredient = ingredients.find((ingredient) => ingredient.id === recipe.ingredientId);
         const options = ingredients
-          .filter((ingredient) => ingredient.id === recipe.ingredientId || !recipes.some((item) => item.ingredientId === ingredient.id))
+          .filter((ingredient) => ingredient.id === recipe.ingredientId || (ingredient.isActive && !recipes.some((item) => item.ingredientId === ingredient.id)))
           .map((ingredient) => ({
             value: ingredient.id,
             label: `${ingredient.name} (${ingredient.code})${ingredient.isActive ? "" : " · Ngừng dùng"}`,
@@ -78,6 +78,74 @@ function RecipeEditor({ recipes, ingredients, onChange, emptyText }) {
   );
 }
 
+function GlobalRecipeSection({
+  type,
+  items = [],
+  draftItems = [],
+  editing,
+  ingredients,
+  onChange,
+}) {
+  const isFlavor = type === "flavor";
+  const Icon = isFlavor ? IceCreamBowl : Sparkles;
+  const title = isFlavor ? "Định lượng theo hương vị khách chọn" : "Định lượng topping mua thêm";
+  const description = isFlavor
+    ? "Định lượng áp dụng cho mỗi lần khách chọn một viên kem; hệ thống nhân tiếp theo số lượng món."
+    : "Định lượng áp dụng cho mỗi phần topping mua thêm; hệ thống nhân tiếp theo số lượng topping và số lượng món.";
+  const idKey = isFlavor ? "flavorId" : "toppingId";
+  const visibleItems = editing ? items : items.filter((item) => item.recipes.length > 0);
+
+  return (
+    <details open={editing} className="tw-rounded-2xl tw-border tw-border-slate-200 tw-p-4 open:tw-bg-slate-50 dark:tw-border-slate-700 dark:open:tw-bg-slate-800/50">
+      <summary className="tw-flex tw-cursor-pointer tw-list-none tw-items-center tw-gap-2 tw-font-black">
+        <Icon size={18} className={isFlavor ? "tw-text-blush-500" : "tw-text-amber-500"} />
+        {title}
+        <span className="tw-ml-auto tw-text-xs tw-font-medium tw-text-slate-400">{items.length} {isFlavor ? "hương vị" : "topping"}</span>
+      </summary>
+      <p className="tw-mb-3 tw-mt-2 tw-text-xs tw-text-slate-400">{description}</p>
+      {editing && (
+        <div className="tw-mb-4 tw-flex tw-gap-2 tw-rounded-xl tw-border tw-border-amber-200 tw-bg-amber-50 tw-p-3 tw-text-xs tw-leading-5 tw-text-amber-800 dark:tw-border-amber-800 dark:tw-bg-amber-950/30 dark:tw-text-amber-200">
+          <AlertTriangle size={17} className="tw-mt-0.5 tw-shrink-0" />
+          Công thức này dùng chung toàn hệ thống. Thay đổi tại đây sẽ ảnh hưởng việc trừ kho của mọi sản phẩm có lựa chọn này.
+        </div>
+      )}
+      {!visibleItems.length ? (
+        <div className="tw-rounded-xl tw-border tw-border-dashed tw-border-slate-200 tw-p-4 tw-text-center tw-text-xs tw-text-slate-400 dark:tw-border-slate-700">Chưa có công thức nào được cấu hình.</div>
+      ) : (
+        <div className="tw-grid tw-gap-3 lg:tw-grid-cols-2">
+          {visibleItems.map((item) => {
+            const itemDraft = draftItems.find((group) => group[idKey] === item.id);
+            const recipeCount = editing ? (itemDraft?.recipes.length || 0) : item.recipes.length;
+            if (editing) {
+              return (
+                <details key={item.id} className="tw-rounded-2xl tw-border tw-border-slate-200 tw-bg-white tw-p-3 open:lg:tw-col-span-2 dark:tw-border-slate-700 dark:tw-bg-slate-900">
+                  <summary className="tw-flex tw-cursor-pointer tw-list-none tw-items-center tw-gap-2">
+                    {isFlavor ? <span className="tw-h-3 tw-w-3 tw-rounded-full" style={{ backgroundColor: item.color }} /> : <Boxes size={17} className="tw-text-amber-500" />}
+                    <span className="tw-min-w-0 tw-flex-1"><strong className="tw-block tw-truncate tw-text-sm">{item.name}</strong><span className="tw-text-[11px] tw-text-slate-400">{item.code}</span></span>
+                    <span className="tw-rounded-lg tw-bg-slate-100 tw-px-2 tw-py-1 tw-text-[11px] tw-font-bold tw-text-slate-500 dark:tw-bg-slate-800">{recipeCount} nguyên liệu</span>
+                  </summary>
+                  <div className="tw-mt-3 tw-border-t tw-border-slate-100 tw-pt-3 dark:tw-border-slate-800">
+                    <RecipeEditor recipes={itemDraft?.recipes || []} ingredients={ingredients} onChange={(recipes) => onChange(item.id, recipes)} emptyText="Chưa có nguyên liệu; bấm Thêm nguyên liệu để cấu hình." />
+                  </div>
+                </details>
+              );
+            }
+            return (
+              <div key={item.id} className="tw-rounded-2xl tw-bg-white tw-p-3 dark:tw-bg-slate-900">
+                <div className="tw-mb-2 tw-flex tw-items-center tw-gap-2">
+                  {isFlavor ? <span className="tw-h-3 tw-w-3 tw-rounded-full" style={{ backgroundColor: item.color }} /> : <Boxes size={17} className="tw-text-amber-500" />}
+                  <strong className="tw-text-sm">{item.name}</strong>
+                </div>
+                <RecipeList recipes={item.recipes} />
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </details>
+  );
+}
+
 function recipeDraft(product) {
   return {
     productRecipes: product.recipes.map(editableLine),
@@ -85,7 +153,23 @@ function recipeDraft(product) {
       variantId: variant.id,
       recipes: variant.recipes.map(editableLine),
     })),
+    flavorRecipes: product.flavorRecipes.map((flavor) => ({
+      flavorId: flavor.id,
+      recipes: flavor.recipes.map(editableLine),
+    })),
+    toppingRecipes: product.toppingRecipes.map((topping) => ({
+      toppingId: topping.id,
+      recipes: topping.recipes.map(editableLine),
+    })),
   };
+}
+
+function serializeRecipes(recipes) {
+  return recipes.map(({ ingredientId, quantity, note }) => ({
+    ingredientId,
+    quantity: Number(quantity),
+    note: note.trim() || null,
+  }));
 }
 
 export default function ProductRecipeDialog({ open, productId, canManage, onClose }) {
@@ -146,16 +230,65 @@ export default function ProductRecipeDialog({ open, productId, canManage, onClos
       variants: current.variants.map((variant) => variant.variantId === variantId ? { ...variant, recipes } : variant),
     }));
   };
+  const updateFlavorRecipes = (flavorId, recipes) => {
+    setDraft((current) => ({
+      ...current,
+      flavorRecipes: current.flavorRecipes.map((flavor) => flavor.flavorId === flavorId ? { ...flavor, recipes } : flavor),
+    }));
+  };
+  const updateToppingRecipes = (toppingId, recipes) => {
+    setDraft((current) => ({
+      ...current,
+      toppingRecipes: current.toppingRecipes.map((topping) => topping.toppingId === toppingId ? { ...topping, recipes } : topping),
+    }));
+  };
   const saveRecipe = () => {
-    const allLines = [draft.productRecipes, ...draft.variants.map((variant) => variant.recipes)].flat();
-    if (allLines.some((line) => !line.ingredientId || Number(line.quantity) <= 0)) {
-      return toast.error("Vui lòng chọn nguyên liệu và nhập định lượng lớn hơn 0");
+    const groups = [
+      { label: "Nguyên liệu chung", recipes: draft.productRecipes },
+      ...draft.variants.map((variant) => ({
+        label: "Biến thể " + (product.variants.find((item) => item.id === variant.variantId)?.name || ""),
+        recipes: variant.recipes,
+      })),
+      ...draft.flavorRecipes.map((flavor) => ({
+        label: "Hương vị " + (product.flavorRecipes.find((item) => item.id === flavor.flavorId)?.name || ""),
+        recipes: flavor.recipes,
+      })),
+      ...draft.toppingRecipes.map((topping) => ({
+        label: "Topping " + (product.toppingRecipes.find((item) => item.id === topping.toppingId)?.name || ""),
+        recipes: topping.recipes,
+      })),
+    ];
+    const invalidGroup = groups.find((group) => group.recipes.some((line) => {
+      const quantity = Number(line.quantity);
+      return !line.ingredientId || !Number.isFinite(quantity) || quantity < 0.001 || quantity > 1000000000;
+    }));
+    if (invalidGroup) {
+      return toast.error(invalidGroup.label + ": vui lòng chọn nguyên liệu và nhập định lượng từ 0,001 đến 1.000.000.000");
+    }
+    const duplicateGroup = groups.find((group) => {
+      const ids = group.recipes.map((line) => line.ingredientId);
+      return new Set(ids).size !== ids.length;
+    });
+    if (duplicateGroup) {
+      return toast.error(duplicateGroup.label + ": một nguyên liệu không được lặp lại");
+    }
+    const longNoteGroup = groups.find((group) => group.recipes.some((line) => line.note.trim().length > 300));
+    if (longNoteGroup) {
+      return toast.error(longNoteGroup.label + ": ghi chú không được vượt quá 300 ký tự");
     }
     saveMutation.mutate({
-      productRecipes: draft.productRecipes.map(({ ingredientId, quantity, note }) => ({ ingredientId, quantity: Number(quantity), note: note || null })),
+      productRecipes: serializeRecipes(draft.productRecipes),
       variants: draft.variants.map((variant) => ({
         variantId: variant.variantId,
-        recipes: variant.recipes.map(({ ingredientId, quantity, note }) => ({ ingredientId, quantity: Number(quantity), note: note || null })),
+        recipes: serializeRecipes(variant.recipes),
+      })),
+      flavorRecipes: draft.flavorRecipes.map((flavor) => ({
+        flavorId: flavor.flavorId,
+        recipes: serializeRecipes(flavor.recipes),
+      })),
+      toppingRecipes: draft.toppingRecipes.map((topping) => ({
+        toppingId: topping.toppingId,
+        recipes: serializeRecipes(topping.recipes),
       })),
     });
   };
@@ -164,7 +297,7 @@ export default function ProductRecipeDialog({ open, productId, canManage, onClos
     editing ? (
       <>
         <Button variant="text" color="inherit" onClick={cancelEditing}>Hủy chỉnh sửa</Button>
-        <Button loading={saveMutation.isPending} disabled={metaQuery.isLoading} onClick={saveRecipe}>Lưu công thức</Button>
+        <Button loading={saveMutation.isPending} disabled={metaQuery.isLoading || metaQuery.isError} onClick={saveRecipe}>Lưu công thức</Button>
       </>
     ) : <Button startIcon={<Edit3 size={17} />} onClick={beginEditing}>Chỉnh sửa công thức</Button>
   ) : null;
@@ -220,18 +353,24 @@ export default function ProductRecipeDialog({ open, productId, canManage, onClos
             </>
           )}
 
-          {!editing && (
+          {(!editing || (!metaQuery.isLoading && !metaQuery.isError)) && (
             <>
-              <details className="tw-rounded-2xl tw-border tw-border-slate-200 tw-p-4 open:tw-bg-slate-50 dark:tw-border-slate-700 dark:open:tw-bg-slate-800/50">
-                <summary className="tw-flex tw-cursor-pointer tw-list-none tw-items-center tw-gap-2 tw-font-black"><IceCreamBowl size={18} className="tw-text-blush-500" />Định lượng theo hương vị khách chọn <span className="tw-ml-auto tw-text-xs tw-font-medium tw-text-slate-400">{product.flavorRecipes.length} hương vị</span></summary>
-                <p className="tw-mb-3 tw-mt-2 tw-text-xs tw-text-slate-400">Định lượng áp dụng cho mỗi viên kem; số lần nhân theo số viên của biến thể. Chỉnh sửa tại phần quản lý Hương vị.</p>
-                <div className="tw-grid tw-gap-3 lg:tw-grid-cols-2">{product.flavorRecipes.map((flavor) => <div key={flavor.id} className="tw-rounded-2xl tw-bg-white tw-p-3 dark:tw-bg-slate-900"><div className="tw-mb-2 tw-flex tw-items-center tw-gap-2"><span className="tw-h-3 tw-w-3 tw-rounded-full" style={{ backgroundColor: flavor.color }} /><strong className="tw-text-sm">{flavor.name}</strong></div><RecipeList recipes={flavor.recipes} /></div>)}</div>
-              </details>
-              <details className="tw-rounded-2xl tw-border tw-border-slate-200 tw-p-4 open:tw-bg-slate-50 dark:tw-border-slate-700 dark:open:tw-bg-slate-800/50">
-                <summary className="tw-flex tw-cursor-pointer tw-list-none tw-items-center tw-gap-2 tw-font-black"><Sparkles size={18} className="tw-text-amber-500" />Định lượng topping mua thêm <span className="tw-ml-auto tw-text-xs tw-font-medium tw-text-slate-400">{product.toppingRecipes.length} topping</span></summary>
-                <p className="tw-mb-3 tw-mt-2 tw-text-xs tw-text-slate-400">Mỗi topping được cộng vào công thức khi khách chọn trong POS. Chỉnh sửa tại phần quản lý Topping.</p>
-                <div className="tw-grid tw-gap-3 lg:tw-grid-cols-2">{product.toppingRecipes.map((topping) => <div key={topping.id} className="tw-rounded-2xl tw-bg-white tw-p-3 dark:tw-bg-slate-900"><div className="tw-mb-2 tw-flex tw-items-center tw-gap-2"><Boxes size={17} className="tw-text-amber-500" /><strong className="tw-text-sm">{topping.name}</strong></div><RecipeList recipes={topping.recipes} /></div>)}</div>
-              </details>
+              <GlobalRecipeSection
+                type="flavor"
+                items={product.flavorRecipes}
+                draftItems={draft?.flavorRecipes}
+                editing={editing}
+                ingredients={ingredients}
+                onChange={updateFlavorRecipes}
+              />
+              <GlobalRecipeSection
+                type="topping"
+                items={product.toppingRecipes}
+                draftItems={draft?.toppingRecipes}
+                editing={editing}
+                ingredients={ingredients}
+                onChange={updateToppingRecipes}
+              />
             </>
           )}
         </div>

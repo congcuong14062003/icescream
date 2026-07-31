@@ -1100,11 +1100,27 @@ test("manager can update product recipes while cashier is forbidden", async () =
       variantId: variant.id,
       recipes: variant.recipes.map(({ ingredientId, quantity, note }) => ({ ingredientId, quantity, note })),
     })),
+    flavorRecipes: detail.body.data.flavorRecipes.map((flavor) => ({
+      flavorId: flavor.id,
+      recipes: flavor.recipes.map(({ ingredientId, quantity, note }) => ({ ingredientId, quantity, note })),
+    })),
+    toppingRecipes: detail.body.data.toppingRecipes.map((topping) => ({
+      toppingId: topping.id,
+      recipes: topping.recipes.map(({ ingredientId, quantity, note }) => ({ ingredientId, quantity, note })),
+    })),
   };
   const modifiedPayload = structuredClone(originalPayload);
   const targetVariant = modifiedPayload.variants.find((variant) => variant.recipes.length > 0);
+  const targetFlavor = modifiedPayload.flavorRecipes.find((flavor) => flavor.recipes.length > 0);
+  const targetTopping = modifiedPayload.toppingRecipes.find((topping) => topping.recipes.length > 0);
   assert.ok(targetVariant);
+  assert.ok(targetFlavor);
+  assert.ok(targetTopping);
   targetVariant.recipes[0].note = "Kiểm thử cập nhật công thức";
+  targetFlavor.recipes[0].quantity = Number(targetFlavor.recipes[0].quantity) + 0.125;
+  targetFlavor.recipes[0].note = "Kiểm thử định lượng hương vị";
+  targetTopping.recipes[0].quantity = Number(targetTopping.recipes[0].quantity) + 0.25;
+  targetTopping.recipes[0].note = "Kiểm thử định lượng topping";
 
   await request(app)
     .get("/api/products/recipes/meta")
@@ -1131,7 +1147,13 @@ test("manager can update product recipes while cashier is forbidden", async () =
       .set("Authorization", managerAuthorization)
       .expect(200);
     const updatedVariant = updated.body.data.variants.find((variant) => variant.id === targetVariant.variantId);
+    const updatedFlavor = updated.body.data.flavorRecipes.find((flavor) => flavor.id === targetFlavor.flavorId);
+    const updatedTopping = updated.body.data.toppingRecipes.find((topping) => topping.id === targetTopping.toppingId);
     assert.equal(updatedVariant.recipes[0].note, "Kiểm thử cập nhật công thức");
+    assert.equal(updatedFlavor.recipes[0].quantity, targetFlavor.recipes[0].quantity);
+    assert.equal(updatedFlavor.recipes[0].note, "Kiểm thử định lượng hương vị");
+    assert.equal(updatedTopping.recipes[0].quantity, targetTopping.recipes[0].quantity);
+    assert.equal(updatedTopping.recipes[0].note, "Kiểm thử định lượng topping");
     const audit = await prisma.auditLog.findFirst({
       where: { action: "PRODUCT_RECIPE_UPDATE", entityId: product.id },
       orderBy: { createdAt: "desc" },
