@@ -206,6 +206,8 @@ router.post(
           branchId: branch.id,
           ingredientId: ingredient.id,
           quantity: 0,
+          lastCost: ingredient.lastCost,
+          averageCost: ingredient.averageCost,
         })),
       });
       return ingredient;
@@ -468,7 +470,7 @@ router.post(
         const actualQuantity = normalizeStockQuantity(line.actualQuantity);
         const difference = normalizeStockQuantity(actualQuantity - systemQuantity);
         if (difference !== 0) differenceCount += 1;
-        let unitCost = inventory.ingredient.averageCost;
+      let unitCost = inventory.averageCost;
         let varianceCost = Math.round(difference * unitCost);
 
         if (difference < 0) {
@@ -589,7 +591,7 @@ router.post(
       );
       if (inventory.quantity + delta < 0) throw new ApiError(422, "Điều chỉnh sẽ làm tồn kho âm");
       const transactionCode = createBusinessCode("KHO");
-      let unitCost = inventory.ingredient.averageCost;
+        let unitCost = inventory.averageCost;
       if (delta < 0) {
         const batchCost = await consumeInventoryBatches(tx, {
           branchId,

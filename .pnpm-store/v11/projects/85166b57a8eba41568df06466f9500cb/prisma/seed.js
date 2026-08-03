@@ -387,7 +387,13 @@ async function main() {
     for (let index = 0; index < ingredients.length; index += 1) {
       const quantity = ingredientNames[index][2] === "cái" ? 400 + index * 7 : 12000 + index * 250;
       await prisma.inventory.create({
-        data: { branchId: branch.id, ingredientId: ingredients[index].id, quantity },
+        data: {
+          branchId: branch.id,
+          ingredientId: ingredients[index].id,
+          quantity,
+          lastCost: ingredients[index].lastCost,
+          averageCost: ingredients[index].averageCost,
+        },
       });
       await prisma.inventoryBatch.create({
         data: {

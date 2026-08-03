@@ -248,7 +248,7 @@ export default function InventoryPage() {
     { key: "ingredient", label: "Nguyên liệu", render: (value) => <div><strong>{value.name}</strong><div className="tw-text-xs tw-text-slate-400">{value.code} · {value.warehouseLocation || "Chưa có vị trí"}</div></div> },
     { key: "quantity", label: "Tồn hiện tại", align: "right", render: (value, row) => <strong className={row.isLowStock ? "tw-text-rose-500" : "tw-text-emerald-600"}>{value.toLocaleString("vi-VN")} {row.ingredient.unit}</strong> },
     { key: "minStock", label: "Tồn tối thiểu", align: "right", render: (_, row) => `${row.ingredient.minStock.toLocaleString("vi-VN")} ${row.ingredient.unit}` },
-    { key: "cost", label: "Giá vốn TB", align: "right", render: (_, row) => formatMoney(row.ingredient.averageCost) },
+    { key: "cost", label: "Giá vốn TB", align: "right", render: (_, row) => formatMoney(row.averageCost) },
     { key: "supplier", label: "Nhà cung cấp", render: (_, row) => row.ingredient.supplier?.name || "—" },
     ...(canManage ? [{ key: "action", label: "", align: "right", render: (_, row) => <Button variant="outlined" size="small" startIcon={<SlidersHorizontal size={15} />} onClick={() => setAdjusting(row)}>Điều chỉnh</Button> }] : []),
   ];

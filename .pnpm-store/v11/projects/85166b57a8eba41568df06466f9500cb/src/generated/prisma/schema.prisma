@@ -454,6 +454,8 @@ model Inventory {
   ingredientId String
   quantity     Float      @default(0)
   reserved     Float      @default(0)
+  lastCost     Int        @default(0)
+  averageCost  Int        @default(0)
   branch       Branch     @relation(fields: [branchId], references: [id], onDelete: Restrict)
   ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
   createdAt    DateTime   @default(now())

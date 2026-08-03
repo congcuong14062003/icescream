@@ -156,11 +156,22 @@ router.patch(
                 ingredientId: line.ingredientId,
               },
             },
-            update: { quantity: { increment: line.quantity } },
+            update: {
+              quantity: { increment: line.quantity },
+              lastCost: line.unitCost,
+              averageCost: (() => {
+                const currentCost = before?.averageCost || 0;
+                return before && before.quantity > 0
+                  ? Math.round((before.quantity * currentCost + line.quantity * line.unitCost) / (before.quantity + line.quantity))
+                  : line.unitCost;
+              })(),
+            },
             create: {
               branchId: existing.branchId,
               ingredientId: line.ingredientId,
               quantity: line.quantity,
+              lastCost: line.unitCost,
+              averageCost: line.unitCost,
             },
           });
           await tx.inventoryBatch.create({
@@ -190,17 +201,6 @@ router.patch(
               note: `Nhập kho từ phiếu ${existing.code}`,
               createdById: request.user.id,
             },
-          });
-          const weightedCost = before
-            ? Math.round(
-                (before.quantity * (await tx.ingredient.findUnique({ where: { id: line.ingredientId } })).averageCost +
-                  line.quantity * line.unitCost) /
-                  Math.max(1, before.quantity + line.quantity),
-              )
-            : line.unitCost;
-          await tx.ingredient.update({
-            where: { id: line.ingredientId },
-            data: { lastCost: line.unitCost, averageCost: weightedCost },
           });
         }
         await tx.supplier.update({

@@ -322,6 +322,8 @@ exports.Prisma.InventoryScalarFieldEnum = {
   ingredientId: 'ingredientId',
   quantity: 'quantity',
   reserved: 'reserved',
+  lastCost: 'lastCost',
+  averageCost: 'averageCost',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

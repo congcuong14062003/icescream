@@ -24093,11 +24093,15 @@ export namespace Prisma {
   export type InventoryAvgAggregateOutputType = {
     quantity: number | null
     reserved: number | null
+    lastCost: number | null
+    averageCost: number | null
   }
 
   export type InventorySumAggregateOutputType = {
     quantity: number | null
     reserved: number | null
+    lastCost: number | null
+    averageCost: number | null
   }
 
   export type InventoryMinAggregateOutputType = {
@@ -24106,6 +24110,8 @@ export namespace Prisma {
     ingredientId: string | null
     quantity: number | null
     reserved: number | null
+    lastCost: number | null
+    averageCost: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -24116,6 +24122,8 @@ export namespace Prisma {
     ingredientId: string | null
     quantity: number | null
     reserved: number | null
+    lastCost: number | null
+    averageCost: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -24126,6 +24134,8 @@ export namespace Prisma {
     ingredientId: number
     quantity: number
     reserved: number
+    lastCost: number
+    averageCost: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -24135,11 +24145,15 @@ export namespace Prisma {
   export type InventoryAvgAggregateInputType = {
     quantity?: true
     reserved?: true
+    lastCost?: true
+    averageCost?: true
   }
 
   export type InventorySumAggregateInputType = {
     quantity?: true
     reserved?: true
+    lastCost?: true
+    averageCost?: true
   }
 
   export type InventoryMinAggregateInputType = {
@@ -24148,6 +24162,8 @@ export namespace Prisma {
     ingredientId?: true
     quantity?: true
     reserved?: true
+    lastCost?: true
+    averageCost?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -24158,6 +24174,8 @@ export namespace Prisma {
     ingredientId?: true
     quantity?: true
     reserved?: true
+    lastCost?: true
+    averageCost?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -24168,6 +24186,8 @@ export namespace Prisma {
     ingredientId?: true
     quantity?: true
     reserved?: true
+    lastCost?: true
+    averageCost?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -24265,6 +24285,8 @@ export namespace Prisma {
     ingredientId: string
     quantity: number
     reserved: number
+    lastCost: number
+    averageCost: number
     createdAt: Date
     updatedAt: Date
     _count: InventoryCountAggregateOutputType | null
@@ -24294,6 +24316,8 @@ export namespace Prisma {
     ingredientId?: boolean
     quantity?: boolean
     reserved?: boolean
+    lastCost?: boolean
+    averageCost?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     branch?: boolean | BranchDefaultArgs<ExtArgs>
@@ -24308,11 +24332,13 @@ export namespace Prisma {
     ingredientId?: boolean
     quantity?: boolean
     reserved?: boolean
+    lastCost?: boolean
+    averageCost?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type InventoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "branchId" | "ingredientId" | "quantity" | "reserved" | "createdAt" | "updatedAt", ExtArgs["result"]["inventory"]>
+  export type InventoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "branchId" | "ingredientId" | "quantity" | "reserved" | "lastCost" | "averageCost" | "createdAt" | "updatedAt", ExtArgs["result"]["inventory"]>
   export type InventoryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     branch?: boolean | BranchDefaultArgs<ExtArgs>
     ingredient?: boolean | IngredientDefaultArgs<ExtArgs>
@@ -24330,6 +24356,8 @@ export namespace Prisma {
       ingredientId: string
       quantity: number
       reserved: number
+      lastCost: number
+      averageCost: number
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["inventory"]>
@@ -24708,6 +24736,8 @@ export namespace Prisma {
     readonly ingredientId: FieldRef<"Inventory", 'String'>
     readonly quantity: FieldRef<"Inventory", 'Float'>
     readonly reserved: FieldRef<"Inventory", 'Float'>
+    readonly lastCost: FieldRef<"Inventory", 'Int'>
+    readonly averageCost: FieldRef<"Inventory", 'Int'>
     readonly createdAt: FieldRef<"Inventory", 'DateTime'>
     readonly updatedAt: FieldRef<"Inventory", 'DateTime'>
   }
@@ -59744,6 +59774,8 @@ export namespace Prisma {
     ingredientId: 'ingredientId',
     quantity: 'quantity',
     reserved: 'reserved',
+    lastCost: 'lastCost',
+    averageCost: 'averageCost',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -62487,6 +62519,8 @@ export namespace Prisma {
     ingredientId?: StringFilter<"Inventory"> | string
     quantity?: FloatFilter<"Inventory"> | number
     reserved?: FloatFilter<"Inventory"> | number
+    lastCost?: IntFilter<"Inventory"> | number
+    averageCost?: IntFilter<"Inventory"> | number
     createdAt?: DateTimeFilter<"Inventory"> | Date | string
     updatedAt?: DateTimeFilter<"Inventory"> | Date | string
     branch?: XOR<BranchScalarRelationFilter, BranchWhereInput>
@@ -62499,6 +62533,8 @@ export namespace Prisma {
     ingredientId?: SortOrder
     quantity?: SortOrder
     reserved?: SortOrder
+    lastCost?: SortOrder
+    averageCost?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     branch?: BranchOrderByWithRelationInput
@@ -62516,6 +62552,8 @@ export namespace Prisma {
     ingredientId?: StringFilter<"Inventory"> | string
     quantity?: FloatFilter<"Inventory"> | number
     reserved?: FloatFilter<"Inventory"> | number
+    lastCost?: IntFilter<"Inventory"> | number
+    averageCost?: IntFilter<"Inventory"> | number
     createdAt?: DateTimeFilter<"Inventory"> | Date | string
     updatedAt?: DateTimeFilter<"Inventory"> | Date | string
     branch?: XOR<BranchScalarRelationFilter, BranchWhereInput>
@@ -62528,6 +62566,8 @@ export namespace Prisma {
     ingredientId?: SortOrder
     quantity?: SortOrder
     reserved?: SortOrder
+    lastCost?: SortOrder
+    averageCost?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: InventoryCountOrderByAggregateInput
@@ -62546,6 +62586,8 @@ export namespace Prisma {
     ingredientId?: StringWithAggregatesFilter<"Inventory"> | string
     quantity?: FloatWithAggregatesFilter<"Inventory"> | number
     reserved?: FloatWithAggregatesFilter<"Inventory"> | number
+    lastCost?: IntWithAggregatesFilter<"Inventory"> | number
+    averageCost?: IntWithAggregatesFilter<"Inventory"> | number
     createdAt?: DateTimeWithAggregatesFilter<"Inventory"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Inventory"> | Date | string
   }
@@ -67164,6 +67206,8 @@ export namespace Prisma {
     id?: string
     quantity?: number
     reserved?: number
+    lastCost?: number
+    averageCost?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     branch: BranchCreateNestedOneWithoutInventoriesInput
@@ -67176,6 +67220,8 @@ export namespace Prisma {
     ingredientId: string
     quantity?: number
     reserved?: number
+    lastCost?: number
+    averageCost?: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -67184,6 +67230,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     quantity?: FloatFieldUpdateOperationsInput | number
     reserved?: FloatFieldUpdateOperationsInput | number
+    lastCost?: IntFieldUpdateOperationsInput | number
+    averageCost?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     branch?: BranchUpdateOneRequiredWithoutInventoriesNestedInput
@@ -67196,6 +67244,8 @@ export namespace Prisma {
     ingredientId?: StringFieldUpdateOperationsInput | string
     quantity?: FloatFieldUpdateOperationsInput | number
     reserved?: FloatFieldUpdateOperationsInput | number
+    lastCost?: IntFieldUpdateOperationsInput | number
+    averageCost?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -67206,6 +67256,8 @@ export namespace Prisma {
     ingredientId: string
     quantity?: number
     reserved?: number
+    lastCost?: number
+    averageCost?: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -67214,6 +67266,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     quantity?: FloatFieldUpdateOperationsInput | number
     reserved?: FloatFieldUpdateOperationsInput | number
+    lastCost?: IntFieldUpdateOperationsInput | number
+    averageCost?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -67224,6 +67278,8 @@ export namespace Prisma {
     ingredientId?: StringFieldUpdateOperationsInput | string
     quantity?: FloatFieldUpdateOperationsInput | number
     reserved?: FloatFieldUpdateOperationsInput | number
+    lastCost?: IntFieldUpdateOperationsInput | number
+    averageCost?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -71919,6 +71975,8 @@ export namespace Prisma {
     ingredientId?: SortOrder
     quantity?: SortOrder
     reserved?: SortOrder
+    lastCost?: SortOrder
+    averageCost?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -71926,6 +71984,8 @@ export namespace Prisma {
   export type InventoryAvgOrderByAggregateInput = {
     quantity?: SortOrder
     reserved?: SortOrder
+    lastCost?: SortOrder
+    averageCost?: SortOrder
   }
 
   export type InventoryMaxOrderByAggregateInput = {
@@ -71934,6 +71994,8 @@ export namespace Prisma {
     ingredientId?: SortOrder
     quantity?: SortOrder
     reserved?: SortOrder
+    lastCost?: SortOrder
+    averageCost?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -71944,6 +72006,8 @@ export namespace Prisma {
     ingredientId?: SortOrder
     quantity?: SortOrder
     reserved?: SortOrder
+    lastCost?: SortOrder
+    averageCost?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -71951,6 +72015,8 @@ export namespace Prisma {
   export type InventorySumOrderByAggregateInput = {
     quantity?: SortOrder
     reserved?: SortOrder
+    lastCost?: SortOrder
+    averageCost?: SortOrder
   }
 
   export type PurchaseOrderItemNullableScalarRelationFilter = {
@@ -80623,6 +80689,8 @@ export namespace Prisma {
     id?: string
     quantity?: number
     reserved?: number
+    lastCost?: number
+    averageCost?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     ingredient: IngredientCreateNestedOneWithoutInventoriesInput
@@ -80633,6 +80701,8 @@ export namespace Prisma {
     ingredientId: string
     quantity?: number
     reserved?: number
+    lastCost?: number
+    averageCost?: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -81295,6 +81365,8 @@ export namespace Prisma {
     ingredientId?: StringFilter<"Inventory"> | string
     quantity?: FloatFilter<"Inventory"> | number
     reserved?: FloatFilter<"Inventory"> | number
+    lastCost?: IntFilter<"Inventory"> | number
+    averageCost?: IntFilter<"Inventory"> | number
     createdAt?: DateTimeFilter<"Inventory"> | Date | string
     updatedAt?: DateTimeFilter<"Inventory"> | Date | string
   }
@@ -84757,6 +84829,8 @@ export namespace Prisma {
     id?: string
     quantity?: number
     reserved?: number
+    lastCost?: number
+    averageCost?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     branch: BranchCreateNestedOneWithoutInventoriesInput
@@ -84767,6 +84841,8 @@ export namespace Prisma {
     branchId: string
     quantity?: number
     reserved?: number
+    lastCost?: number
+    averageCost?: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -96802,6 +96878,8 @@ export namespace Prisma {
     ingredientId: string
     quantity?: number
     reserved?: number
+    lastCost?: number
+    averageCost?: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -97090,6 +97168,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     quantity?: FloatFieldUpdateOperationsInput | number
     reserved?: FloatFieldUpdateOperationsInput | number
+    lastCost?: IntFieldUpdateOperationsInput | number
+    averageCost?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ingredient?: IngredientUpdateOneRequiredWithoutInventoriesNestedInput
@@ -97100,6 +97180,8 @@ export namespace Prisma {
     ingredientId?: StringFieldUpdateOperationsInput | string
     quantity?: FloatFieldUpdateOperationsInput | number
     reserved?: FloatFieldUpdateOperationsInput | number
+    lastCost?: IntFieldUpdateOperationsInput | number
+    averageCost?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -97109,6 +97191,8 @@ export namespace Prisma {
     ingredientId?: StringFieldUpdateOperationsInput | string
     quantity?: FloatFieldUpdateOperationsInput | number
     reserved?: FloatFieldUpdateOperationsInput | number
+    lastCost?: IntFieldUpdateOperationsInput | number
+    averageCost?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -99534,6 +99618,8 @@ export namespace Prisma {
     branchId: string
     quantity?: number
     reserved?: number
+    lastCost?: number
+    averageCost?: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -99626,6 +99712,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     quantity?: FloatFieldUpdateOperationsInput | number
     reserved?: FloatFieldUpdateOperationsInput | number
+    lastCost?: IntFieldUpdateOperationsInput | number
+    averageCost?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     branch?: BranchUpdateOneRequiredWithoutInventoriesNestedInput
@@ -99636,6 +99724,8 @@ export namespace Prisma {
     branchId?: StringFieldUpdateOperationsInput | string
     quantity?: FloatFieldUpdateOperationsInput | number
     reserved?: FloatFieldUpdateOperationsInput | number
+    lastCost?: IntFieldUpdateOperationsInput | number
+    averageCost?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -99645,6 +99735,8 @@ export namespace Prisma {
     branchId?: StringFieldUpdateOperationsInput | string
     quantity?: FloatFieldUpdateOperationsInput | number
     reserved?: FloatFieldUpdateOperationsInput | number
+    lastCost?: IntFieldUpdateOperationsInput | number
+    averageCost?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
