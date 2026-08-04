@@ -21,6 +21,7 @@ const PurchaseOrdersPage = lazy(() => import("./pages/PurchaseOrdersPage"));
 const ShiftsPage = lazy(() => import("./pages/ShiftsPage"));
 const UsersPage = lazy(() => import("./pages/UsersPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
+const ExpensesPage = lazy(() => import("./pages/ExpensesPage"));
 
 function Guard({ permissions, children }) {
   return <ProtectedRoute permissions={permissions}>{children}</ProtectedRoute>;
@@ -60,6 +61,7 @@ export default function App() {
         <Route path="shifts" element={<Guard permissions={["shifts.manage"]}><Page><ShiftsPage /></Page></Guard>} />
         <Route path="users" element={<Guard permissions={["users.manage"]}><Page><UsersPage /></Page></Guard>} />
         <Route path="settings" element={<Page><SettingsPage /></Page>} />
+        <Route path="expenses" element={<Guard permissions={["reports.view"]}><Page><ExpensesPage /></Page></Guard>} />
       </Route>
       <Route path="/home" element={<Navigate to="/" replace />} />
       <Route path="*" element={<NotFoundPage />} />

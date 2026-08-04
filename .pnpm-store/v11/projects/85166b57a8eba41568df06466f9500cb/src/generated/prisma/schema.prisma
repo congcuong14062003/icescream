@@ -118,6 +118,21 @@ enum MembershipSubscriptionStatus {
   CANCELLED
 }
 
+enum ExpenseCategory {
+  COGS
+  PERSONNEL
+  RENT
+  UTILITIES
+  MARKETING
+  OPERATIONS
+  SHRINKAGE
+  MAINTENANCE
+  FINANCE
+  TAX
+  DEPRECIATION
+  OTHER
+}
+
 enum RefundStatus {
   PENDING
   COMPLETED
@@ -190,6 +205,7 @@ model Branch {
   stockIssues             StockIssue[]
   stocktakes              Stocktake[]
   membershipSubscriptions MembershipSubscription[]
+  expenses                Expense[]
   customerVouchers        CustomerVoucher[]
   createdAt               DateTime                 @default(now())
   updatedAt               DateTime                 @updatedAt
@@ -230,6 +246,7 @@ model User {
   createdStockIssues             StockIssue[]             @relation("StockIssueCreator")
   createdStocktakes              Stocktake[]              @relation("StocktakeCreator")
   createdMembershipSubscriptions MembershipSubscription[] @relation("MembershipSubscriptionCreator")
+  createdExpenses                Expense[]
   createdCustomerVouchers        CustomerVoucher[]        @relation("CustomerVoucherCreator")
   auditLogs                      AuditLog[]
   createdAt                      DateTime                 @default(now())
@@ -1072,6 +1089,23 @@ model ShiftExpense {
   updatedAt   DateTime  @updatedAt
 
   @@index([shiftId, createdAt])
+}
+
+model Expense {
+  id          String          @id @default(cuid())
+  branchId    String
+  createdById String
+  category    ExpenseCategory
+  amount      Int
+  description String          @db.Text
+  incurredAt  DateTime        @default(now())
+  branch      Branch          @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  createdBy   User            @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([branchId, incurredAt])
+  @@index([category, incurredAt])
 }
 
 model OrderStatusHistory {

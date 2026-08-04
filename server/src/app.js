@@ -24,6 +24,7 @@ import purchaseOrdersRoutes from "./modules/purchase-orders/purchase-orders.rout
 import shiftsRoutes from "./modules/shifts/shifts.routes.js";
 import reportsRoutes from "./modules/reports/reports.routes.js";
 import membershipsRoutes from "./modules/memberships/memberships.routes.js";
+import expensesRoutes from "./modules/expenses/expenses.routes.js";
 import { success } from "./utils/response.js";
 
 const app = express();
@@ -93,6 +94,7 @@ app.use("/api/purchase-orders", purchaseOrdersRoutes);
 app.use("/api/shifts", shiftsRoutes);
 app.use("/api/reports", reportsRoutes);
 app.use("/api/memberships", membershipsRoutes);
+app.use("/api/expenses", expensesRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
