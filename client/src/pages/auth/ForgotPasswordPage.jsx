@@ -35,6 +35,12 @@ export default function ForgotPasswordPage() {
           <div className="tw-mt-5 tw-rounded-2xl tw-bg-mint-50 tw-p-4 tw-text-sm dark:tw-bg-mint-700/20">
             <strong>Mã phát triển:</strong>
             <div className="tw-mt-2 tw-break-all tw-font-mono tw-text-xs">{debugToken}</div>
+            <Link
+              to={`/reset-password?token=${encodeURIComponent(debugToken)}`}
+              className="tw-mt-3 tw-block tw-text-center tw-font-bold tw-text-mint-700 tw-no-underline hover:tw-text-mint-600"
+            >
+              Tiếp tục đặt mật khẩu mới
+            </Link>
           </div>
         )}
         <Link to="/login" className="tw-mt-6 tw-block tw-text-center tw-font-bold tw-text-mint-700 tw-no-underline">Quay lại đăng nhập</Link>
@@ -42,4 +48,3 @@ export default function ForgotPasswordPage() {
     </div>
   );
 }
-
