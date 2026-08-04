@@ -7,12 +7,12 @@ import { authenticate } from "../../middlewares/auth.js";
 import { validate } from "../../middlewares/validate.js";
 import {
   hashToken,
-  randomToken,
   refreshCookieOptions,
   signAccessToken,
   signRefreshToken,
   verifyRefreshToken,
 } from "../../services/token.service.js";
+import { sendMail } from "../../services/email.service.js";
 import { ApiError } from "../../utils/api-error.js";
 import { asyncHandler } from "../../utils/async-handler.js";
 import { success } from "../../utils/response.js";
@@ -48,7 +48,8 @@ const forgotSchema = z.object({
 });
 
 const resetSchema = z.object({
-  token: z.string().min(32),
+  login: z.string().trim().min(3).max(120),
+  otp: z.string().trim().length(6),
   newPassword: z
     .string()
     .min(8)
@@ -268,24 +269,30 @@ router.post(
   asyncHandler(async (request, response) => {
     const login = request.body.login.toLowerCase();
     const user = await prisma.user.findFirst({
-      where: { deletedAt: null, OR: [{ username: login }, { email: login }] },
+      where: { deletedAt: null, status: "ACTIVE", OR: [{ username: login }, { email: login }] },
     });
-    let debugToken;
+    let debugOtp;
     if (user) {
-      const token = randomToken();
+      const otp = String(Math.floor(100000 + Math.random() * 900000));
       await prisma.user.update({
         where: { id: user.id },
         data: {
-          passwordResetHash: hashToken(token),
-          passwordResetExpires: new Date(Date.now() + 30 * 60 * 1000),
+          passwordResetHash: hashToken(otp),
+          passwordResetExpires: new Date(Date.now() + 10 * 60 * 1000),
         },
       });
-      if (env.NODE_ENV === "development") debugToken = token;
+      await sendMail({
+        to: user.email,
+        subject: "Mã OTP đặt lại mật khẩu - IceCream POS",
+        text: `Mã OTP đặt lại mật khẩu của bạn là ${otp}. Mã có hiệu lực trong 10 phút. Mở trang nhập OTP: ${env.CLIENT_URL.replace(/\/$/, "")}/reset-password?login=${encodeURIComponent(user.email)}`,
+        html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;padding:28px;border:1px solid #dbe7e4;border-radius:18px"><h2 style="color:#0f766e;margin-top:0">IceCream POS</h2><p>Bạn vừa yêu cầu đặt lại mật khẩu.</p><div style="font-size:32px;font-weight:800;letter-spacing:8px;text-align:center;color:#0f766e;background:#ecfdf5;padding:18px;border-radius:12px">${otp}</div><p style="color:#64748b">Mã OTP có hiệu lực trong 10 phút và chỉ dùng được một lần.</p><a href="${env.CLIENT_URL.replace(/\/$/, "")}/reset-password?login=${encodeURIComponent(user.email)}" style="display:block;text-align:center;background:#14b8a6;color:#fff;text-decoration:none;font-weight:700;padding:13px 20px;border-radius:10px">Nhập mã OTP</a><p style="font-size:12px;color:#94a3b8;margin-bottom:0;margin-top:22px">Nếu bạn không yêu cầu thao tác này, hãy bỏ qua email.</p></div>`,
+      });
+      if (env.NODE_ENV === "development") debugOtp = otp;
     }
     return success(
       response,
-      debugToken ? { debugToken } : {},
-      "Nếu tài khoản tồn tại, hướng dẫn đặt lại mật khẩu đã được tạo",
+      debugOtp ? { debugOtp } : {},
+      "Nếu tài khoản tồn tại, mã OTP đã được gửi về email",
     );
   }),
 );
@@ -294,15 +301,17 @@ router.post(
   "/reset-password",
   validate(resetSchema),
   asyncHandler(async (request, response) => {
+    const login = request.body.login.toLowerCase();
     const user = await prisma.user.findFirst({
       where: {
-        passwordResetHash: hashToken(request.body.token),
+        OR: [{ username: login }, { email: login }],
+        passwordResetHash: hashToken(request.body.otp),
         passwordResetExpires: { gt: new Date() },
         status: "ACTIVE",
         deletedAt: null,
       },
     });
-    if (!user) throw new ApiError(422, "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn");
+    if (!user) throw new ApiError(422, "Mã OTP không hợp lệ hoặc đã hết hạn");
     await prisma.$transaction([
       prisma.user.update({
         where: { id: user.id },
@@ -322,4 +331,3 @@ router.post(
 );
 
 export default router;
-

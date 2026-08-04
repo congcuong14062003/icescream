@@ -26,11 +26,23 @@ const createSchema = z.object({
 });
 
 const updateSchema = z.object({
+  username: z.string().trim().min(3).max(40).transform((value) => value.toLowerCase()).optional(),
+  email: z.string().email().transform((value) => value.toLowerCase()).optional(),
   fullName: z.string().trim().min(2).max(100).optional(),
   phone: z.string().trim().max(20).optional().nullable(),
   roleId: z.string().min(1).optional(),
   branchId: z.string().optional().nullable(),
   status: z.enum(["ACTIVE", "LOCKED", "INACTIVE"]).optional(),
+});
+
+const passwordResetSchema = z.object({
+  newPassword: z
+    .string()
+    .min(8, "Mật khẩu mới phải có ít nhất 8 ký tự")
+    .max(128)
+    .regex(/[A-Z]/, "Cần ít nhất một chữ hoa")
+    .regex(/[a-z]/, "Cần ít nhất một chữ thường")
+    .regex(/[0-9]/, "Cần ít nhất một chữ số"),
 });
 
 function isAdmin(user) {
@@ -230,6 +242,49 @@ router.patch(
       roleId: oldUser.roleId,
     }, request.body);
     return success(response, normalizeUser(user), "Cập nhật nhân viên thành công");
+  }),
+);
+
+router.patch(
+  "/:id/password",
+  validate(passwordResetSchema),
+  asyncHandler(async (request, response) => {
+    const oldUser = await prisma.user.findUnique({
+      where: { id: request.params.id },
+      include: { role: { select: { code: true } } },
+    });
+    if (!oldUser || oldUser.deletedAt) throw new ApiError(404, "Không tìm thấy nhân viên");
+    if (!isAdmin(request.user)) {
+      await assertManagedBranch(request.user, oldUser.branchId);
+      if (oldUser.role.code === "ADMIN") {
+        throw new ApiError(403, "Quản lý cửa hàng không được đặt lại mật khẩu tài khoản Admin");
+      }
+    }
+
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: oldUser.id },
+        data: { passwordHash: await bcrypt.hash(request.body.newPassword, 12) },
+      }),
+      prisma.refreshToken.updateMany({
+        where: { userId: oldUser.id, revokedAt: null },
+        data: { revokedAt: new Date() },
+      }),
+      prisma.auditLog.create({
+        data: {
+          userId: request.user.id,
+          action: "USER_PASSWORD_RESET",
+          entityType: "User",
+          entityId: oldUser.id,
+          oldData: { username: oldUser.username, role: oldUser.role.code },
+          newData: { resetBy: request.user.id },
+          ipAddress: request.ip,
+          userAgent: request.get("user-agent"),
+        },
+      }),
+    ]);
+
+    return success(response, {}, "Đặt lại mật khẩu nhân viên thành công");
   }),
 );
 

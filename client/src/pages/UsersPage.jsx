@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Lock, Plus, Search, Unlock } from "lucide-react";
+import { KeyRound, Lock, Pencil, Plus, Search, Unlock } from "lucide-react";
 import { InputAdornment } from "@mui/material";
 import { toast } from "react-toastify";
 import api, { apiMessage } from "../services/api";
@@ -23,8 +23,11 @@ export default function UsersPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [roleEditing, setRoleEditing] = useState(null);
+  const [editForm, setEditForm] = useState({ username: "", email: "", fullName: "", phone: "" });
   const [newRoleId, setNewRoleId] = useState("");
   const [newBranchId, setNewBranchId] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const metaQuery = useQuery({
     queryKey: ["user-meta"],
     queryFn: () => api.get("/users/meta").then((response) => response.data.data),
@@ -52,10 +55,27 @@ export default function UsersPage() {
     },
     onError: (error) => toast.error(apiMessage(error)),
   });
+  const passwordMutation = useMutation({
+    mutationFn: ({ id, password }) => api.patch(`/users/${id}/password`, { newPassword: password }),
+    onSuccess: () => {
+      toast.success("Đã đặt lại mật khẩu nhân viên và đăng xuất các phiên cũ");
+      setNewPassword("");
+      setConfirmPassword("");
+    },
+    onError: (error) => toast.error(apiMessage(error)),
+  });
   const openEmployeeEditor = (employee) => {
     setRoleEditing(employee);
+    setEditForm({
+      username: employee.username || "",
+      email: employee.email || "",
+      fullName: employee.fullName || "",
+      phone: employee.phone || "",
+    });
     setNewRoleId(employee.role.id);
     setNewBranchId(employee.branch?.id || "");
+    setNewPassword("");
+    setConfirmPassword("");
   };
   const columns = [
     { key: "fullName", label: "Nhân viên", render: (value, row) => <div className="tw-flex tw-items-center tw-gap-3"><div className="tw-flex tw-h-10 tw-w-10 tw-items-center tw-justify-center tw-rounded-full tw-bg-mint-100 tw-font-black tw-text-mint-700">{value.charAt(0)}</div><div><strong>{value}</strong><div className="tw-text-xs tw-text-slate-400">@{row.username}</div></div></div> },
@@ -75,7 +95,7 @@ export default function UsersPage() {
     },
     { key: "lastLoginAt", label: "Đăng nhập gần nhất", render: (value) => formatDate(value, true) },
     { key: "status", label: "Trạng thái", render: (value) => <StatusBadge status={value} label={{ ACTIVE: "Đang hoạt động", LOCKED: "Đã khóa", INACTIVE: "Ngừng hoạt động" }[value]} /> },
-    { key: "action", label: "", align: "right", render: (_, row) => <Button variant="outlined" size="small" color={row.status === "ACTIVE" ? "error" : "primary"} startIcon={row.status === "ACTIVE" ? <Lock size={15} /> : <Unlock size={15} />} onClick={() => updateMutation.mutate({ id: row.id, data: { status: row.status === "ACTIVE" ? "LOCKED" : "ACTIVE" } })}>{row.status === "ACTIVE" ? "Khóa" : "Mở khóa"}</Button> },
+    { key: "action", label: "", align: "right", render: (_, row) => <div className="tw-flex tw-justify-end tw-gap-2"><Button variant="outlined" size="small" startIcon={<Pencil size={15} />} onClick={() => openEmployeeEditor(row)}>Sửa</Button><Button variant="outlined" size="small" color={row.status === "ACTIVE" ? "error" : "primary"} startIcon={row.status === "ACTIVE" ? <Lock size={15} /> : <Unlock size={15} />} onClick={() => updateMutation.mutate({ id: row.id, data: { status: row.status === "ACTIVE" ? "LOCKED" : "ACTIVE" } })}>{row.status === "ACTIVE" ? "Khóa" : "Mở khóa"}</Button></div> },
   ];
   const changeForm = (key, value) => setForm((current) => ({ ...current, [key]: value }));
   return (
@@ -129,6 +149,10 @@ export default function UsersPage() {
               onClick={() => updateMutation.mutate({
                 id: roleEditing.id,
                 data: {
+                  username: editForm.username,
+                  email: editForm.email,
+                  fullName: editForm.fullName,
+                  phone: editForm.phone || null,
                   roleId: newRoleId,
                   ...(metaQuery.data?.canUpdateBranch ? { branchId: newBranchId || null } : {}),
                 },
@@ -139,7 +163,13 @@ export default function UsersPage() {
           </>
         }
       >
-        <div className="tw-space-y-4">
+        <div className="tw-space-y-5">
+          <div className="tw-grid tw-gap-4 sm:tw-grid-cols-2">
+            <Input label="Tên đăng nhập" value={editForm.username} onChange={(event) => setEditForm((current) => ({ ...current, username: event.target.value.toLowerCase() }))} />
+            <Input label="Email" type="email" value={editForm.email} onChange={(event) => setEditForm((current) => ({ ...current, email: event.target.value }))} />
+            <Input label="Họ và tên" value={editForm.fullName} onChange={(event) => setEditForm((current) => ({ ...current, fullName: event.target.value }))} />
+            <Input label="Số điện thoại" value={editForm.phone} onChange={(event) => setEditForm((current) => ({ ...current, phone: event.target.value }))} />
+          </div>
           <Select label="Vai trò" value={newRoleId} onChange={(event) => setNewRoleId(event.target.value)} options={(metaQuery.data?.roles || []).map((item) => ({ value: item.id, label: `${item.name} (${item.code})` }))} />
           <Select
             label="Chi nhánh"
@@ -156,6 +186,30 @@ export default function UsersPage() {
               Chỉ Admin được chuyển nhân viên sang chi nhánh khác.
             </p>
           )}
+          <div className="tw-border-t tw-border-slate-200 tw-pt-5 dark:tw-border-slate-700">
+            <div className="tw-mb-3 tw-flex tw-items-center tw-gap-2">
+              <KeyRound size={18} className="tw-text-mint-600" />
+              <strong>Đặt lại mật khẩu</strong>
+            </div>
+            <div className="tw-grid tw-gap-4 sm:tw-grid-cols-2">
+              <Input label="Mật khẩu mới" type="password" value={newPassword} onChange={(event) => setNewPassword(event.target.value)} autoComplete="new-password" />
+              <Input label="Xác nhận mật khẩu" type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} autoComplete="new-password" />
+            </div>
+            <p className="tw-mb-3 tw-mt-2 tw-text-xs tw-text-slate-400">Tối thiểu 8 ký tự, có chữ hoa, chữ thường và chữ số. Nhân viên sẽ bị đăng xuất khỏi các phiên đang mở.</p>
+            <Button
+              variant="outlined"
+              startIcon={<KeyRound size={16} />}
+              loading={passwordMutation.isPending}
+              disabled={!newPassword || !confirmPassword}
+              onClick={() => {
+                if (newPassword !== confirmPassword) return toast.error("Mật khẩu xác nhận không khớp");
+                if (newPassword.length < 8 || !/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !/[0-9]/.test(newPassword)) return toast.error("Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường và chữ số");
+                passwordMutation.mutate({ id: roleEditing.id, password: newPassword });
+              }}
+            >
+              Cập nhật mật khẩu
+            </Button>
+          </div>
         </div>
       </Modal>
     </div>
