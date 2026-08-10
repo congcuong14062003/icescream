@@ -55,6 +55,10 @@ router.get(
       include: {
         branch: { select: { id: true, code: true, name: true } },
         user: { select: { id: true, fullName: true } },
+        expenses: {
+          include: { createdBy: { select: { id: true, fullName: true } } },
+          orderBy: { createdAt: "desc" },
+        },
         _count: { select: { orders: true, expenses: true } },
       },
       orderBy: { openedAt: "desc" },
@@ -95,7 +99,6 @@ router.post(
 router.post(
   "/:id/expenses",
   validate(z.object({
-    category: z.string().trim().min(2).max(100),
     amount: z.coerce.number().int().positive(),
     description: z.string().trim().min(3).max(500),
   })),
@@ -110,7 +113,7 @@ router.post(
         data: {
           shiftId: shift.id,
           createdById: request.user.id,
-          category: request.body.category,
+          category: "Chi phí ca",
           amount: request.body.amount,
           description: request.body.description,
         },

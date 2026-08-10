@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Banknote, CircleDollarSign, LockKeyhole, Plus, ReceiptText, WalletCards } from "lucide-react";
+import { Banknote, CircleDollarSign, Eye, LockKeyhole, Plus, ReceiptText, WalletCards } from "lucide-react";
 import { toast } from "react-toastify";
 import api, { apiMessage } from "../services/api";
 import Button from "../components/common/Button";
@@ -21,7 +21,8 @@ export default function ShiftsPage() {
   const [closeOpen, setCloseOpen] = useState(false);
   const [countedCash, setCountedCash] = useState(0);
   const [expenseOpen, setExpenseOpen] = useState(false);
-  const [expense, setExpense] = useState({ category: "Chi phí vận hành", amount: 0, description: "" });
+  const [expense, setExpense] = useState({ amount: 0, description: "" });
+  const [historyShift, setHistoryShift] = useState(null);
   const currentQuery = useQuery({
     queryKey: ["current-shift"],
     queryFn: () => api.get("/shifts/current").then((response) => response.data.data),
@@ -50,7 +51,7 @@ export default function ShiftsPage() {
     onSuccess: () => {
       toast.success("Đã ghi nhận chi phí");
       setExpenseOpen(false);
-      setExpense({ category: "Chi phí vận hành", amount: 0, description: "" });
+      setExpense({ amount: 0, description: "" });
       refresh();
     },
     onError: (error) => toast.error(apiMessage(error)),
@@ -65,7 +66,9 @@ export default function ShiftsPage() {
     { key: "openedAt", label: "Mở ca", render: (value) => formatDate(value, true) },
     { key: "openingCash", label: "Đầu ca", align: "right", render: (value) => formatMoney(value) },
     { key: "cashRevenue", label: "Tiền mặt", align: "right", render: (value) => formatMoney(value) },
+    { key: "expenseAmount", label: "Chi phí ca", align: "right", render: (value) => <strong className={value > 0 ? "tw-text-rose-500" : "tw-text-slate-400"}>{formatMoney(value)}</strong> },
     { key: "status", label: "Trạng thái", render: (value) => <StatusBadge status={value} label={value === "OPEN" ? "Đang mở" : "Đã đóng"} /> },
+    { key: "actions", label: "", align: "right", render: (_, row) => <Button size="small" variant="outlined" startIcon={<Eye size={15} />} onClick={() => setHistoryShift(row)}>Chi tiết</Button> },
   ];
 
   return (
@@ -137,9 +140,32 @@ export default function ShiftsPage() {
         }
       >
         <div className="tw-space-y-4 tw-pt-2">
-          <Input label="Nhóm chi phí" value={expense.category} onChange={(event) => setExpense((currentValue) => ({ ...currentValue, category: event.target.value }))} />
           <Input label="Số tiền" type="number" value={expense.amount} onChange={(event) => setExpense((currentValue) => ({ ...currentValue, amount: Number(event.target.value) }))} />
           <Input label="Nội dung chi" multiline rows={3} value={expense.description} onChange={(event) => setExpense((currentValue) => ({ ...currentValue, description: event.target.value }))} />
+        </div>
+      </Modal>
+      <Modal
+        open={Boolean(historyShift)}
+        onClose={() => setHistoryShift(null)}
+        title={`Chi tiết chi phí ca ${historyShift?.code || ""}`}
+        actions={<Button onClick={() => setHistoryShift(null)}>Đóng</Button>}
+      >
+        <div className="tw-space-y-4 tw-pt-2">
+          <div className="tw-grid tw-gap-3 sm:tw-grid-cols-3">
+            <div className="tw-rounded-xl tw-bg-slate-50 tw-p-3 dark:tw-bg-slate-800"><span className="tw-block tw-text-xs tw-text-slate-500">Nhân viên</span><strong>{historyShift?.user?.fullName}</strong></div>
+            <div className="tw-rounded-xl tw-bg-slate-50 tw-p-3 dark:tw-bg-slate-800"><span className="tw-block tw-text-xs tw-text-slate-500">Chi nhánh</span><strong>{historyShift?.branch?.name}</strong></div>
+            <div className="tw-rounded-xl tw-bg-rose-50 tw-p-3 dark:tw-bg-rose-950/30"><span className="tw-block tw-text-xs tw-text-slate-500">Tổng chi phí</span><strong className="tw-text-rose-600">{formatMoney(historyShift?.expenseAmount || 0)}</strong></div>
+          </div>
+          {(historyShift?.expenses || []).length ? (
+            <div className="tw-overflow-hidden tw-rounded-xl tw-border tw-border-slate-200 dark:tw-border-slate-700">
+              {historyShift.expenses.map((item) => (
+                <div key={item.id} className="tw-flex tw-flex-col tw-gap-2 tw-border-b tw-border-slate-100 tw-p-4 last:tw-border-b-0 sm:tw-flex-row sm:tw-items-center dark:tw-border-slate-800">
+                  <div className="tw-min-w-0 tw-flex-1"><strong className="tw-block tw-break-words">{item.description}</strong><span className="tw-text-xs tw-text-slate-400">{formatDate(item.createdAt, true)} · {item.createdBy?.fullName}</span></div>
+                  <strong className="tw-whitespace-nowrap tw-text-rose-600">{formatMoney(item.amount)}</strong>
+                </div>
+              ))}
+            </div>
+          ) : <EmptyState title="Chưa có chi phí" description="Ca làm việc này chưa ghi nhận khoản chi nào." />}
         </div>
       </Modal>
       <Modal
