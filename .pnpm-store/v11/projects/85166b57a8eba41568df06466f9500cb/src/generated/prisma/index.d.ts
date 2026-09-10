@@ -209,6 +209,11 @@ export type CustomerVoucher = $Result.DefaultSelection<Prisma.$CustomerVoucherPa
  */
 export type Order = $Result.DefaultSelection<Prisma.$OrderPayload>
 /**
+ * Model DailyOrderSequence
+ * 
+ */
+export type DailyOrderSequence = $Result.DefaultSelection<Prisma.$DailyOrderSequencePayload>
+/**
  * Model OrderItem
  * 
  */
@@ -305,6 +310,14 @@ export const OrderStatus: {
 };
 
 export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
+
+
+export const OrderType: {
+  TAKEAWAY: 'TAKEAWAY',
+  DINE_IN: 'DINE_IN'
+};
+
+export type OrderType = (typeof OrderType)[keyof typeof OrderType]
 
 
 export const PaymentStatus: {
@@ -477,6 +490,10 @@ export const StockStatus: typeof $Enums.StockStatus
 export type OrderStatus = $Enums.OrderStatus
 
 export const OrderStatus: typeof $Enums.OrderStatus
+
+export type OrderType = $Enums.OrderType
+
+export const OrderType: typeof $Enums.OrderType
 
 export type PaymentStatus = $Enums.PaymentStatus
 
@@ -1041,6 +1058,16 @@ export class PrismaClient<
     * ```
     */
   get order(): Prisma.OrderDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.dailyOrderSequence`: Exposes CRUD operations for the **DailyOrderSequence** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DailyOrderSequences
+    * const dailyOrderSequences = await prisma.dailyOrderSequence.findMany()
+    * ```
+    */
+  get dailyOrderSequence(): Prisma.DailyOrderSequenceDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.orderItem`: Exposes CRUD operations for the **OrderItem** model.
@@ -1631,6 +1658,7 @@ export namespace Prisma {
     PromotionUsage: 'PromotionUsage',
     CustomerVoucher: 'CustomerVoucher',
     Order: 'Order',
+    DailyOrderSequence: 'DailyOrderSequence',
     OrderItem: 'OrderItem',
     OrderItemFlavor: 'OrderItemFlavor',
     OrderItemTopping: 'OrderItemTopping',
@@ -1660,7 +1688,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "role" | "permission" | "rolePermission" | "branch" | "user" | "refreshToken" | "loginHistory" | "category" | "product" | "productImage" | "productVariant" | "flavor" | "flavorIngredient" | "topping" | "ingredient" | "productRecipe" | "inventory" | "inventoryBatch" | "inventoryTransaction" | "stockIssue" | "stockIssueItem" | "stocktake" | "stocktakeItem" | "supplier" | "purchaseOrder" | "purchaseOrderItem" | "membershipLevel" | "customer" | "membershipPlan" | "membershipPlanProduct" | "membershipSubscription" | "membershipBenefitUsage" | "customerPointTransaction" | "promotion" | "promotionProduct" | "promotionCategory" | "promotionUsage" | "customerVoucher" | "order" | "orderItem" | "orderItemFlavor" | "orderItemTopping" | "payment" | "refund" | "workShift" | "shiftExpense" | "expense" | "orderStatusHistory" | "paymentStatusHistory" | "auditLog"
+      modelProps: "role" | "permission" | "rolePermission" | "branch" | "user" | "refreshToken" | "loginHistory" | "category" | "product" | "productImage" | "productVariant" | "flavor" | "flavorIngredient" | "topping" | "ingredient" | "productRecipe" | "inventory" | "inventoryBatch" | "inventoryTransaction" | "stockIssue" | "stockIssueItem" | "stocktake" | "stocktakeItem" | "supplier" | "purchaseOrder" | "purchaseOrderItem" | "membershipLevel" | "customer" | "membershipPlan" | "membershipPlanProduct" | "membershipSubscription" | "membershipBenefitUsage" | "customerPointTransaction" | "promotion" | "promotionProduct" | "promotionCategory" | "promotionUsage" | "customerVoucher" | "order" | "dailyOrderSequence" | "orderItem" | "orderItemFlavor" | "orderItemTopping" | "payment" | "refund" | "workShift" | "shiftExpense" | "expense" | "orderStatusHistory" | "paymentStatusHistory" | "auditLog"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4238,6 +4266,72 @@ export namespace Prisma {
           }
         }
       }
+      DailyOrderSequence: {
+        payload: Prisma.$DailyOrderSequencePayload<ExtArgs>
+        fields: Prisma.DailyOrderSequenceFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DailyOrderSequenceFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyOrderSequencePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DailyOrderSequenceFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyOrderSequencePayload>
+          }
+          findFirst: {
+            args: Prisma.DailyOrderSequenceFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyOrderSequencePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DailyOrderSequenceFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyOrderSequencePayload>
+          }
+          findMany: {
+            args: Prisma.DailyOrderSequenceFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyOrderSequencePayload>[]
+          }
+          create: {
+            args: Prisma.DailyOrderSequenceCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyOrderSequencePayload>
+          }
+          createMany: {
+            args: Prisma.DailyOrderSequenceCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.DailyOrderSequenceDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyOrderSequencePayload>
+          }
+          update: {
+            args: Prisma.DailyOrderSequenceUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyOrderSequencePayload>
+          }
+          deleteMany: {
+            args: Prisma.DailyOrderSequenceDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DailyOrderSequenceUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.DailyOrderSequenceUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyOrderSequencePayload>
+          }
+          aggregate: {
+            args: Prisma.DailyOrderSequenceAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDailyOrderSequence>
+          }
+          groupBy: {
+            args: Prisma.DailyOrderSequenceGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DailyOrderSequenceGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DailyOrderSequenceCountArgs<ExtArgs>
+            result: $Utils.Optional<DailyOrderSequenceCountAggregateOutputType> | number
+          }
+        }
+      }
       OrderItem: {
         payload: Prisma.$OrderItemPayload<ExtArgs>
         fields: Prisma.OrderItemFieldRefs
@@ -5099,6 +5193,7 @@ export namespace Prisma {
     promotionUsage?: PromotionUsageOmit
     customerVoucher?: CustomerVoucherOmit
     order?: OrderOmit
+    dailyOrderSequence?: DailyOrderSequenceOmit
     orderItem?: OrderItemOmit
     orderItemFlavor?: OrderItemFlavorOmit
     orderItemTopping?: OrderItemToppingOmit
@@ -47766,6 +47861,8 @@ export namespace Prisma {
     assignedToId: string | null
     shiftId: string | null
     promotionId: string | null
+    orderType: $Enums.OrderType | null
+    tableNumber: string | null
     originalAmount: number | null
     discountAmount: number | null
     voucherDiscount: number | null
@@ -47796,6 +47893,8 @@ export namespace Prisma {
     assignedToId: string | null
     shiftId: string | null
     promotionId: string | null
+    orderType: $Enums.OrderType | null
+    tableNumber: string | null
     originalAmount: number | null
     discountAmount: number | null
     voucherDiscount: number | null
@@ -47826,6 +47925,8 @@ export namespace Prisma {
     assignedToId: number
     shiftId: number
     promotionId: number
+    orderType: number
+    tableNumber: number
     originalAmount: number
     discountAmount: number
     voucherDiscount: number
@@ -47886,6 +47987,8 @@ export namespace Prisma {
     assignedToId?: true
     shiftId?: true
     promotionId?: true
+    orderType?: true
+    tableNumber?: true
     originalAmount?: true
     discountAmount?: true
     voucherDiscount?: true
@@ -47916,6 +48019,8 @@ export namespace Prisma {
     assignedToId?: true
     shiftId?: true
     promotionId?: true
+    orderType?: true
+    tableNumber?: true
     originalAmount?: true
     discountAmount?: true
     voucherDiscount?: true
@@ -47946,6 +48051,8 @@ export namespace Prisma {
     assignedToId?: true
     shiftId?: true
     promotionId?: true
+    orderType?: true
+    tableNumber?: true
     originalAmount?: true
     discountAmount?: true
     voucherDiscount?: true
@@ -48063,6 +48170,8 @@ export namespace Prisma {
     assignedToId: string | null
     shiftId: string | null
     promotionId: string | null
+    orderType: $Enums.OrderType
+    tableNumber: string | null
     originalAmount: number
     discountAmount: number
     voucherDiscount: number
@@ -48112,6 +48221,8 @@ export namespace Prisma {
     assignedToId?: boolean
     shiftId?: boolean
     promotionId?: boolean
+    orderType?: boolean
+    tableNumber?: boolean
     originalAmount?: boolean
     discountAmount?: boolean
     voucherDiscount?: boolean
@@ -48161,6 +48272,8 @@ export namespace Prisma {
     assignedToId?: boolean
     shiftId?: boolean
     promotionId?: boolean
+    orderType?: boolean
+    tableNumber?: boolean
     originalAmount?: boolean
     discountAmount?: boolean
     voucherDiscount?: boolean
@@ -48182,7 +48295,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "code" | "branchId" | "customerId" | "createdById" | "assignedToId" | "shiftId" | "promotionId" | "originalAmount" | "discountAmount" | "voucherDiscount" | "pointsDiscount" | "membershipDiscount" | "vatRate" | "taxAmount" | "deliveryFee" | "totalAmount" | "customerPaid" | "changeAmount" | "paymentStatus" | "status" | "note" | "cancellationReason" | "completedAt" | "cancelledAt" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
+  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "code" | "branchId" | "customerId" | "createdById" | "assignedToId" | "shiftId" | "promotionId" | "orderType" | "tableNumber" | "originalAmount" | "discountAmount" | "voucherDiscount" | "pointsDiscount" | "membershipDiscount" | "vatRate" | "taxAmount" | "deliveryFee" | "totalAmount" | "customerPaid" | "changeAmount" | "paymentStatus" | "status" | "note" | "cancellationReason" | "completedAt" | "cancelledAt" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
   export type OrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     branch?: boolean | BranchDefaultArgs<ExtArgs>
     customer?: boolean | Order$customerArgs<ExtArgs>
@@ -48232,6 +48345,8 @@ export namespace Prisma {
       assignedToId: string | null
       shiftId: string | null
       promotionId: string | null
+      orderType: $Enums.OrderType
+      tableNumber: string | null
       originalAmount: number
       discountAmount: number
       voucherDiscount: number
@@ -48644,6 +48759,8 @@ export namespace Prisma {
     readonly assignedToId: FieldRef<"Order", 'String'>
     readonly shiftId: FieldRef<"Order", 'String'>
     readonly promotionId: FieldRef<"Order", 'String'>
+    readonly orderType: FieldRef<"Order", 'OrderType'>
+    readonly tableNumber: FieldRef<"Order", 'String'>
     readonly originalAmount: FieldRef<"Order", 'Int'>
     readonly discountAmount: FieldRef<"Order", 'Int'>
     readonly voucherDiscount: FieldRef<"Order", 'Int'>
@@ -49322,6 +49439,911 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: OrderInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model DailyOrderSequence
+   */
+
+  export type AggregateDailyOrderSequence = {
+    _count: DailyOrderSequenceCountAggregateOutputType | null
+    _avg: DailyOrderSequenceAvgAggregateOutputType | null
+    _sum: DailyOrderSequenceSumAggregateOutputType | null
+    _min: DailyOrderSequenceMinAggregateOutputType | null
+    _max: DailyOrderSequenceMaxAggregateOutputType | null
+  }
+
+  export type DailyOrderSequenceAvgAggregateOutputType = {
+    lastValue: number | null
+  }
+
+  export type DailyOrderSequenceSumAggregateOutputType = {
+    lastValue: number | null
+  }
+
+  export type DailyOrderSequenceMinAggregateOutputType = {
+    date: string | null
+    lastValue: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DailyOrderSequenceMaxAggregateOutputType = {
+    date: string | null
+    lastValue: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DailyOrderSequenceCountAggregateOutputType = {
+    date: number
+    lastValue: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type DailyOrderSequenceAvgAggregateInputType = {
+    lastValue?: true
+  }
+
+  export type DailyOrderSequenceSumAggregateInputType = {
+    lastValue?: true
+  }
+
+  export type DailyOrderSequenceMinAggregateInputType = {
+    date?: true
+    lastValue?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DailyOrderSequenceMaxAggregateInputType = {
+    date?: true
+    lastValue?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DailyOrderSequenceCountAggregateInputType = {
+    date?: true
+    lastValue?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type DailyOrderSequenceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DailyOrderSequence to aggregate.
+     */
+    where?: DailyOrderSequenceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DailyOrderSequences to fetch.
+     */
+    orderBy?: DailyOrderSequenceOrderByWithRelationInput | DailyOrderSequenceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DailyOrderSequenceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DailyOrderSequences from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DailyOrderSequences.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DailyOrderSequences
+    **/
+    _count?: true | DailyOrderSequenceCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DailyOrderSequenceAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DailyOrderSequenceSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DailyOrderSequenceMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DailyOrderSequenceMaxAggregateInputType
+  }
+
+  export type GetDailyOrderSequenceAggregateType<T extends DailyOrderSequenceAggregateArgs> = {
+        [P in keyof T & keyof AggregateDailyOrderSequence]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDailyOrderSequence[P]>
+      : GetScalarType<T[P], AggregateDailyOrderSequence[P]>
+  }
+
+
+
+
+  export type DailyOrderSequenceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DailyOrderSequenceWhereInput
+    orderBy?: DailyOrderSequenceOrderByWithAggregationInput | DailyOrderSequenceOrderByWithAggregationInput[]
+    by: DailyOrderSequenceScalarFieldEnum[] | DailyOrderSequenceScalarFieldEnum
+    having?: DailyOrderSequenceScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DailyOrderSequenceCountAggregateInputType | true
+    _avg?: DailyOrderSequenceAvgAggregateInputType
+    _sum?: DailyOrderSequenceSumAggregateInputType
+    _min?: DailyOrderSequenceMinAggregateInputType
+    _max?: DailyOrderSequenceMaxAggregateInputType
+  }
+
+  export type DailyOrderSequenceGroupByOutputType = {
+    date: string
+    lastValue: number
+    createdAt: Date
+    updatedAt: Date
+    _count: DailyOrderSequenceCountAggregateOutputType | null
+    _avg: DailyOrderSequenceAvgAggregateOutputType | null
+    _sum: DailyOrderSequenceSumAggregateOutputType | null
+    _min: DailyOrderSequenceMinAggregateOutputType | null
+    _max: DailyOrderSequenceMaxAggregateOutputType | null
+  }
+
+  type GetDailyOrderSequenceGroupByPayload<T extends DailyOrderSequenceGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DailyOrderSequenceGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DailyOrderSequenceGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DailyOrderSequenceGroupByOutputType[P]>
+            : GetScalarType<T[P], DailyOrderSequenceGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DailyOrderSequenceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    date?: boolean
+    lastValue?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["dailyOrderSequence"]>
+
+
+
+  export type DailyOrderSequenceSelectScalar = {
+    date?: boolean
+    lastValue?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type DailyOrderSequenceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"date" | "lastValue" | "createdAt" | "updatedAt", ExtArgs["result"]["dailyOrderSequence"]>
+
+  export type $DailyOrderSequencePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DailyOrderSequence"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      date: string
+      lastValue: number
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["dailyOrderSequence"]>
+    composites: {}
+  }
+
+  type DailyOrderSequenceGetPayload<S extends boolean | null | undefined | DailyOrderSequenceDefaultArgs> = $Result.GetResult<Prisma.$DailyOrderSequencePayload, S>
+
+  type DailyOrderSequenceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DailyOrderSequenceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DailyOrderSequenceCountAggregateInputType | true
+    }
+
+  export interface DailyOrderSequenceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DailyOrderSequence'], meta: { name: 'DailyOrderSequence' } }
+    /**
+     * Find zero or one DailyOrderSequence that matches the filter.
+     * @param {DailyOrderSequenceFindUniqueArgs} args - Arguments to find a DailyOrderSequence
+     * @example
+     * // Get one DailyOrderSequence
+     * const dailyOrderSequence = await prisma.dailyOrderSequence.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DailyOrderSequenceFindUniqueArgs>(args: SelectSubset<T, DailyOrderSequenceFindUniqueArgs<ExtArgs>>): Prisma__DailyOrderSequenceClient<$Result.GetResult<Prisma.$DailyOrderSequencePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DailyOrderSequence that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DailyOrderSequenceFindUniqueOrThrowArgs} args - Arguments to find a DailyOrderSequence
+     * @example
+     * // Get one DailyOrderSequence
+     * const dailyOrderSequence = await prisma.dailyOrderSequence.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DailyOrderSequenceFindUniqueOrThrowArgs>(args: SelectSubset<T, DailyOrderSequenceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DailyOrderSequenceClient<$Result.GetResult<Prisma.$DailyOrderSequencePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DailyOrderSequence that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DailyOrderSequenceFindFirstArgs} args - Arguments to find a DailyOrderSequence
+     * @example
+     * // Get one DailyOrderSequence
+     * const dailyOrderSequence = await prisma.dailyOrderSequence.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DailyOrderSequenceFindFirstArgs>(args?: SelectSubset<T, DailyOrderSequenceFindFirstArgs<ExtArgs>>): Prisma__DailyOrderSequenceClient<$Result.GetResult<Prisma.$DailyOrderSequencePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DailyOrderSequence that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DailyOrderSequenceFindFirstOrThrowArgs} args - Arguments to find a DailyOrderSequence
+     * @example
+     * // Get one DailyOrderSequence
+     * const dailyOrderSequence = await prisma.dailyOrderSequence.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DailyOrderSequenceFindFirstOrThrowArgs>(args?: SelectSubset<T, DailyOrderSequenceFindFirstOrThrowArgs<ExtArgs>>): Prisma__DailyOrderSequenceClient<$Result.GetResult<Prisma.$DailyOrderSequencePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DailyOrderSequences that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DailyOrderSequenceFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DailyOrderSequences
+     * const dailyOrderSequences = await prisma.dailyOrderSequence.findMany()
+     * 
+     * // Get first 10 DailyOrderSequences
+     * const dailyOrderSequences = await prisma.dailyOrderSequence.findMany({ take: 10 })
+     * 
+     * // Only select the `date`
+     * const dailyOrderSequenceWithDateOnly = await prisma.dailyOrderSequence.findMany({ select: { date: true } })
+     * 
+     */
+    findMany<T extends DailyOrderSequenceFindManyArgs>(args?: SelectSubset<T, DailyOrderSequenceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DailyOrderSequencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DailyOrderSequence.
+     * @param {DailyOrderSequenceCreateArgs} args - Arguments to create a DailyOrderSequence.
+     * @example
+     * // Create one DailyOrderSequence
+     * const DailyOrderSequence = await prisma.dailyOrderSequence.create({
+     *   data: {
+     *     // ... data to create a DailyOrderSequence
+     *   }
+     * })
+     * 
+     */
+    create<T extends DailyOrderSequenceCreateArgs>(args: SelectSubset<T, DailyOrderSequenceCreateArgs<ExtArgs>>): Prisma__DailyOrderSequenceClient<$Result.GetResult<Prisma.$DailyOrderSequencePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DailyOrderSequences.
+     * @param {DailyOrderSequenceCreateManyArgs} args - Arguments to create many DailyOrderSequences.
+     * @example
+     * // Create many DailyOrderSequences
+     * const dailyOrderSequence = await prisma.dailyOrderSequence.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DailyOrderSequenceCreateManyArgs>(args?: SelectSubset<T, DailyOrderSequenceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a DailyOrderSequence.
+     * @param {DailyOrderSequenceDeleteArgs} args - Arguments to delete one DailyOrderSequence.
+     * @example
+     * // Delete one DailyOrderSequence
+     * const DailyOrderSequence = await prisma.dailyOrderSequence.delete({
+     *   where: {
+     *     // ... filter to delete one DailyOrderSequence
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DailyOrderSequenceDeleteArgs>(args: SelectSubset<T, DailyOrderSequenceDeleteArgs<ExtArgs>>): Prisma__DailyOrderSequenceClient<$Result.GetResult<Prisma.$DailyOrderSequencePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DailyOrderSequence.
+     * @param {DailyOrderSequenceUpdateArgs} args - Arguments to update one DailyOrderSequence.
+     * @example
+     * // Update one DailyOrderSequence
+     * const dailyOrderSequence = await prisma.dailyOrderSequence.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DailyOrderSequenceUpdateArgs>(args: SelectSubset<T, DailyOrderSequenceUpdateArgs<ExtArgs>>): Prisma__DailyOrderSequenceClient<$Result.GetResult<Prisma.$DailyOrderSequencePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DailyOrderSequences.
+     * @param {DailyOrderSequenceDeleteManyArgs} args - Arguments to filter DailyOrderSequences to delete.
+     * @example
+     * // Delete a few DailyOrderSequences
+     * const { count } = await prisma.dailyOrderSequence.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DailyOrderSequenceDeleteManyArgs>(args?: SelectSubset<T, DailyOrderSequenceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DailyOrderSequences.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DailyOrderSequenceUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DailyOrderSequences
+     * const dailyOrderSequence = await prisma.dailyOrderSequence.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DailyOrderSequenceUpdateManyArgs>(args: SelectSubset<T, DailyOrderSequenceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one DailyOrderSequence.
+     * @param {DailyOrderSequenceUpsertArgs} args - Arguments to update or create a DailyOrderSequence.
+     * @example
+     * // Update or create a DailyOrderSequence
+     * const dailyOrderSequence = await prisma.dailyOrderSequence.upsert({
+     *   create: {
+     *     // ... data to create a DailyOrderSequence
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DailyOrderSequence we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DailyOrderSequenceUpsertArgs>(args: SelectSubset<T, DailyOrderSequenceUpsertArgs<ExtArgs>>): Prisma__DailyOrderSequenceClient<$Result.GetResult<Prisma.$DailyOrderSequencePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DailyOrderSequences.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DailyOrderSequenceCountArgs} args - Arguments to filter DailyOrderSequences to count.
+     * @example
+     * // Count the number of DailyOrderSequences
+     * const count = await prisma.dailyOrderSequence.count({
+     *   where: {
+     *     // ... the filter for the DailyOrderSequences we want to count
+     *   }
+     * })
+    **/
+    count<T extends DailyOrderSequenceCountArgs>(
+      args?: Subset<T, DailyOrderSequenceCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DailyOrderSequenceCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DailyOrderSequence.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DailyOrderSequenceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DailyOrderSequenceAggregateArgs>(args: Subset<T, DailyOrderSequenceAggregateArgs>): Prisma.PrismaPromise<GetDailyOrderSequenceAggregateType<T>>
+
+    /**
+     * Group by DailyOrderSequence.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DailyOrderSequenceGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DailyOrderSequenceGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DailyOrderSequenceGroupByArgs['orderBy'] }
+        : { orderBy?: DailyOrderSequenceGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DailyOrderSequenceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDailyOrderSequenceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DailyOrderSequence model
+   */
+  readonly fields: DailyOrderSequenceFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DailyOrderSequence.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DailyOrderSequenceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DailyOrderSequence model
+   */
+  interface DailyOrderSequenceFieldRefs {
+    readonly date: FieldRef<"DailyOrderSequence", 'String'>
+    readonly lastValue: FieldRef<"DailyOrderSequence", 'Int'>
+    readonly createdAt: FieldRef<"DailyOrderSequence", 'DateTime'>
+    readonly updatedAt: FieldRef<"DailyOrderSequence", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DailyOrderSequence findUnique
+   */
+  export type DailyOrderSequenceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyOrderSequence
+     */
+    select?: DailyOrderSequenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyOrderSequence
+     */
+    omit?: DailyOrderSequenceOmit<ExtArgs> | null
+    /**
+     * Filter, which DailyOrderSequence to fetch.
+     */
+    where: DailyOrderSequenceWhereUniqueInput
+  }
+
+  /**
+   * DailyOrderSequence findUniqueOrThrow
+   */
+  export type DailyOrderSequenceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyOrderSequence
+     */
+    select?: DailyOrderSequenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyOrderSequence
+     */
+    omit?: DailyOrderSequenceOmit<ExtArgs> | null
+    /**
+     * Filter, which DailyOrderSequence to fetch.
+     */
+    where: DailyOrderSequenceWhereUniqueInput
+  }
+
+  /**
+   * DailyOrderSequence findFirst
+   */
+  export type DailyOrderSequenceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyOrderSequence
+     */
+    select?: DailyOrderSequenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyOrderSequence
+     */
+    omit?: DailyOrderSequenceOmit<ExtArgs> | null
+    /**
+     * Filter, which DailyOrderSequence to fetch.
+     */
+    where?: DailyOrderSequenceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DailyOrderSequences to fetch.
+     */
+    orderBy?: DailyOrderSequenceOrderByWithRelationInput | DailyOrderSequenceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DailyOrderSequences.
+     */
+    cursor?: DailyOrderSequenceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DailyOrderSequences from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DailyOrderSequences.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DailyOrderSequences.
+     */
+    distinct?: DailyOrderSequenceScalarFieldEnum | DailyOrderSequenceScalarFieldEnum[]
+  }
+
+  /**
+   * DailyOrderSequence findFirstOrThrow
+   */
+  export type DailyOrderSequenceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyOrderSequence
+     */
+    select?: DailyOrderSequenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyOrderSequence
+     */
+    omit?: DailyOrderSequenceOmit<ExtArgs> | null
+    /**
+     * Filter, which DailyOrderSequence to fetch.
+     */
+    where?: DailyOrderSequenceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DailyOrderSequences to fetch.
+     */
+    orderBy?: DailyOrderSequenceOrderByWithRelationInput | DailyOrderSequenceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DailyOrderSequences.
+     */
+    cursor?: DailyOrderSequenceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DailyOrderSequences from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DailyOrderSequences.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DailyOrderSequences.
+     */
+    distinct?: DailyOrderSequenceScalarFieldEnum | DailyOrderSequenceScalarFieldEnum[]
+  }
+
+  /**
+   * DailyOrderSequence findMany
+   */
+  export type DailyOrderSequenceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyOrderSequence
+     */
+    select?: DailyOrderSequenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyOrderSequence
+     */
+    omit?: DailyOrderSequenceOmit<ExtArgs> | null
+    /**
+     * Filter, which DailyOrderSequences to fetch.
+     */
+    where?: DailyOrderSequenceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DailyOrderSequences to fetch.
+     */
+    orderBy?: DailyOrderSequenceOrderByWithRelationInput | DailyOrderSequenceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DailyOrderSequences.
+     */
+    cursor?: DailyOrderSequenceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DailyOrderSequences from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DailyOrderSequences.
+     */
+    skip?: number
+    distinct?: DailyOrderSequenceScalarFieldEnum | DailyOrderSequenceScalarFieldEnum[]
+  }
+
+  /**
+   * DailyOrderSequence create
+   */
+  export type DailyOrderSequenceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyOrderSequence
+     */
+    select?: DailyOrderSequenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyOrderSequence
+     */
+    omit?: DailyOrderSequenceOmit<ExtArgs> | null
+    /**
+     * The data needed to create a DailyOrderSequence.
+     */
+    data: XOR<DailyOrderSequenceCreateInput, DailyOrderSequenceUncheckedCreateInput>
+  }
+
+  /**
+   * DailyOrderSequence createMany
+   */
+  export type DailyOrderSequenceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DailyOrderSequences.
+     */
+    data: DailyOrderSequenceCreateManyInput | DailyOrderSequenceCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DailyOrderSequence update
+   */
+  export type DailyOrderSequenceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyOrderSequence
+     */
+    select?: DailyOrderSequenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyOrderSequence
+     */
+    omit?: DailyOrderSequenceOmit<ExtArgs> | null
+    /**
+     * The data needed to update a DailyOrderSequence.
+     */
+    data: XOR<DailyOrderSequenceUpdateInput, DailyOrderSequenceUncheckedUpdateInput>
+    /**
+     * Choose, which DailyOrderSequence to update.
+     */
+    where: DailyOrderSequenceWhereUniqueInput
+  }
+
+  /**
+   * DailyOrderSequence updateMany
+   */
+  export type DailyOrderSequenceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DailyOrderSequences.
+     */
+    data: XOR<DailyOrderSequenceUpdateManyMutationInput, DailyOrderSequenceUncheckedUpdateManyInput>
+    /**
+     * Filter which DailyOrderSequences to update
+     */
+    where?: DailyOrderSequenceWhereInput
+    /**
+     * Limit how many DailyOrderSequences to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DailyOrderSequence upsert
+   */
+  export type DailyOrderSequenceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyOrderSequence
+     */
+    select?: DailyOrderSequenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyOrderSequence
+     */
+    omit?: DailyOrderSequenceOmit<ExtArgs> | null
+    /**
+     * The filter to search for the DailyOrderSequence to update in case it exists.
+     */
+    where: DailyOrderSequenceWhereUniqueInput
+    /**
+     * In case the DailyOrderSequence found by the `where` argument doesn't exist, create a new DailyOrderSequence with this data.
+     */
+    create: XOR<DailyOrderSequenceCreateInput, DailyOrderSequenceUncheckedCreateInput>
+    /**
+     * In case the DailyOrderSequence was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DailyOrderSequenceUpdateInput, DailyOrderSequenceUncheckedUpdateInput>
+  }
+
+  /**
+   * DailyOrderSequence delete
+   */
+  export type DailyOrderSequenceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyOrderSequence
+     */
+    select?: DailyOrderSequenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyOrderSequence
+     */
+    omit?: DailyOrderSequenceOmit<ExtArgs> | null
+    /**
+     * Filter which DailyOrderSequence to delete.
+     */
+    where: DailyOrderSequenceWhereUniqueInput
+  }
+
+  /**
+   * DailyOrderSequence deleteMany
+   */
+  export type DailyOrderSequenceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DailyOrderSequences to delete
+     */
+    where?: DailyOrderSequenceWhereInput
+    /**
+     * Limit how many DailyOrderSequences to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DailyOrderSequence without action
+   */
+  export type DailyOrderSequenceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyOrderSequence
+     */
+    select?: DailyOrderSequenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyOrderSequence
+     */
+    omit?: DailyOrderSequenceOmit<ExtArgs> | null
   }
 
 
@@ -61332,6 +62354,8 @@ export namespace Prisma {
     assignedToId: 'assignedToId',
     shiftId: 'shiftId',
     promotionId: 'promotionId',
+    orderType: 'orderType',
+    tableNumber: 'tableNumber',
     originalAmount: 'originalAmount',
     discountAmount: 'discountAmount',
     voucherDiscount: 'voucherDiscount',
@@ -61354,6 +62378,16 @@ export namespace Prisma {
   };
 
   export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
+
+
+  export const DailyOrderSequenceScalarFieldEnum: {
+    date: 'date',
+    lastValue: 'lastValue',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type DailyOrderSequenceScalarFieldEnum = (typeof DailyOrderSequenceScalarFieldEnum)[keyof typeof DailyOrderSequenceScalarFieldEnum]
 
 
   export const OrderItemScalarFieldEnum: {
@@ -61978,11 +63012,19 @@ export namespace Prisma {
     assignedToId: 'assignedToId',
     shiftId: 'shiftId',
     promotionId: 'promotionId',
+    tableNumber: 'tableNumber',
     note: 'note',
     cancellationReason: 'cancellationReason'
   };
 
   export type OrderOrderByRelevanceFieldEnum = (typeof OrderOrderByRelevanceFieldEnum)[keyof typeof OrderOrderByRelevanceFieldEnum]
+
+
+  export const DailyOrderSequenceOrderByRelevanceFieldEnum: {
+    date: 'date'
+  };
+
+  export type DailyOrderSequenceOrderByRelevanceFieldEnum = (typeof DailyOrderSequenceOrderByRelevanceFieldEnum)[keyof typeof DailyOrderSequenceOrderByRelevanceFieldEnum]
 
 
   export const OrderItemOrderByRelevanceFieldEnum: {
@@ -62249,6 +63291,13 @@ export namespace Prisma {
    * Reference to a field of type 'VoucherStatus'
    */
   export type EnumVoucherStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'VoucherStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'OrderType'
+   */
+  export type EnumOrderTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OrderType'>
     
 
 
@@ -65781,6 +66830,8 @@ export namespace Prisma {
     assignedToId?: StringNullableFilter<"Order"> | string | null
     shiftId?: StringNullableFilter<"Order"> | string | null
     promotionId?: StringNullableFilter<"Order"> | string | null
+    orderType?: EnumOrderTypeFilter<"Order"> | $Enums.OrderType
+    tableNumber?: StringNullableFilter<"Order"> | string | null
     originalAmount?: IntFilter<"Order"> | number
     discountAmount?: IntFilter<"Order"> | number
     voucherDiscount?: IntFilter<"Order"> | number
@@ -65827,6 +66878,8 @@ export namespace Prisma {
     assignedToId?: SortOrderInput | SortOrder
     shiftId?: SortOrderInput | SortOrder
     promotionId?: SortOrderInput | SortOrder
+    orderType?: SortOrder
+    tableNumber?: SortOrderInput | SortOrder
     originalAmount?: SortOrder
     discountAmount?: SortOrder
     voucherDiscount?: SortOrder
@@ -65877,6 +66930,8 @@ export namespace Prisma {
     assignedToId?: StringNullableFilter<"Order"> | string | null
     shiftId?: StringNullableFilter<"Order"> | string | null
     promotionId?: StringNullableFilter<"Order"> | string | null
+    orderType?: EnumOrderTypeFilter<"Order"> | $Enums.OrderType
+    tableNumber?: StringNullableFilter<"Order"> | string | null
     originalAmount?: IntFilter<"Order"> | number
     discountAmount?: IntFilter<"Order"> | number
     voucherDiscount?: IntFilter<"Order"> | number
@@ -65923,6 +66978,8 @@ export namespace Prisma {
     assignedToId?: SortOrderInput | SortOrder
     shiftId?: SortOrderInput | SortOrder
     promotionId?: SortOrderInput | SortOrder
+    orderType?: SortOrder
+    tableNumber?: SortOrderInput | SortOrder
     originalAmount?: SortOrder
     discountAmount?: SortOrder
     voucherDiscount?: SortOrder
@@ -65961,6 +67018,8 @@ export namespace Prisma {
     assignedToId?: StringNullableWithAggregatesFilter<"Order"> | string | null
     shiftId?: StringNullableWithAggregatesFilter<"Order"> | string | null
     promotionId?: StringNullableWithAggregatesFilter<"Order"> | string | null
+    orderType?: EnumOrderTypeWithAggregatesFilter<"Order"> | $Enums.OrderType
+    tableNumber?: StringNullableWithAggregatesFilter<"Order"> | string | null
     originalAmount?: IntWithAggregatesFilter<"Order"> | number
     discountAmount?: IntWithAggregatesFilter<"Order"> | number
     voucherDiscount?: IntWithAggregatesFilter<"Order"> | number
@@ -65980,6 +67039,56 @@ export namespace Prisma {
     cancelledAt?: DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Order"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Order"> | Date | string
+  }
+
+  export type DailyOrderSequenceWhereInput = {
+    AND?: DailyOrderSequenceWhereInput | DailyOrderSequenceWhereInput[]
+    OR?: DailyOrderSequenceWhereInput[]
+    NOT?: DailyOrderSequenceWhereInput | DailyOrderSequenceWhereInput[]
+    date?: StringFilter<"DailyOrderSequence"> | string
+    lastValue?: IntFilter<"DailyOrderSequence"> | number
+    createdAt?: DateTimeFilter<"DailyOrderSequence"> | Date | string
+    updatedAt?: DateTimeFilter<"DailyOrderSequence"> | Date | string
+  }
+
+  export type DailyOrderSequenceOrderByWithRelationInput = {
+    date?: SortOrder
+    lastValue?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _relevance?: DailyOrderSequenceOrderByRelevanceInput
+  }
+
+  export type DailyOrderSequenceWhereUniqueInput = Prisma.AtLeast<{
+    date?: string
+    AND?: DailyOrderSequenceWhereInput | DailyOrderSequenceWhereInput[]
+    OR?: DailyOrderSequenceWhereInput[]
+    NOT?: DailyOrderSequenceWhereInput | DailyOrderSequenceWhereInput[]
+    lastValue?: IntFilter<"DailyOrderSequence"> | number
+    createdAt?: DateTimeFilter<"DailyOrderSequence"> | Date | string
+    updatedAt?: DateTimeFilter<"DailyOrderSequence"> | Date | string
+  }, "date">
+
+  export type DailyOrderSequenceOrderByWithAggregationInput = {
+    date?: SortOrder
+    lastValue?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: DailyOrderSequenceCountOrderByAggregateInput
+    _avg?: DailyOrderSequenceAvgOrderByAggregateInput
+    _max?: DailyOrderSequenceMaxOrderByAggregateInput
+    _min?: DailyOrderSequenceMinOrderByAggregateInput
+    _sum?: DailyOrderSequenceSumOrderByAggregateInput
+  }
+
+  export type DailyOrderSequenceScalarWhereWithAggregatesInput = {
+    AND?: DailyOrderSequenceScalarWhereWithAggregatesInput | DailyOrderSequenceScalarWhereWithAggregatesInput[]
+    OR?: DailyOrderSequenceScalarWhereWithAggregatesInput[]
+    NOT?: DailyOrderSequenceScalarWhereWithAggregatesInput | DailyOrderSequenceScalarWhereWithAggregatesInput[]
+    date?: StringWithAggregatesFilter<"DailyOrderSequence"> | string
+    lastValue?: IntWithAggregatesFilter<"DailyOrderSequence"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"DailyOrderSequence"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"DailyOrderSequence"> | Date | string
   }
 
   export type OrderItemWhereInput = {
@@ -70650,6 +71759,8 @@ export namespace Prisma {
   export type OrderCreateInput = {
     id?: string
     code: string
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -70696,6 +71807,8 @@ export namespace Prisma {
     assignedToId?: string | null
     shiftId?: string | null
     promotionId?: string | null
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -70730,6 +71843,8 @@ export namespace Prisma {
   export type OrderUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -70776,6 +71891,8 @@ export namespace Prisma {
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
     shiftId?: NullableStringFieldUpdateOperationsInput | string | null
     promotionId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -70816,6 +71933,8 @@ export namespace Prisma {
     assignedToId?: string | null
     shiftId?: string | null
     promotionId?: string | null
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -70840,6 +71959,8 @@ export namespace Prisma {
   export type OrderUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -70870,6 +71991,8 @@ export namespace Prisma {
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
     shiftId?: NullableStringFieldUpdateOperationsInput | string | null
     promotionId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -70887,6 +72010,55 @@ export namespace Prisma {
     cancellationReason?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DailyOrderSequenceCreateInput = {
+    date: string
+    lastValue: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DailyOrderSequenceUncheckedCreateInput = {
+    date: string
+    lastValue: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DailyOrderSequenceUpdateInput = {
+    date?: StringFieldUpdateOperationsInput | string
+    lastValue?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DailyOrderSequenceUncheckedUpdateInput = {
+    date?: StringFieldUpdateOperationsInput | string
+    lastValue?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DailyOrderSequenceCreateManyInput = {
+    date: string
+    lastValue: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DailyOrderSequenceUpdateManyMutationInput = {
+    date?: StringFieldUpdateOperationsInput | string
+    lastValue?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DailyOrderSequenceUncheckedUpdateManyInput = {
+    date?: StringFieldUpdateOperationsInput | string
+    lastValue?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -74958,6 +76130,13 @@ export namespace Prisma {
     _max?: NestedEnumVoucherStatusFilter<$PrismaModel>
   }
 
+  export type EnumOrderTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrderType | EnumOrderTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.OrderType[]
+    notIn?: $Enums.OrderType[]
+    not?: NestedEnumOrderTypeFilter<$PrismaModel> | $Enums.OrderType
+  }
+
   export type EnumPaymentStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.PaymentStatus | EnumPaymentStatusFieldRefInput<$PrismaModel>
     in?: $Enums.PaymentStatus[]
@@ -75022,6 +76201,8 @@ export namespace Prisma {
     assignedToId?: SortOrder
     shiftId?: SortOrder
     promotionId?: SortOrder
+    orderType?: SortOrder
+    tableNumber?: SortOrder
     originalAmount?: SortOrder
     discountAmount?: SortOrder
     voucherDiscount?: SortOrder
@@ -75066,6 +76247,8 @@ export namespace Prisma {
     assignedToId?: SortOrder
     shiftId?: SortOrder
     promotionId?: SortOrder
+    orderType?: SortOrder
+    tableNumber?: SortOrder
     originalAmount?: SortOrder
     discountAmount?: SortOrder
     voucherDiscount?: SortOrder
@@ -75096,6 +76279,8 @@ export namespace Prisma {
     assignedToId?: SortOrder
     shiftId?: SortOrder
     promotionId?: SortOrder
+    orderType?: SortOrder
+    tableNumber?: SortOrder
     originalAmount?: SortOrder
     discountAmount?: SortOrder
     voucherDiscount?: SortOrder
@@ -75131,6 +76316,16 @@ export namespace Prisma {
     changeAmount?: SortOrder
   }
 
+  export type EnumOrderTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrderType | EnumOrderTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.OrderType[]
+    notIn?: $Enums.OrderType[]
+    not?: NestedEnumOrderTypeWithAggregatesFilter<$PrismaModel> | $Enums.OrderType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumOrderTypeFilter<$PrismaModel>
+    _max?: NestedEnumOrderTypeFilter<$PrismaModel>
+  }
+
   export type EnumPaymentStatusWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.PaymentStatus | EnumPaymentStatusFieldRefInput<$PrismaModel>
     in?: $Enums.PaymentStatus[]
@@ -75149,6 +76344,41 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumOrderStatusFilter<$PrismaModel>
     _max?: NestedEnumOrderStatusFilter<$PrismaModel>
+  }
+
+  export type DailyOrderSequenceOrderByRelevanceInput = {
+    fields: DailyOrderSequenceOrderByRelevanceFieldEnum | DailyOrderSequenceOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type DailyOrderSequenceCountOrderByAggregateInput = {
+    date?: SortOrder
+    lastValue?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DailyOrderSequenceAvgOrderByAggregateInput = {
+    lastValue?: SortOrder
+  }
+
+  export type DailyOrderSequenceMaxOrderByAggregateInput = {
+    date?: SortOrder
+    lastValue?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DailyOrderSequenceMinOrderByAggregateInput = {
+    date?: SortOrder
+    lastValue?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DailyOrderSequenceSumOrderByAggregateInput = {
+    lastValue?: SortOrder
   }
 
   export type OrderItemOrderByRelevanceInput = {
@@ -80443,6 +81673,10 @@ export namespace Prisma {
     connect?: CustomerVoucherWhereUniqueInput
   }
 
+  export type EnumOrderTypeFieldUpdateOperationsInput = {
+    set?: $Enums.OrderType
+  }
+
   export type EnumPaymentStatusFieldUpdateOperationsInput = {
     set?: $Enums.PaymentStatus
   }
@@ -81691,6 +82925,13 @@ export namespace Prisma {
     _max?: NestedEnumVoucherStatusFilter<$PrismaModel>
   }
 
+  export type NestedEnumOrderTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrderType | EnumOrderTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.OrderType[]
+    notIn?: $Enums.OrderType[]
+    not?: NestedEnumOrderTypeFilter<$PrismaModel> | $Enums.OrderType
+  }
+
   export type NestedEnumPaymentStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.PaymentStatus | EnumPaymentStatusFieldRefInput<$PrismaModel>
     in?: $Enums.PaymentStatus[]
@@ -81703,6 +82944,16 @@ export namespace Prisma {
     in?: $Enums.OrderStatus[]
     notIn?: $Enums.OrderStatus[]
     not?: NestedEnumOrderStatusFilter<$PrismaModel> | $Enums.OrderStatus
+  }
+
+  export type NestedEnumOrderTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrderType | EnumOrderTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.OrderType[]
+    notIn?: $Enums.OrderType[]
+    not?: NestedEnumOrderTypeWithAggregatesFilter<$PrismaModel> | $Enums.OrderType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumOrderTypeFilter<$PrismaModel>
+    _max?: NestedEnumOrderTypeFilter<$PrismaModel>
   }
 
   export type NestedEnumPaymentStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -82511,6 +83762,8 @@ export namespace Prisma {
   export type OrderCreateWithoutBranchInput = {
     id?: string
     code: string
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -82555,6 +83808,8 @@ export namespace Prisma {
     assignedToId?: string | null
     shiftId?: string | null
     promotionId?: string | null
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -83152,6 +84407,8 @@ export namespace Prisma {
     assignedToId?: StringNullableFilter<"Order"> | string | null
     shiftId?: StringNullableFilter<"Order"> | string | null
     promotionId?: StringNullableFilter<"Order"> | string | null
+    orderType?: EnumOrderTypeFilter<"Order"> | $Enums.OrderType
+    tableNumber?: StringNullableFilter<"Order"> | string | null
     originalAmount?: IntFilter<"Order"> | number
     discountAmount?: IntFilter<"Order"> | number
     voucherDiscount?: IntFilter<"Order"> | number
@@ -83630,6 +84887,8 @@ export namespace Prisma {
   export type OrderCreateWithoutCreatedByInput = {
     id?: string
     code: string
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -83674,6 +84933,8 @@ export namespace Prisma {
     assignedToId?: string | null
     shiftId?: string | null
     promotionId?: string | null
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -83718,6 +84979,8 @@ export namespace Prisma {
   export type OrderCreateWithoutAssignedToInput = {
     id?: string
     code: string
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -83762,6 +85025,8 @@ export namespace Prisma {
     createdById: string
     shiftId?: string | null
     promotionId?: string | null
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -90761,6 +92026,8 @@ export namespace Prisma {
   export type OrderCreateWithoutCustomerInput = {
     id?: string
     code: string
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -90805,6 +92072,8 @@ export namespace Prisma {
     assignedToId?: string | null
     shiftId?: string | null
     promotionId?: string | null
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -92053,6 +93322,8 @@ export namespace Prisma {
   export type OrderCreateWithoutMembershipBenefitUsageInput = {
     id?: string
     code: string
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -92098,6 +93369,8 @@ export namespace Prisma {
     assignedToId?: string | null
     shiftId?: string | null
     promotionId?: string | null
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -92194,6 +93467,8 @@ export namespace Prisma {
   export type OrderUpdateWithoutMembershipBenefitUsageInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -92239,6 +93514,8 @@ export namespace Prisma {
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
     shiftId?: NullableStringFieldUpdateOperationsInput | string | null
     promotionId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -92319,6 +93596,8 @@ export namespace Prisma {
   export type OrderCreateWithoutPointTransactionsInput = {
     id?: string
     code: string
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -92364,6 +93643,8 @@ export namespace Prisma {
     assignedToId?: string | null
     shiftId?: string | null
     promotionId?: string | null
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -92466,6 +93747,8 @@ export namespace Prisma {
   export type OrderUpdateWithoutPointTransactionsInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -92511,6 +93794,8 @@ export namespace Prisma {
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
     shiftId?: NullableStringFieldUpdateOperationsInput | string | null
     promotionId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -92606,6 +93891,8 @@ export namespace Prisma {
   export type OrderCreateWithoutPromotionInput = {
     id?: string
     code: string
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -92650,6 +93937,8 @@ export namespace Prisma {
     createdById: string
     assignedToId?: string | null
     shiftId?: string | null
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -93274,6 +94563,8 @@ export namespace Prisma {
   export type OrderCreateWithoutPromotionUsageInput = {
     id?: string
     code: string
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -93319,6 +94610,8 @@ export namespace Prisma {
     assignedToId?: string | null
     shiftId?: string | null
     promotionId?: string | null
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -93484,6 +94777,8 @@ export namespace Prisma {
   export type OrderUpdateWithoutPromotionUsageInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -93529,6 +94824,8 @@ export namespace Prisma {
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
     shiftId?: NullableStringFieldUpdateOperationsInput | string | null
     promotionId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -93796,6 +95093,8 @@ export namespace Prisma {
   export type OrderCreateWithoutIssuedVouchersInput = {
     id?: string
     code: string
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -93841,6 +95140,8 @@ export namespace Prisma {
     assignedToId?: string | null
     shiftId?: string | null
     promotionId?: string | null
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -93879,6 +95180,8 @@ export namespace Prisma {
   export type OrderCreateWithoutUsedVoucherInput = {
     id?: string
     code: string
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -93924,6 +95227,8 @@ export namespace Prisma {
     assignedToId?: string | null
     shiftId?: string | null
     promotionId?: string | null
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -94231,6 +95536,8 @@ export namespace Prisma {
   export type OrderUpdateWithoutIssuedVouchersInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -94276,6 +95583,8 @@ export namespace Prisma {
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
     shiftId?: NullableStringFieldUpdateOperationsInput | string | null
     promotionId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -94320,6 +95629,8 @@ export namespace Prisma {
   export type OrderUpdateWithoutUsedVoucherInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -94365,6 +95676,8 @@ export namespace Prisma {
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
     shiftId?: NullableStringFieldUpdateOperationsInput | string | null
     promotionId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -95756,6 +97069,8 @@ export namespace Prisma {
   export type OrderCreateWithoutItemsInput = {
     id?: string
     code: string
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -95801,6 +97116,8 @@ export namespace Prisma {
     assignedToId?: string | null
     shiftId?: string | null
     promotionId?: string | null
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -95990,6 +97307,8 @@ export namespace Prisma {
   export type OrderUpdateWithoutItemsInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -96035,6 +97354,8 @@ export namespace Prisma {
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
     shiftId?: NullableStringFieldUpdateOperationsInput | string | null
     promotionId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -96532,6 +97853,8 @@ export namespace Prisma {
   export type OrderCreateWithoutPaymentsInput = {
     id?: string
     code: string
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -96577,6 +97900,8 @@ export namespace Prisma {
     assignedToId?: string | null
     shiftId?: string | null
     promotionId?: string | null
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -96626,6 +97951,8 @@ export namespace Prisma {
   export type OrderUpdateWithoutPaymentsInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -96671,6 +97998,8 @@ export namespace Prisma {
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
     shiftId?: NullableStringFieldUpdateOperationsInput | string | null
     promotionId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -96704,6 +98033,8 @@ export namespace Prisma {
   export type OrderCreateWithoutRefundsInput = {
     id?: string
     code: string
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -96749,6 +98080,8 @@ export namespace Prisma {
     assignedToId?: string | null
     shiftId?: string | null
     promotionId?: string | null
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -96875,6 +98208,8 @@ export namespace Prisma {
   export type OrderUpdateWithoutRefundsInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -96920,6 +98255,8 @@ export namespace Prisma {
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
     shiftId?: NullableStringFieldUpdateOperationsInput | string | null
     promotionId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -97172,6 +98509,8 @@ export namespace Prisma {
   export type OrderCreateWithoutShiftInput = {
     id?: string
     code: string
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -97216,6 +98555,8 @@ export namespace Prisma {
     createdById: string
     assignedToId?: string | null
     promotionId?: string | null
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -98026,6 +99367,8 @@ export namespace Prisma {
   export type OrderCreateWithoutStatusHistoryInput = {
     id?: string
     code: string
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -98071,6 +99414,8 @@ export namespace Prisma {
     assignedToId?: string | null
     shiftId?: string | null
     promotionId?: string | null
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -98197,6 +99542,8 @@ export namespace Prisma {
   export type OrderUpdateWithoutStatusHistoryInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -98242,6 +99589,8 @@ export namespace Prisma {
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
     shiftId?: NullableStringFieldUpdateOperationsInput | string | null
     promotionId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -98358,6 +99707,8 @@ export namespace Prisma {
   export type OrderCreateWithoutPaymentStatusHistoryInput = {
     id?: string
     code: string
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -98403,6 +99754,8 @@ export namespace Prisma {
     assignedToId?: string | null
     shiftId?: string | null
     promotionId?: string | null
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -98529,6 +99882,8 @@ export namespace Prisma {
   export type OrderUpdateWithoutPaymentStatusHistoryInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -98574,6 +99929,8 @@ export namespace Prisma {
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
     shiftId?: NullableStringFieldUpdateOperationsInput | string | null
     promotionId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -99092,6 +100449,8 @@ export namespace Prisma {
     assignedToId?: string | null
     shiftId?: string | null
     promotionId?: string | null
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -99549,6 +100908,8 @@ export namespace Prisma {
   export type OrderUpdateWithoutBranchInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -99593,6 +100954,8 @@ export namespace Prisma {
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
     shiftId?: NullableStringFieldUpdateOperationsInput | string | null
     promotionId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -99632,6 +100995,8 @@ export namespace Prisma {
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
     shiftId?: NullableStringFieldUpdateOperationsInput | string | null
     promotionId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -100024,6 +101389,8 @@ export namespace Prisma {
     assignedToId?: string | null
     shiftId?: string | null
     promotionId?: string | null
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -100053,6 +101420,8 @@ export namespace Prisma {
     createdById: string
     shiftId?: string | null
     promotionId?: string | null
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -100382,6 +101751,8 @@ export namespace Prisma {
   export type OrderUpdateWithoutCreatedByInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -100426,6 +101797,8 @@ export namespace Prisma {
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
     shiftId?: NullableStringFieldUpdateOperationsInput | string | null
     promotionId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -100465,6 +101838,8 @@ export namespace Prisma {
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
     shiftId?: NullableStringFieldUpdateOperationsInput | string | null
     promotionId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -100489,6 +101864,8 @@ export namespace Prisma {
   export type OrderUpdateWithoutAssignedToInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -100533,6 +101910,8 @@ export namespace Prisma {
     createdById?: StringFieldUpdateOperationsInput | string
     shiftId?: NullableStringFieldUpdateOperationsInput | string | null
     promotionId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -100572,6 +101951,8 @@ export namespace Prisma {
     createdById?: StringFieldUpdateOperationsInput | string
     shiftId?: NullableStringFieldUpdateOperationsInput | string | null
     promotionId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -102732,6 +104113,8 @@ export namespace Prisma {
     assignedToId?: string | null
     shiftId?: string | null
     promotionId?: string | null
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -102834,6 +104217,8 @@ export namespace Prisma {
   export type OrderUpdateWithoutCustomerInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -102878,6 +104263,8 @@ export namespace Prisma {
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
     shiftId?: NullableStringFieldUpdateOperationsInput | string | null
     promotionId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -102917,6 +104304,8 @@ export namespace Prisma {
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
     shiftId?: NullableStringFieldUpdateOperationsInput | string | null
     promotionId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -103221,6 +104610,8 @@ export namespace Prisma {
     createdById: string
     assignedToId?: string | null
     shiftId?: string | null
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -103293,6 +104684,8 @@ export namespace Prisma {
   export type OrderUpdateWithoutPromotionInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -103337,6 +104730,8 @@ export namespace Prisma {
     createdById?: StringFieldUpdateOperationsInput | string
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
     shiftId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -103376,6 +104771,8 @@ export namespace Prisma {
     createdById?: StringFieldUpdateOperationsInput | string
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
     shiftId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -103841,6 +105238,8 @@ export namespace Prisma {
     createdById: string
     assignedToId?: string | null
     promotionId?: string | null
+    orderType?: $Enums.OrderType
+    tableNumber?: string | null
     originalAmount: number
     discountAmount?: number
     voucherDiscount?: number
@@ -103875,6 +105274,8 @@ export namespace Prisma {
   export type OrderUpdateWithoutShiftInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -103919,6 +105320,8 @@ export namespace Prisma {
     createdById?: StringFieldUpdateOperationsInput | string
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
     promotionId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number
@@ -103958,6 +105361,8 @@ export namespace Prisma {
     createdById?: StringFieldUpdateOperationsInput | string
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
     promotionId?: NullableStringFieldUpdateOperationsInput | string | null
+    orderType?: EnumOrderTypeFieldUpdateOperationsInput | $Enums.OrderType
+    tableNumber?: NullableStringFieldUpdateOperationsInput | string | null
     originalAmount?: IntFieldUpdateOperationsInput | number
     discountAmount?: IntFieldUpdateOperationsInput | number
     voucherDiscount?: IntFieldUpdateOperationsInput | number

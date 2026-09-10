@@ -219,6 +219,7 @@ export default function OrdersPage() {
               <div className="tw-flex tw-justify-between"><span>Tạm tính</span><span>{formatMoney(order.originalAmount)}</span></div>
               <div className="tw-flex tw-justify-between"><span>Giảm giá</span><span>-{formatMoney(order.discountAmount + (order.voucherDiscount || 0) + (order.pointsDiscount || 0) + (order.membershipDiscount || 0))}</span></div>
               <div className="tw-flex tw-justify-between"><span>VAT</span><span>{formatMoney(order.taxAmount)}</span></div>
+              <div className="tw-flex tw-justify-between"><span>Phí giao hàng</span><span>{formatMoney(order.deliveryFee || 0)}</span></div>
               <div className="tw-flex tw-justify-between tw-border-t tw-pt-2 tw-text-lg tw-font-black"><span>Tổng cộng</span><span>{formatMoney(order.totalAmount)}</span></div>
             </div>
             {order.status === "READY" && order.paymentStatus !== "PAID" && (

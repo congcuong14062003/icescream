@@ -35,6 +35,11 @@ enum OrderStatus {
   CANCELLED
 }
 
+enum OrderType {
+  TAKEAWAY
+  DINE_IN
+}
+
 enum PaymentStatus {
   UNPAID
   PARTIALLY_PAID
@@ -913,6 +918,8 @@ model Order {
   assignedToId           String?
   shiftId                String?
   promotionId            String?
+  orderType              OrderType                  @default(TAKEAWAY)
+  tableNumber            String?
   originalAmount         Int
   discountAmount         Int                        @default(0)
   voucherDiscount        Int                        @default(0)
@@ -954,6 +961,13 @@ model Order {
   @@index([branchId, createdAt])
   @@index([customerId, createdAt])
   @@index([createdById, createdAt])
+}
+
+model DailyOrderSequence {
+  date      String   @id @db.VarChar(8)
+  lastValue Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model OrderItem {

@@ -1,0 +1,11 @@
+ALTER TABLE `Order`
+    ADD COLUMN `orderType` ENUM('TAKEAWAY', 'DINE_IN') NOT NULL DEFAULT 'TAKEAWAY',
+    ADD COLUMN `tableNumber` VARCHAR(191) NULL;
+
+CREATE TABLE `DailyOrderSequence` (
+    `date` VARCHAR(8) NOT NULL,
+    `lastValue` INTEGER NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+    PRIMARY KEY (`date`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

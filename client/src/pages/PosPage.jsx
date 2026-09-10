@@ -59,6 +59,8 @@ export default function PosPage() {
   const [giftVariantId, setGiftVariantId] = useState(null);
   const [customer, setCustomer] = useState(null);
   const [orderNote, setOrderNote] = useState("");
+  const [orderType, setOrderType] = useState("TAKEAWAY");
+  const [tableNumber, setTableNumber] = useState("");
   const [promotionInput, setPromotionInput] = useState("");
   const [promotionCode, setPromotionCode] = useState("");
   const [deliveryFee, setDeliveryFee] = useState(0);
@@ -186,6 +188,8 @@ export default function PosPage() {
         ...orderInput,
         draftId: restoredDraftId,
         note: orderNote || null,
+        orderType,
+        tableNumber: orderType === "DINE_IN" ? tableNumber : null,
         saveAsDraft,
         customerPaid: saveAsDraft ? 0 : paymentMethod === "CASH" ? Number(customerPaid || 0) : total,
         payments: saveAsDraft || total === 0 ? [] : [{ method: paymentMethod, amount: total }],
@@ -258,6 +262,8 @@ export default function PosPage() {
     );
     setCustomer(draft.customer);
     setOrderNote(draft.note || "");
+    setOrderType(draft.orderType || "TAKEAWAY");
+    setTableNumber(draft.tableNumber || "");
     setPromotionCode(draft.promotion?.code || "");
     setPromotionInput(draft.promotion?.code || "");
     setDeliveryFee(draft.deliveryFee);
@@ -266,6 +272,7 @@ export default function PosPage() {
     toast.success(`Đã khôi phục ${draft.code}`);
   };
   const checkout = () => {
+    if (orderType === "DINE_IN" && !tableNumber) return toast.error("Vui lòng chọn số bàn");
     if (!quote) return toast.error("Đang chờ hệ thống tính lại đơn hàng");
     if (quoteQuery.isError) return toast.error(apiMessage(quoteQuery.error));
     if (paymentMethod === "CASH" && Number(customerPaid || 0) < total) {
@@ -505,6 +512,8 @@ export default function PosPage() {
                   <Input label="Mã ưu đãi / voucher" value={promotionInput} onChange={(event) => setPromotionInput(event.target.value.toUpperCase())} />
                   <Button variant="outlined" onClick={applyPromotion} disabled={!promotionInput.trim()}>Áp dụng</Button>
                 </div>
+                <div className="tw-grid tw-grid-cols-2 tw-gap-2"><Button variant={orderType === "TAKEAWAY" ? "contained" : "outlined"} onClick={() => { setOrderType("TAKEAWAY"); setTableNumber(""); }}>Mua mang về</Button><Button variant={orderType === "DINE_IN" ? "contained" : "outlined"} onClick={() => setOrderType("DINE_IN")}>Ăn tại cửa hàng</Button></div>
+                {orderType === "DINE_IN" && <Input select label="Số bàn" value={tableNumber} onChange={(e) => setTableNumber(e.target.value)} SelectProps={{ native: true }}><option value="">Chọn bàn</option>{Array.from({ length: 30 }, (_, i) => String(i + 1).padStart(2, "0")).map((n) => <option key={n} value={n}>Bàn {n}</option>)}</Input>}
                 <Input label="Phí giao hàng" type="number" value={deliveryFee} onChange={(event) => setDeliveryFee(Math.max(0, Number(event.target.value)))} />
                 <Input label="Ghi chú toàn đơn" multiline rows={2} value={orderNote} onChange={(event) => setOrderNote(event.target.value)} />
               </div>
@@ -664,7 +673,7 @@ export default function PosPage() {
             {draftsQuery.data.map((draft) => (
               <button key={draft.id} type="button" onClick={() => restoreDraft(draft)} className="tw-flex tw-w-full tw-items-center tw-gap-3 tw-rounded-2xl tw-border tw-border-slate-100 tw-bg-transparent tw-p-4 tw-text-left hover:tw-bg-mint-50 dark:tw-border-slate-700 dark:hover:tw-bg-mint-700/10">
                 <Receipt size={20} className="tw-text-mint-600" />
-                <div className="tw-flex-1"><strong className="tw-block">{draft.code}</strong><span className="tw-text-xs tw-text-slate-400">{formatDate(draft.updatedAt, true)} · {draft.items.length} dòng món</span></div>
+                <div className="tw-flex-1"><strong className="tw-block">{draft.code}</strong><span className="tw-text-xs tw-text-slate-400">{formatDate(draft.updatedAt, true)} · {draft.items.length} dòng món</span><span className="tw-mt-1 tw-block tw-text-xs tw-font-bold tw-text-slate-600 dark:tw-text-slate-300">{draft.orderType === "DINE_IN" ? "Ăn tại cửa hàng · Bàn " + draft.tableNumber : "Mua mang về"}</span></div>
                 <strong>{formatMoney(draft.totalAmount)}</strong>
               </button>
             ))}

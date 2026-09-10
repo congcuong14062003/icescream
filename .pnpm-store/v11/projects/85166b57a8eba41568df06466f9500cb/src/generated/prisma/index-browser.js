@@ -624,6 +624,8 @@ exports.Prisma.OrderScalarFieldEnum = {
   assignedToId: 'assignedToId',
   shiftId: 'shiftId',
   promotionId: 'promotionId',
+  orderType: 'orderType',
+  tableNumber: 'tableNumber',
   originalAmount: 'originalAmount',
   discountAmount: 'discountAmount',
   voucherDiscount: 'voucherDiscount',
@@ -641,6 +643,13 @@ exports.Prisma.OrderScalarFieldEnum = {
   cancellationReason: 'cancellationReason',
   completedAt: 'completedAt',
   cancelledAt: 'cancelledAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.DailyOrderSequenceScalarFieldEnum = {
+  date: 'date',
+  lastValue: 'lastValue',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -1111,8 +1120,13 @@ exports.Prisma.OrderOrderByRelevanceFieldEnum = {
   assignedToId: 'assignedToId',
   shiftId: 'shiftId',
   promotionId: 'promotionId',
+  tableNumber: 'tableNumber',
   note: 'note',
   cancellationReason: 'cancellationReason'
+};
+
+exports.Prisma.DailyOrderSequenceOrderByRelevanceFieldEnum = {
+  date: 'date'
 };
 
 exports.Prisma.OrderItemOrderByRelevanceFieldEnum = {
@@ -1307,6 +1321,11 @@ exports.VoucherStatus = exports.$Enums.VoucherStatus = {
   CANCELLED: 'CANCELLED'
 };
 
+exports.OrderType = exports.$Enums.OrderType = {
+  TAKEAWAY: 'TAKEAWAY',
+  DINE_IN: 'DINE_IN'
+};
+
 exports.PaymentStatus = exports.$Enums.PaymentStatus = {
   UNPAID: 'UNPAID',
   PARTIALLY_PAID: 'PARTIALLY_PAID',
@@ -1390,6 +1409,7 @@ exports.Prisma.ModelName = {
   PromotionUsage: 'PromotionUsage',
   CustomerVoucher: 'CustomerVoucher',
   Order: 'Order',
+  DailyOrderSequence: 'DailyOrderSequence',
   OrderItem: 'OrderItem',
   OrderItemFlavor: 'OrderItemFlavor',
   OrderItemTopping: 'OrderItemTopping',

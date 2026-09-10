@@ -14,7 +14,7 @@ import { renderInvoicePdf } from "../../services/invoice-pdf.service.js";
 import { emitOrderEvent } from "../../services/socket.service.js";
 import { ApiError } from "../../utils/api-error.js";
 import { asyncHandler } from "../../utils/async-handler.js";
-import { createBusinessCode } from "../../utils/code.js";
+import { createBusinessCode, createDailyOrderCode } from "../../utils/code.js";
 import { getPagination, paginationMeta } from "../../utils/pagination.js";
 import { created, success } from "../../utils/response.js";
 import { benefitDateFor, publicMembership } from "../../services/membership.service.js";
@@ -43,6 +43,8 @@ const quoteSchema = z.object({
 const createSchema = quoteSchema.extend({
   draftId: z.string().optional().nullable(),
   note: z.string().trim().max(1000).optional().nullable(),
+  orderType: z.enum(["TAKEAWAY", "DINE_IN"]).default("TAKEAWAY"),
+  tableNumber: z.string().regex(/^(0[1-9]|[12][0-9]|30)$/).optional().nullable(),
   saveAsDraft: z.boolean().default(false),
   customerPaid: z.coerce.number().int().min(0).default(0),
   payments: z
@@ -104,6 +106,8 @@ function orderDataFromPricing(request, pricing, branchId, shiftId, code, status)
     createdById: request.user.id,
     shiftId,
     promotionId: pricing.promotion?.id || null,
+    orderType: request.body.orderType,
+    tableNumber: request.body.orderType === "DINE_IN" ? request.body.tableNumber : null,
     originalAmount: pricing.originalAmount,
     discountAmount: pricing.discountAmount,
     voucherDiscount: pricing.voucherDiscount,
@@ -312,7 +316,7 @@ router.post(
       }
     }
 
-    const code = createBusinessCode(request.body.saveAsDraft ? "TAM" : "HD");
+
     const order = await prisma.$transaction(async (tx) => {
       if (restoredDraft) {
         await tx.order.delete({ where: { id: restoredDraft.id } });
@@ -321,6 +325,7 @@ router.post(
         ...request.body,
         branchId,
       });
+      const code = await createDailyOrderCode(tx);
       if (!request.body.saveAsDraft) {
         const paymentTotal = request.body.payments.reduce(
           (sum, payment) => sum + payment.amount,
