@@ -98,4 +98,20 @@ export async function downloadFile(url, filename) {
   URL.revokeObjectURL(objectUrl);
 }
 
+export async function printFile(url) {
+  const response = await api.get(url, { responseType: "blob" });
+  const objectUrl = URL.createObjectURL(response.data);
+  const frame = document.createElement("iframe");
+  Object.assign(frame.style, { position: "fixed", width: "0", height: "0", border: "0", visibility: "hidden" });
+  frame.onload = () => {
+    frame.contentWindow?.focus();
+    frame.contentWindow?.print();
+  };
+  frame.src = objectUrl;
+  document.body.appendChild(frame);
+  window.setTimeout(() => {
+    frame.remove();
+    URL.revokeObjectURL(objectUrl);
+  }, 60_000);
+}
 export default api;

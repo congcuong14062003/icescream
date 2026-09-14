@@ -15,6 +15,7 @@ import {
   NotebookPen,
   Pencil,
   Plus,
+  Printer,
   Receipt,
   Save,
   Search,
@@ -26,7 +27,7 @@ import {
 } from "lucide-react";
 import { Accordion, AccordionDetails, AccordionSummary, IconButton, InputAdornment } from "@mui/material";
 import { toast } from "react-toastify";
-import api, { apiMessage, downloadFile } from "../services/api";
+import api, { apiMessage, downloadFile, printFile } from "../services/api";
 import { getSocket } from "../services/socket";
 import Button from "../components/common/Button";
 import ConfirmDialog from "../components/common/ConfirmDialog";
@@ -66,6 +67,7 @@ export default function PosPage() {
   const [deliveryFee, setDeliveryFee] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("CASH");
   const [customerPaid, setCustomerPaid] = useState(0);
+  const [customerPaidEdited, setCustomerPaidEdited] = useState(false);
   const [clearConfirm, setClearConfirm] = useState(false);
   const [draftsOpen, setDraftsOpen] = useState(false);
   const [restoredDraftId, setRestoredDraftId] = useState(null);
@@ -178,6 +180,12 @@ export default function PosPage() {
   const localTotal = cart.reduce((sum, line) => sum + line.displayUnitPrice * line.quantity, 0);
   const total = quote?.totalAmount ?? localTotal;
   const change = paymentMethod === "CASH" ? Math.max(0, Number(customerPaid || 0) - total) : 0;
+
+  useEffect(() => {
+    if (paymentMethod === "CASH" && cart.length > 0 && !customerPaidEdited) {
+      setCustomerPaid(total);
+    }
+  }, [paymentMethod, total, cart.length, customerPaidEdited]);
   const branchVouchers = (customer?.activeVouchers || []).filter(
     (voucher) => voucher.branchId === user?.branch?.id,
   );
@@ -219,6 +227,7 @@ export default function PosPage() {
     setPromotionCode("");
     setDeliveryFee(0);
     setCustomerPaid(0);
+    setCustomerPaidEdited(false);
     setRestoredDraftId(null);
   };
   const addOrUpdateLine = (line) => {
@@ -619,7 +628,13 @@ export default function PosPage() {
                 <button
                   type="button"
                   key={method}
-                  onClick={() => setPaymentMethod(method)}
+                  onClick={() => {
+                    setPaymentMethod(method);
+                    if (method === "CASH") {
+                      setCustomerPaidEdited(false);
+                      setCustomerPaid(total);
+                    }
+                  }}
                   className={`tw-flex tw-flex-col tw-items-center tw-gap-1 tw-rounded-xl tw-border tw-p-2.5 tw-text-[10px] tw-font-bold tw-transition ${
                     paymentMethod === method ? "tw-border-mint-600 tw-bg-mint-50 tw-text-mint-700 tw-shadow-sm dark:tw-bg-mint-700/20" : "tw-border-slate-200 tw-bg-transparent tw-text-slate-500 hover:tw-border-slate-300 dark:tw-border-slate-700"
                   }`}
@@ -631,7 +646,7 @@ export default function PosPage() {
           </div>
           {paymentMethod === "CASH" && cart.length > 0 && (
             <div className="tw-mb-3 tw-grid tw-grid-cols-2 tw-gap-2">
-              <Input label="Tiền khách đưa" type="number" value={customerPaid} onChange={(event) => setCustomerPaid(Math.max(0, Number(event.target.value)))} />
+              <Input label="Tiền khách đưa" type="number" value={customerPaid} onChange={(event) => { setCustomerPaidEdited(true); setCustomerPaid(Math.max(0, Number(event.target.value))); }} />
               <div className="tw-rounded-xl tw-border tw-border-slate-200 tw-bg-slate-50 tw-p-2 dark:tw-border-slate-700 dark:tw-bg-slate-800">
                 <div className="tw-text-[11px] tw-text-slate-400">Tiền thừa</div>
                 <strong className="tw-text-sm">{formatMoney(change)}</strong>
@@ -686,6 +701,13 @@ export default function PosPage() {
         title="Thanh toán thành công"
         actions={
           <>
+            <Button
+              startIcon={<Printer size={17} />}
+              disabled={!completedOrder}
+              onClick={() => completedOrder && printFile(`/orders/${completedOrder.id}/invoice.pdf`).catch((error) => toast.error(apiMessage(error, "Không thể in hóa đơn")))}
+            >
+              In hóa đơn
+            </Button>
             <Button
               variant="outlined"
               disabled={!completedOrder}
