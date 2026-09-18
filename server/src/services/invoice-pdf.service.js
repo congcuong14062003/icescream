@@ -186,12 +186,8 @@ function drawTableHeader(document, fonts, y, copyType) {
   document.roundedRect(x, y, width, 24, 7).fill(colors.mintSoft);
   drawText(document, fonts, "SẢN PHẨM", x + 9, y + 8, { bold: true, color: colors.mintDark, size: 6.6 });
   drawText(document, fonts, "SL", x + 174, y + 8, { bold: true, color: colors.mintDark, size: 6.2, width: 22, align: "center" });
-  if (copyType === "customer") {
-    drawText(document, fonts, "ĐƠN GIÁ (GỒM VAT)", x + 198, y + 8, { bold: true, color: colors.mintDark, size: 5.7, width: 92, align: "right" });
-  } else {
-    drawText(document, fonts, "GIÁ CHƯA VAT", x + 198, y + 8, { bold: true, color: colors.mintDark, size: 5.7, width: 66, align: "right" });
-    drawText(document, fonts, "VAT", x + 266, y + 8, { bold: true, color: colors.mintDark, size: 5.7, width: 42, align: "right" });
-  }
+  drawText(document, fonts, "GIÁ CHƯA VAT", x + 198, y + 8, { bold: true, color: colors.mintDark, size: 5.7, width: 66, align: "right" });
+  drawText(document, fonts, "VAT", x + 266, y + 8, { bold: true, color: colors.mintDark, size: 5.7, width: 42, align: "right" });
   drawText(document, fonts, "THÀNH TIỀN", x + 310, y + 8, { bold: true, color: colors.mintDark, size: 6.2, width: width - 318, align: "right" });
   return y + 28;
 }
@@ -253,11 +249,9 @@ function drawItems(document, fonts, order, startY, copyType, copyLabel) {
       align: "center",
     });
     const vatRate = Number(order.vatRate || 0) / 100;
-    const unitVat = Math.round(item.unitPrice * vatRate);
     const lineVat = Math.round(item.lineTotal * vatRate);
-    const shownUnitPrice = copyType === "customer" ? item.unitPrice + unitVat : item.unitPrice;
-    drawText(document, fonts, money(shownUnitPrice), x + 198, y + 9, { size: 7.2, width: copyType === "customer" ? 92 : 66, align: "right" });
-    if (copyType === "store") drawText(document, fonts, money(lineVat), x + 266, y + 9, { size: 6.8, width: 42, align: "right" });
+    drawText(document, fonts, money(item.unitPrice), x + 198, y + 9, { size: 7.2, width: 66, align: "right" });
+    drawText(document, fonts, money(lineVat), x + 266, y + 9, { size: 6.8, width: 42, align: "right" });
     drawText(document, fonts, money(item.lineTotal + lineVat), x + 310, y + 9, { bold: true, size: 7.2, width: width - 318, align: "right" });
     document.moveTo(x, y + rowHeight - 1).lineTo(x + width, y + rowHeight - 1).strokeColor(colors.line).lineWidth(0.5).stroke();
     y += rowHeight;
@@ -267,7 +261,7 @@ function drawItems(document, fonts, order, startY, copyType, copyLabel) {
 }
 
 function drawTotals(document, fonts, order, startY, copyType, copyLabel) {
-  const rows = copyType === "customer" ? [] : [
+  const rows = [
     ["Tạm tính", order.originalAmount],
     ...(order.discountAmount ? [["Khuyến mãi", -order.discountAmount]] : []),
     ...(order.voucherDiscount
@@ -280,7 +274,7 @@ function drawTotals(document, fonts, order, startY, copyType, copyLabel) {
       : []),
     ...(order.membershipDiscount ? [["Quyền lợi hội viên", -order.membershipDiscount]] : []),
     ...(order.pointsDiscount ? [["Điểm đã dùng (dữ liệu cũ)", -order.pointsDiscount]] : []),
-    ...(copyType === "store" && order.taxAmount ? [[`VAT ${order.vatRate || 0}%`, order.taxAmount]] : []),
+    ...(order.taxAmount ? [[`VAT ${order.vatRate || 0}%`, order.taxAmount]] : []),
     ...(order.deliveryFee ? [["Phí giao hàng", order.deliveryFee]] : []),
   ];
   const panelHeight = 48 + rows.length * 17;
