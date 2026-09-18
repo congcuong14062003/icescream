@@ -8,6 +8,7 @@ import Button from "../../components/common/Button";
 import DataTable from "../../components/common/DataTable";
 import EmptyState from "../../components/common/EmptyState";
 import Input from "../../components/common/Input";
+import MoneyInput from "../../components/common/MoneyInput";
 import Modal from "../../components/common/Modal";
 import Select from "../../components/common/Select";
 import StatusBadge from "../../components/common/StatusBadge";
@@ -153,12 +154,11 @@ export default function ExtraPricingDialog({ open, onClose }) {
       align: "right",
       render: (_, row) => editing?.id === row.id ? (
         <div className="tw-ml-auto tw-w-[190px]">
-          <Input
+          <MoneyInput
             autoFocus
             size="small"
-            type="number"
             value={priceInput}
-            onChange={(event) => setPriceInput(event.target.value)}
+            onChange={(value) => setPriceInput(value)}
             onKeyDown={(event) => {
               if (event.key === "Enter") savePrice();
               if (event.key === "Escape") cancelEdit();

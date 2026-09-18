@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, Eye, Plus, Trash2, Truck } from "lucide-react";
+import { CheckCircle2, Eye, Pencil, Plus, Trash2, Truck } from "lucide-react";
 import { IconButton } from "@mui/material";
 import { toast } from "react-toastify";
 import api, { apiMessage } from "../services/api";
 import Button from "../components/common/Button";
 import DataTable from "../components/common/DataTable";
 import Input from "../components/common/Input";
+import MoneyInput from "../components/common/MoneyInput";
 import Modal from "../components/common/Modal";
 import PageHeader from "../components/common/PageHeader";
 import Select from "../components/common/Select";
@@ -36,6 +37,7 @@ export default function PurchaseOrdersPage() {
   const isAdmin = user.role.code === "ADMIN";
   const canSelectBranch = ["ADMIN", "MANAGER"].includes(user.role.code);
   const [createOpen, setCreateOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
   const [branchFilter, setBranchFilter] = useState(canSelectBranch ? "" : user.branch?.id || "");
   const [form, setForm] = useState({ supplierId: "", branchId: user.branch?.id || "", note: "", items: [{ ...emptyLine }] });
@@ -70,8 +72,8 @@ export default function PurchaseOrdersPage() {
     }
   }, [branchesQuery.data, form.branchId, user.branch?.id]);
 
-  const createMutation = useMutation({
-    mutationFn: () => api.post("/purchase-orders", {
+  const saveMutation = useMutation({
+    mutationFn: () => api[editingId ? "put" : "post"](editingId ? `/purchase-orders/${editingId}` : "/purchase-orders", {
       ...form,
       items: form.items.map((item) => ({
         ...item,
@@ -80,8 +82,9 @@ export default function PurchaseOrdersPage() {
       })),
     }),
     onSuccess: () => {
-      toast.success("Đã tạo phiếu nhập kho");
+      toast.success(editingId ? "Đã cập nhật phiếu nhập kho" : "Đã tạo phiếu nhập kho");
       setCreateOpen(false);
+      setEditingId(null);
       setForm({ supplierId: "", branchId: user.branch?.id || "", note: "", items: [{ ...emptyLine }] });
       queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
     },
@@ -97,7 +100,29 @@ export default function PurchaseOrdersPage() {
     },
     onError: (error) => toast.error(apiMessage(error)),
   });
-  const updateLine = (index, key, value) => setForm((current) => ({ ...current, items: current.items.map((item, position) => position === index ? { ...item, [key]: value } : item) }));
+  const openCreate = () => {
+    setEditingId(null);
+    setForm({ supplierId: "", branchId: user.branch?.id || "", note: "", items: [{ ...emptyLine }] });
+    setCreateOpen(true);
+  };
+  const openEdit = (order) => {
+    setEditingId(order.id);
+    setForm({
+      supplierId: order.supplierId,
+      branchId: order.branchId,
+      note: order.note || "",
+      items: order.items.map((item) => ({
+        ingredientId: item.ingredientId,
+        quantity: item.quantity,
+        unitCost: item.unitCost,
+        batchNumber: item.batchNumber || "",
+        manufactureDate: item.manufactureDate?.slice(0, 10) || "",
+        expiryDate: item.expiryDate?.slice(0, 10) || "",
+      })),
+    });
+    setSelectedId(null);
+    setCreateOpen(true);
+  };  const updateLine = (index, key, value) => setForm((current) => ({ ...current, items: current.items.map((item, position) => position === index ? { ...item, [key]: value } : item) }));
   const total = form.items.reduce((sum, item) => sum + Number(item.quantity || 0) * Number(item.unitCost || 0), 0);
   const valid = form.supplierId && form.branchId && form.items.every((item) => item.ingredientId && item.batchNumber && Number(item.quantity) > 0);
   const columns = [
@@ -116,7 +141,7 @@ export default function PurchaseOrdersPage() {
         eyebrow="Nhà cung cấp & nhập hàng"
         title="Phiếu nhập kho"
         description="Tồn kho chỉ tăng khi phiếu đã duyệt được xác nhận ở trạng thái Đã nhập kho."
-        actions={<Button startIcon={<Plus size={18} />} onClick={() => setCreateOpen(true)}>Tạo phiếu nhập</Button>}
+        actions={<Button startIcon={<Plus size={18} />} onClick={openCreate}>Tạo phiếu nhập</Button>}
       />
       <div className="tw-rounded-2xl tw-border tw-border-slate-200 tw-bg-white tw-p-4 dark:tw-border-slate-700 dark:tw-bg-slate-900">
         <div className="tw-mb-4 tw-max-w-sm">
@@ -135,20 +160,20 @@ export default function PurchaseOrdersPage() {
       </div>
       <Modal
         open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        title="Tạo phiếu nhập kho"
+        onClose={() => { setCreateOpen(false); setEditingId(null); }}
+        title={editingId ? "Chỉnh sửa phiếu nhập kho" : "Tạo phiếu nhập kho"}
         maxWidth="lg"
         actions={
           <>
-            <Button variant="text" color="inherit" onClick={() => setCreateOpen(false)}>Hủy</Button>
-            <Button loading={createMutation.isPending} disabled={!valid} onClick={() => createMutation.mutate()}>Lưu phiếu · {formatMoney(total)}</Button>
+            <Button variant="text" color="inherit" onClick={() => { setCreateOpen(false); setEditingId(null); }}>Hủy</Button>
+            <Button loading={saveMutation.isPending} disabled={!valid} onClick={() => saveMutation.mutate()}>Lưu phiếu · {formatMoney(total)}</Button>
           </>
         }
       >
         <div className="tw-space-y-5 tw-pt-2">
           <div className="tw-grid tw-gap-4 sm:tw-grid-cols-2">
             <Select label="Nhà cung cấp" value={form.supplierId} onChange={(event) => setForm((current) => ({ ...current, supplierId: event.target.value }))} options={(suppliersQuery.data || []).map((item) => ({ value: item.id, label: item.name }))} />
-            <Select label="Chi nhánh nhận" value={form.branchId} onChange={(event) => setForm((current) => ({ ...current, branchId: event.target.value }))} options={(branchesQuery.data || []).map((item) => ({ value: item.id, label: item.name }))} disabled={!canSelectBranch} />
+            <Select label="Chi nhánh nhận" value={form.branchId} onChange={(event) => setForm((current) => ({ ...current, branchId: event.target.value }))} options={(branchesQuery.data || []).map((item) => ({ value: item.id, label: item.name }))} disabled={!canSelectBranch || Boolean(editingId)} />
           </div>
           <Input label="Ghi chú phiếu" value={form.note} onChange={(event) => setForm((current) => ({ ...current, note: event.target.value }))} />
           <div className="tw-flex tw-items-center tw-justify-between"><h3 className="tw-m-0 tw-text-base tw-font-black">Danh sách nguyên liệu</h3><Button variant="outlined" size="small" startIcon={<Plus size={15} />} onClick={() => setForm((current) => ({ ...current, items: [...current.items, { ...emptyLine }] }))}>Thêm dòng</Button></div>
@@ -157,7 +182,7 @@ export default function PurchaseOrdersPage() {
               <div key={index} className="tw-grid tw-gap-3 tw-rounded-2xl tw-bg-slate-50 tw-p-3 md:tw-grid-cols-3 lg:tw-grid-cols-6 dark:tw-bg-slate-800">
                 <div className="lg:tw-col-span-2"><Select label="Nguyên liệu" value={line.ingredientId} onChange={(event) => updateLine(index, "ingredientId", event.target.value)} options={(ingredientsQuery.data || []).map((item) => ({ value: item.id, label: `${item.name} (${item.unit})` }))} /></div>
                 <Input label="Số lượng" type="number" value={line.quantity} onChange={(event) => updateLine(index, "quantity", Number(event.target.value))} />
-                <Input label="Đơn giá" type="number" value={line.unitCost} onChange={(event) => updateLine(index, "unitCost", Number(event.target.value))} />
+                <MoneyInput label="Đơn giá" value={line.unitCost} onChange={(value) => updateLine(index, "unitCost", value)} />
                 <Input label="Số lô" value={line.batchNumber} onChange={(event) => updateLine(index, "batchNumber", event.target.value)} />
                 <div className="tw-flex tw-items-center tw-gap-1">
                   <Input label="Hạn sử dụng" type="date" InputLabelProps={{ shrink: true }} value={line.expiryDate} onChange={(event) => updateLine(index, "expiryDate", event.target.value)} />
@@ -173,11 +198,16 @@ export default function PurchaseOrdersPage() {
         onClose={() => setSelectedId(null)}
         title={detail ? `Phiếu ${detail.code}` : "Chi tiết phiếu nhập"}
         maxWidth="md"
-        actions={detail && transitions[detail.status].map((status) => (
-          <Button key={status} color={status === "CANCELLED" ? "error" : "primary"} variant={status === "CANCELLED" ? "outlined" : "contained"} loading={statusMutation.isPending} startIcon={status === "RECEIVED" ? <Truck size={17} /> : status === "APPROVED" ? <CheckCircle2 size={17} /> : undefined} onClick={() => statusMutation.mutate({ id: detail.id, status })}>
-            {status === "RECEIVED" ? "Xác nhận nhập kho" : statusLabels[status]}
-          </Button>
-        ))}
+        actions={detail && <>
+          {detail.status === "DRAFT" && <Button variant="outlined" startIcon={<Pencil size={17} />} onClick={() => openEdit(detail)}>Chỉnh sửa</Button>}
+          {transitions[detail.status]
+            .filter((status) => status !== "APPROVED" || ["ADMIN", "MANAGER"].includes(user.role.code))
+            .map((status) => (
+              <Button key={status} color={status === "CANCELLED" ? "error" : "primary"} variant={status === "CANCELLED" ? "outlined" : "contained"} loading={statusMutation.isPending} startIcon={status === "RECEIVED" ? <Truck size={17} /> : status === "APPROVED" ? <CheckCircle2 size={17} /> : undefined} onClick={() => statusMutation.mutate({ id: detail.id, status })}>
+                {status === "RECEIVED" ? "Xác nhận nhập kho" : statusLabels[status]}
+              </Button>
+            ))}
+        </>}
       >
         {detail && (
           <div className="tw-space-y-5">
@@ -189,6 +219,7 @@ export default function PurchaseOrdersPage() {
             <DataTable columns={[
               { key: "ingredient", label: "Nguyên liệu", render: (value) => value.name },
               { key: "batchNumber", label: "Số lô" },
+              { key: "expiryDate", label: "Hạn sử dụng", render: formatDate },
               { key: "quantity", label: "Số lượng", align: "right", render: (value, row) => `${value.toLocaleString("vi-VN")} ${row.ingredient.unit}` },
               { key: "unitCost", label: "Đơn giá", align: "right", render: formatMoney },
               { key: "lineTotal", label: "Thành tiền", align: "right", render: formatMoney },

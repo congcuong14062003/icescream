@@ -4,6 +4,7 @@ import { IconButton, Switch } from "@mui/material";
 import { Plus, Trash2 } from "lucide-react";
 import Button from "../../components/common/Button";
 import Input from "../../components/common/Input";
+import MoneyInput from "../../components/common/MoneyInput";
 import Modal from "../../components/common/Modal";
 import Select from "../../components/common/Select";
 import UploadImage from "../../components/common/UploadImage";
@@ -125,8 +126,8 @@ export default function ProductFormDialog({ open, product, categories, onClose, 
               />
             )}
           />
-          <Input label="Giá bán cơ bản" type="number" error={errors.price} {...register("price", { required: "Vui lòng nhập giá", min: { value: 0, message: "Giá không hợp lệ" } })} />
-          <Input label="Giá vốn cơ bản" type="number" error={errors.costPrice} {...register("costPrice", { required: "Vui lòng nhập giá vốn", min: 0 })} />
+          <Controller control={control} name="price" rules={{ required: "Vui lòng nhập giá", min: { value: 0, message: "Giá không hợp lệ" } }} render={({ field }) => <MoneyInput label="Giá bán cơ bản" error={errors.price} {...field} />} />
+          <Controller control={control} name="costPrice" rules={{ required: "Vui lòng nhập giá vốn", min: 0 }} render={({ field }) => <MoneyInput label="Giá vốn cơ bản" error={errors.costPrice} {...field} />} />
           <Input label="Thứ tự hiển thị" type="number" {...register("displayOrder", { min: 0 })} />
           <Controller
             control={control}
@@ -156,8 +157,8 @@ export default function ProductFormDialog({ open, product, categories, onClose, 
                 <Input label="Kích thước" value={variant.size || ""} onChange={(event) => updateVariant(index, "size", event.target.value)} />
                 <Input label="Loại ly / ốc quế" value={variant.cupType || ""} onChange={(event) => updateVariant(index, "cupType", event.target.value)} />
                 <Input label="Số viên" type="number" inputProps={{ min: 0, max: 12 }} value={variant.scoopCount} onChange={(event) => updateVariant(index, "scoopCount", event.target.value)} />
-                <Input label="Giá bán" type="number" inputProps={{ min: 0 }} value={variant.price} onChange={(event) => updateVariant(index, "price", event.target.value)} />
-                <Input label="Giá vốn" type="number" inputProps={{ min: 0 }} value={variant.costPrice} onChange={(event) => updateVariant(index, "costPrice", event.target.value)} />
+                <MoneyInput label="Giá bán" value={variant.price} onChange={(value) => updateVariant(index, "price", value)} />
+                <MoneyInput label="Giá vốn" value={variant.costPrice} onChange={(value) => updateVariant(index, "costPrice", value)} />
                 <div className="tw-flex tw-items-center tw-justify-between">
                   <label className="tw-flex tw-items-center tw-text-xs tw-font-bold">
                     <Switch size="small" checked={variant.isActive} onChange={(_, value) => updateVariant(index, "isActive", value)} />
@@ -175,4 +176,3 @@ export default function ProductFormDialog({ open, product, categories, onClose, 
     </Modal>
   );
 }
-
