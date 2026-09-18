@@ -6,6 +6,7 @@ import api, { apiMessage } from "../services/api";
 import Button from "../components/common/Button";
 import DataTable from "../components/common/DataTable";
 import Input from "../components/common/Input";
+import MoneyInput from "../components/common/MoneyInput";
 import Modal from "../components/common/Modal";
 import PageHeader from "../components/common/PageHeader";
 import Select from "../components/common/Select";
@@ -61,7 +62,7 @@ export default function ExpensesPage() {
     </div>
     <DataTable columns={columns} rows={query.data?.items || []} loading={query.isLoading} />
     <Modal open={open} onClose={() => setOpen(false)} title={editing ? "Cập nhật chi phí" : "Ghi nhận chi phí"} actions={<><Button variant="text" color="inherit" onClick={() => setOpen(false)}>Hủy</Button><Button loading={mutation.isPending} disabled={!form.branchId || Number(form.amount) <= 0} onClick={() => mutation.mutate()}>Lưu chi phí</Button></>}>
-      <div className="tw-grid tw-gap-4 tw-pt-2 sm:tw-grid-cols-2"><Select label="Chi nhánh" value={form.branchId} disabled={Boolean(editing) || !canSelectBranch} onChange={(e) => setForm((v) => ({ ...v, branchId: e.target.value }))} options={branchOptions} /><Select label="Nhóm chi phí" value={form.category} onChange={(e) => setForm((v) => ({ ...v, category: e.target.value }))} options={Object.entries(labels).map(([value, label]) => ({ value, label }))} /><Input label="Ngày phát sinh" type="date" value={form.incurredAt} onChange={(e) => setForm((v) => ({ ...v, incurredAt: e.target.value }))} InputLabelProps={{ shrink: true }} /><Input label="Số tiền" type="number" value={form.amount} onChange={(e) => setForm((v) => ({ ...v, amount: e.target.value }))} /><div className="sm:tw-col-span-2"><Input label="Nội dung (không bắt buộc)" helperText="Nếu bỏ trống, hệ thống tự ghi theo nhóm chi phí." multiline rows={4} value={form.description} onChange={(e) => setForm((v) => ({ ...v, description: e.target.value }))} /></div></div>
+      <div className="tw-grid tw-gap-4 tw-pt-2 sm:tw-grid-cols-2"><Select label="Chi nhánh" value={form.branchId} disabled={Boolean(editing) || !canSelectBranch} onChange={(e) => setForm((v) => ({ ...v, branchId: e.target.value }))} options={branchOptions} /><Select label="Nhóm chi phí" value={form.category} onChange={(e) => setForm((v) => ({ ...v, category: e.target.value }))} options={Object.entries(labels).map(([value, label]) => ({ value, label }))} /><Input label="Ngày phát sinh" type="date" value={form.incurredAt} onChange={(e) => setForm((v) => ({ ...v, incurredAt: e.target.value }))} InputLabelProps={{ shrink: true }} /><MoneyInput label="Số tiền" value={form.amount} onChange={(value) => setForm((v) => ({ ...v, amount: value }))} /><div className="sm:tw-col-span-2"><Input label="Nội dung (không bắt buộc)" helperText="Nếu bỏ trống, hệ thống tự ghi theo nhóm chi phí." multiline rows={4} value={form.description} onChange={(e) => setForm((v) => ({ ...v, description: e.target.value }))} /></div></div>
     </Modal>
   </div>;
 }

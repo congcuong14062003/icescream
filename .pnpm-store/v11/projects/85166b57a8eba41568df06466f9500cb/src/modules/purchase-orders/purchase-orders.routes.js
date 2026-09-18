@@ -115,6 +115,53 @@ router.post(
   }),
 );
 
+router.put(
+  "/:id",
+  validate(createSchema),
+  asyncHandler(async (request, response) => {
+    const branchIds = await resolveBranchIds(prisma, request.user);
+    const existing = await prisma.purchaseOrder.findFirst({
+      where: { id: request.params.id, ...branchWhere(branchIds) },
+      select: { id: true, status: true, branchId: true },
+    });
+    if (!existing) throw new ApiError(404, "Không tìm thấy phiếu nhập");
+    if (existing.status !== "DRAFT") {
+      throw new ApiError(422, "Chỉ được chỉnh sửa phiếu nhập đang lưu tạm");
+    }
+    await assertBranchAccess(
+      prisma,
+      request.user,
+      request.body.branchId,
+      "Bạn chỉ được cập nhật phiếu nhập cho kho thuộc chi nhánh mình được phân công",
+    );
+    if (request.body.branchId !== existing.branchId) {
+      throw new ApiError(422, "Không được thay đổi chi nhánh của phiếu nhập đã tạo");
+    }
+    const totalAmount = request.body.items.reduce(
+      (sum, item) => sum + Math.round(item.quantity * item.unitCost),
+      0,
+    );
+    await prisma.$transaction(async (tx) => {
+      await tx.purchaseOrderItem.deleteMany({ where: { purchaseOrderId: existing.id } });
+      await tx.purchaseOrder.update({
+        where: { id: existing.id },
+        data: {
+          supplierId: request.body.supplierId,
+          totalAmount,
+          note: request.body.note || null,
+          items: {
+            create: request.body.items.map((line) => ({
+              ...line,
+              lineTotal: Math.round(line.quantity * line.unitCost),
+            })),
+          },
+        },
+      });
+    });
+    const item = await prisma.purchaseOrder.findUnique({ where: { id: existing.id }, include });
+    return success(response, item, "Cập nhật phiếu nhập thành công");
+  }),
+);
 router.patch(
   "/:id/status",
   validate(z.object({
@@ -136,6 +183,17 @@ router.patch(
     };
     if (!transitions[existing.status].includes(request.body.status)) {
       throw new ApiError(422, `Không thể chuyển từ ${existing.status} sang ${request.body.status}`);
+    }
+    if (request.body.status === "APPROVED") {
+      if (!["ADMIN", "MANAGER"].includes(request.user.role.code)) {
+        throw new ApiError(403, "Chỉ quản lý chi nhánh hoặc quản trị viên mới được duyệt phiếu nhập");
+      }
+      await assertBranchAccess(
+        prisma,
+        request.user,
+        existing.branchId,
+        "Quản lý chỉ được duyệt phiếu nhập của chi nhánh mình quản lý",
+      );
     }
 
     await prisma.$transaction(async (tx) => {

@@ -33,6 +33,7 @@ import Button from "../components/common/Button";
 import ConfirmDialog from "../components/common/ConfirmDialog";
 import EmptyState from "../components/common/EmptyState";
 import Input from "../components/common/Input";
+import MoneyInput from "../components/common/MoneyInput";
 import LoadingSkeleton from "../components/common/LoadingSkeleton";
 import Modal from "../components/common/Modal";
 import ProductCard from "../components/common/ProductCard";
@@ -523,7 +524,7 @@ export default function PosPage() {
                 </div>
                 <div className="tw-grid tw-grid-cols-2 tw-gap-2"><Button variant={orderType === "TAKEAWAY" ? "contained" : "outlined"} onClick={() => { setOrderType("TAKEAWAY"); setTableNumber(""); }}>Mua mang về</Button><Button variant={orderType === "DINE_IN" ? "contained" : "outlined"} onClick={() => setOrderType("DINE_IN")}>Ăn tại cửa hàng</Button></div>
                 {orderType === "DINE_IN" && <Input select label="Số bàn" value={tableNumber} onChange={(e) => setTableNumber(e.target.value)} SelectProps={{ native: true }}><option value="">Chọn bàn</option>{Array.from({ length: 30 }, (_, i) => String(i + 1).padStart(2, "0")).map((n) => <option key={n} value={n}>Bàn {n}</option>)}</Input>}
-                <Input label="Phí giao hàng" type="number" value={deliveryFee} onChange={(event) => setDeliveryFee(Math.max(0, Number(event.target.value)))} />
+                <MoneyInput label="Phí giao hàng" value={deliveryFee} onChange={(value) => setDeliveryFee(Math.max(0, value))} />
                 <Input label="Ghi chú toàn đơn" multiline rows={2} value={orderNote} onChange={(event) => setOrderNote(event.target.value)} />
               </div>
             </AccordionDetails>
@@ -646,7 +647,7 @@ export default function PosPage() {
           </div>
           {paymentMethod === "CASH" && cart.length > 0 && (
             <div className="tw-mb-3 tw-grid tw-grid-cols-2 tw-gap-2">
-              <Input label="Tiền khách đưa" type="number" value={customerPaid} onChange={(event) => { setCustomerPaidEdited(true); setCustomerPaid(Math.max(0, Number(event.target.value))); }} />
+              <MoneyInput label="Tiền khách đưa" value={customerPaid} onChange={(value) => { setCustomerPaidEdited(true); setCustomerPaid(Math.max(0, value)); }} />
               <div className="tw-rounded-xl tw-border tw-border-slate-200 tw-bg-slate-50 tw-p-2 dark:tw-border-slate-700 dark:tw-bg-slate-800">
                 <div className="tw-text-[11px] tw-text-slate-400">Tiền thừa</div>
                 <strong className="tw-text-sm">{formatMoney(change)}</strong>

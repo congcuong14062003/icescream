@@ -1,6 +1,7 @@
 import { readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
 async function listJavaScriptFiles(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -15,8 +16,8 @@ async function listJavaScriptFiles(directory) {
 }
 
 const files = [
-  ...(await listJavaScriptFiles(new URL("../src", import.meta.url).pathname.slice(1))),
-  ...(await listJavaScriptFiles(new URL("../prisma", import.meta.url).pathname.slice(1))),
+  ...(await listJavaScriptFiles(fileURLToPath(new URL("../src", import.meta.url)))),
+  ...(await listJavaScriptFiles(fileURLToPath(new URL("../prisma", import.meta.url)))),
 ];
 
 for (const file of files) {
@@ -25,4 +26,6 @@ for (const file of files) {
 }
 
 console.log(`Đã kiểm tra cú pháp ${files.length} tệp JavaScript.`);
+
+
 

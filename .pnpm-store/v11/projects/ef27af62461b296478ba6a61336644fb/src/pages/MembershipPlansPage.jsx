@@ -14,6 +14,7 @@ import api, { apiMessage } from "../services/api";
 import Button from "../components/common/Button";
 import DataTable from "../components/common/DataTable";
 import Input from "../components/common/Input";
+import MoneyInput from "../components/common/MoneyInput";
 import Modal from "../components/common/Modal";
 import PageHeader from "../components/common/PageHeader";
 import StatusBadge from "../components/common/StatusBadge";
@@ -91,15 +92,11 @@ function PlanDialog({ open, plan, products, loading, onClose, onSubmit }) {
           error={errors.name}
           {...register("name", { required: "Vui lòng nhập tên gói" })}
         />
-        <Input
-          label="Phí đăng ký (VNĐ)"
-          type="number"
-          inputProps={{ min: 0 }}
-          error={errors.price}
-          {...register("price", {
-            required: "Vui lòng nhập mức phí",
-            min: { value: 0, message: "Mức phí không hợp lệ" },
-          })}
+        <Controller
+          name="price"
+          control={control}
+          rules={{ required: "Vui lòng nhập mức phí", min: { value: 0, message: "Mức phí không hợp lệ" } }}
+          render={({ field }) => <MoneyInput label="Phí đăng ký (VNĐ)" error={errors.price} {...field} />}
         />
         <Input
           label="Thời hạn (ngày)"

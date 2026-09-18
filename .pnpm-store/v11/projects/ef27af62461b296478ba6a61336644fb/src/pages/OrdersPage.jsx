@@ -9,6 +9,7 @@ import Button from "../components/common/Button";
 import DataTable from "../components/common/DataTable";
 import EmptyState from "../components/common/EmptyState";
 import Input from "../components/common/Input";
+import MoneyInput from "../components/common/MoneyInput";
 import LoadingSkeleton from "../components/common/LoadingSkeleton";
 import Modal from "../components/common/Modal";
 import PageHeader from "../components/common/PageHeader";
@@ -291,7 +292,7 @@ export default function OrdersPage() {
       >
         <div className="tw-space-y-4 tw-pt-2">
           <div className="tw-rounded-2xl tw-bg-mint-50 tw-p-4 tw-text-sm dark:tw-bg-mint-900/20">Còn phải thanh toán: <strong className="tw-text-lg tw-text-mint-700">{formatMoney(paymentRemaining)}</strong></div>
-          <Input label="Số tiền thanh toán" type="number" value={paymentForm.amount} onChange={(event) => setPaymentForm((current) => ({ ...current, amount: Math.min(paymentRemaining, Math.max(0, Number(event.target.value))) }))} />
+          <MoneyInput label="Số tiền thanh toán" value={paymentForm.amount} onChange={(value) => setPaymentForm((current) => ({ ...current, amount: Math.min(paymentRemaining, Math.max(0, value)) }))} />
           <Select label="Phương thức thanh toán" value={paymentForm.method} onChange={(event) => setPaymentForm((current) => ({ ...current, method: event.target.value }))} options={Object.entries(paymentMethodLabels).filter(([value]) => value !== "MIXED").map(([value, label]) => ({ value, label }))} />
           <Input label="Mã tham chiếu (nếu có)" value={paymentForm.referenceCode} onChange={(event) => setPaymentForm((current) => ({ ...current, referenceCode: event.target.value }))} />
         </div>
@@ -309,7 +310,7 @@ export default function OrdersPage() {
         }
       >
         <div className="tw-space-y-4 tw-pt-2">
-          <Input label={`Số tiền hoàn (tối đa ${formatMoney(refundable)})`} type="number" value={refundForm.amount} onChange={(event) => setRefundForm((current) => ({ ...current, amount: Math.min(refundable, Math.max(0, Number(event.target.value))) }))} />
+          <MoneyInput label={`Số tiền hoàn (tối đa ${formatMoney(refundable)})`} value={refundForm.amount} onChange={(value) => setRefundForm((current) => ({ ...current, amount: Math.min(refundable, Math.max(0, value)) }))} />
           <Select label="Phương thức hoàn" value={refundForm.method} onChange={(event) => setRefundForm((current) => ({ ...current, method: event.target.value }))} options={Object.entries(paymentMethodLabels).filter(([value]) => value !== "MIXED").map(([value, label]) => ({ value, label }))} />
           <Input label="Lý do hoàn tiền" multiline rows={3} value={refundForm.reason} onChange={(event) => setRefundForm((current) => ({ ...current, reason: event.target.value }))} />
         </div>

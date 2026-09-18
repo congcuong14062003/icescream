@@ -7,6 +7,7 @@ import Button from "../components/common/Button";
 import DataTable from "../components/common/DataTable";
 import EmptyState from "../components/common/EmptyState";
 import Input from "../components/common/Input";
+import MoneyInput from "../components/common/MoneyInput";
 import Modal from "../components/common/Modal";
 import PageHeader from "../components/common/PageHeader";
 import StatusBadge from "../components/common/StatusBadge";
@@ -116,7 +117,7 @@ export default function ShiftsPage() {
             description={`Mở ca tại ${user.branch?.name || "chi nhánh được gán"} để bắt đầu bán hàng.`}
             action={
               <div className="tw-mt-2 tw-w-full tw-max-w-sm tw-space-y-3">
-                <Input label="Tiền đầu ca" type="number" value={openingCash} onChange={(event) => setOpeningCash(Math.max(0, Number(event.target.value)))} />
+                <MoneyInput label="Tiền đầu ca" value={openingCash} onChange={(value) => setOpeningCash(Math.max(0, value))} />
                 <Input label="Ghi chú" value={openNote} onChange={(event) => setOpenNote(event.target.value)} />
                 <Button fullWidth loading={openMutation.isPending} onClick={() => openMutation.mutate()}>Mở ca ngay</Button>
               </div>
@@ -140,7 +141,7 @@ export default function ShiftsPage() {
         }
       >
         <div className="tw-space-y-4 tw-pt-2">
-          <Input label="Số tiền" type="number" value={expense.amount} onChange={(event) => setExpense((currentValue) => ({ ...currentValue, amount: Number(event.target.value) }))} />
+          <MoneyInput label="Số tiền" value={expense.amount} onChange={(value) => setExpense((currentValue) => ({ ...currentValue, amount: value }))} />
           <Input label="Nội dung chi" multiline rows={3} value={expense.description} onChange={(event) => setExpense((currentValue) => ({ ...currentValue, description: event.target.value }))} />
         </div>
       </Modal>
@@ -183,7 +184,7 @@ export default function ShiftsPage() {
           <div className="tw-rounded-2xl tw-bg-slate-50 tw-p-4 tw-text-sm dark:tw-bg-slate-800">
             Tiền mặt dự kiến: <strong>{formatMoney(expectedCash)}</strong>
           </div>
-          <Input label="Tiền mặt kiểm đếm thực tế" type="number" value={countedCash} onChange={(event) => setCountedCash(Math.max(0, Number(event.target.value)))} />
+          <MoneyInput label="Tiền mặt kiểm đếm thực tế" value={countedCash} onChange={(value) => setCountedCash(Math.max(0, value))} />
           <div className="tw-text-sm">Chênh lệch: <strong className={countedCash - expectedCash === 0 ? "tw-text-emerald-600" : "tw-text-rose-500"}>{formatMoney(countedCash - expectedCash)}</strong></div>
         </div>
       </Modal>

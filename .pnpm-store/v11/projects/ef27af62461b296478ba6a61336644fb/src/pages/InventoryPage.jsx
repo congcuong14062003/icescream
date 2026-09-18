@@ -17,6 +17,7 @@ import api, { apiMessage } from "../services/api";
 import Button from "../components/common/Button";
 import DataTable from "../components/common/DataTable";
 import Input from "../components/common/Input";
+import MoneyInput from "../components/common/MoneyInput";
 import Modal from "../components/common/Modal";
 import PageHeader from "../components/common/PageHeader";
 import Select from "../components/common/Select";
@@ -660,8 +661,8 @@ export default function InventoryPage() {
           <Input label="Tên nguyên liệu" value={ingredientForm.name} onChange={(event) => setIngredientForm((current) => ({ ...current, name: event.target.value }))} />
           <Select label="Đơn vị" value={ingredientForm.unit} onChange={(event) => setIngredientForm((current) => ({ ...current, unit: event.target.value }))} options={["g", "kg", "ml", "lít", "cái", "hộp", "gói"].map((value) => ({ value, label: value }))} />
           <Input label="Tồn tối thiểu" type="number" value={ingredientForm.minStock} onChange={(event) => setIngredientForm((current) => ({ ...current, minStock: event.target.value }))} />
-          <Input label="Giá nhập gần nhất" type="number" value={ingredientForm.lastCost} onChange={(event) => setIngredientForm((current) => ({ ...current, lastCost: event.target.value }))} />
-          <Input label="Giá vốn trung bình" type="number" value={ingredientForm.averageCost} onChange={(event) => setIngredientForm((current) => ({ ...current, averageCost: event.target.value }))} />
+          <MoneyInput label="Giá nhập gần nhất" value={ingredientForm.lastCost} onChange={(value) => setIngredientForm((current) => ({ ...current, lastCost: value }))} />
+          <MoneyInput label="Giá vốn trung bình" value={ingredientForm.averageCost} onChange={(value) => setIngredientForm((current) => ({ ...current, averageCost: value }))} />
           <div className="sm:tw-col-span-2"><Input label="Vị trí trong kho" value={ingredientForm.warehouseLocation} onChange={(event) => setIngredientForm((current) => ({ ...current, warehouseLocation: event.target.value }))} /></div>
         </div>
       </Modal>
