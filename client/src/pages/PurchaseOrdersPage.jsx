@@ -216,6 +216,12 @@ export default function PurchaseOrdersPage() {
               <div className="tw-rounded-2xl tw-bg-slate-50 tw-p-3 dark:tw-bg-slate-800"><span className="tw-text-xs tw-text-slate-400">Chi nhánh</span><strong className="tw-mt-1 tw-block">{detail.branch.name}</strong></div>
               <div className="tw-rounded-2xl tw-bg-slate-50 tw-p-3 dark:tw-bg-slate-800"><span className="tw-text-xs tw-text-slate-400">Trạng thái</span><div className="tw-mt-1"><StatusBadge status={detail.status} label={statusLabels[detail.status]} /></div></div>
             </div>
+            <div className="tw-rounded-2xl tw-bg-slate-50 tw-p-3 dark:tw-bg-slate-800">
+              <span className="tw-text-xs tw-text-slate-400">Ghi chú phiếu</span>
+              <p className="tw-mb-0 tw-mt-1 tw-whitespace-pre-wrap tw-text-sm tw-font-semibold">
+                {detail.note || "Không có ghi chú"}
+              </p>
+            </div>
             <DataTable columns={[
               { key: "ingredient", label: "Nguyên liệu", render: (value) => value.name },
               { key: "batchNumber", label: "Số lô" },
