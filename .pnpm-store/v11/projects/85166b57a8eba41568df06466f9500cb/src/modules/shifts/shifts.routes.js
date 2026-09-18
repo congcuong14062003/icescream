@@ -7,6 +7,7 @@ import { ApiError } from "../../utils/api-error.js";
 import { asyncHandler } from "../../utils/async-handler.js";
 import { createBusinessCode } from "../../utils/code.js";
 import { created, success } from "../../utils/response.js";
+import { branchWhere, resolveBranchIds } from "../../services/branch-access.service.js";
 
 const router = Router();
 router.use(authenticate, requirePermission("shifts.manage"));
@@ -45,10 +46,14 @@ router.get(
 router.get(
   "/",
   asyncHandler(async (request, response) => {
+    const branchIds = await resolveBranchIds(
+      prisma,
+      request.user,
+      request.query.branchId || null,
+    );
     const where = {
-      ...(request.query.branchId ? { branchId: request.query.branchId } : {}),
+      ...branchWhere(branchIds),
       ...(request.query.status ? { status: request.query.status } : {}),
-      ...(!["ADMIN", "MANAGER"].includes(request.user.role.code) ? { userId: request.user.id } : {}),
     };
     const shifts = await prisma.workShift.findMany({
       where,
@@ -159,4 +164,3 @@ router.post(
 );
 
 export default router;
-
